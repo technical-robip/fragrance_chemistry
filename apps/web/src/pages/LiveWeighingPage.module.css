@@ -1,0 +1,43 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.display {
+  display: grid;
+  gap: 0.35rem;
+  padding: 2rem;
+  text-align: center;
+  max-width: 420px;
+}
+
+.state {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fc-paper-muted);
+}
+
+.value {
+  font-family: var(--fc-font-display);
+  font-size: 3rem;
+  color: var(--fc-amber-300);
+  line-height: 1.1;
+}
+
+.unit {
+  color: var(--fc-teal-300);
+  font-weight: 600;
+}
+
+.stable {
+  color: var(--fc-teal-300);
+  font-size: 0.85rem;
+}
+
+.unstable {
+  color: var(--fc-amber-300);
+  font-size: 0.85rem;
+}

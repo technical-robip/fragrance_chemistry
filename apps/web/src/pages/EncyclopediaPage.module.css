@@ -1,0 +1,50 @@
+.search {
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+
+.row {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.row input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.entry,
+.brief {
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.entry h2,
+.brief h2 {
+  color: var(--fc-teal-300);
+  margin-bottom: 0.25rem;
+}
+
+.descriptor {
+  color: var(--fc-amber-300);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.entry h3,
+.brief h3 {
+  font-size: 1rem;
+  color: var(--fc-amber-300);
+  margin-top: 1rem;
+}
+
+.entry p,
+.brief p {
+  margin: 0.35rem 0 0;
+  color: var(--fc-paper);
+}
+
+.brief {
+  border-color: rgba(232, 184, 109, 0.28);
+}

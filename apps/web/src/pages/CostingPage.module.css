@@ -1,0 +1,41 @@
+.panel {
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--fc-teal-400);
+}
+
+.summary {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.5rem;
+}
+
+.summary dt {
+  color: var(--fc-paper-muted);
+  font-size: 0.9rem;
+}
+
+.summary dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.highlight {
+  color: var(--fc-amber-300);
+  font-family: var(--fc-font-display);
+  font-size: 1.15rem;
+}

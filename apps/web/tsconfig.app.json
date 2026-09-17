@@ -1,0 +1,12 @@
+{
+  "extends": "@fc/tsconfig/react.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["vite/client", "vite-plugin-pwa/client"]
+  },
+  "include": ["src"]
+}

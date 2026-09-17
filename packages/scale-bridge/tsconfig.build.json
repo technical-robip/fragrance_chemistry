@@ -1,0 +1,14 @@
+{
+  "extends": "@fc/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "rootDir": "src",
+    "outDir": "dist",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false
+  },
+  "include": ["src/**/*.ts"]
+}

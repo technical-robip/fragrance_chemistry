@@ -1,0 +1,48 @@
+.virtual {
+  max-height: min(70vh, 640px);
+  display: flex;
+  flex-direction: column;
+}
+
+.headerRow {
+  display: grid;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--fc-ink-700);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.headerCell {
+  padding: 0.55rem 0.75rem;
+  font-weight: 600;
+  color: var(--fc-amber-300);
+  font-size: 0.92rem;
+}
+
+.body {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: grid;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.92rem;
+}
+
+.row:hover {
+  background: rgba(61, 175, 163, 0.06);
+}
+
+.cell {
+  padding: 0.45rem 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

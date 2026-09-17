@@ -1,0 +1,51 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+**/secrets/
+infra/redis/redis.conf.snippet
+
+# Cursor / local plans
+.cursor/plans/
+.cursor/
+
+# Dependencies & builds
+node_modules/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+.vite/
+coverage/
+.cache/
+
+# Logs & OS
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+
+# IDE / local
+*.local
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Capacitor / mobile
+apps/web/ios/
+apps/web/android/
+apps/web/.capacitor/
+
+# Test & IFRA import data (local only)
+data/ifra/
+*.xlsx
+!docs/**/*.md
+
+# Misc
+*.pem
+*.key
+.vercel
+.wrangler
+.env.bootstrap

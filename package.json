@@ -1,0 +1,34 @@
+{
+  "name": "fragrance-chemistry",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Unified olfactory formulation, encyclopedia, and supply-chain platform",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "db:bootstrap": "bash infra/db/bootstrap.sh",
+    "redis:bootstrap": "bash infra/redis/bootstrap.sh",
+    "db:migrate": "pnpm --filter @fc/api db:migrate",
+    "db:seed": "pnpm --filter @fc/api db:seed",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md,css}": [
+      "prettier --write"
+    ]
+  }
+}

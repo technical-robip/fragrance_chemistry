@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.gridWrap {
+  margin-bottom: 1rem;
+}
+
+.cellInput {
+  width: 100%;
+  min-width: 5rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(154, 168, 178, 0.2);
+  background: var(--fc-ink-950);
+  color: var(--fc-paper);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ok {
+  color: var(--fc-teal-300);
+  font-weight: 600;
+}
+
+.warn {
+  color: var(--fc-amber-300);
+  font-weight: 600;
+}
+
+.saveBadge {
+  font-size: 0.82rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(61, 175, 163, 0.12);
+  color: var(--fc-teal-300);
+  border: 1px solid rgba(61, 175, 163, 0.25);
+}

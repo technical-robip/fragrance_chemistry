@@ -1,0 +1,25 @@
+.tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin: 1rem 0;
+}
+
+.tab {
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--fc-radius-sm);
+  border: 1px solid rgba(61, 175, 163, 0.25);
+  background: transparent;
+  color: var(--fc-paper-muted);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tabActive {
+  background: rgba(61, 175, 163, 0.15);
+  color: var(--fc-teal-300);
+  border-color: var(--fc-teal-400);
+}
+
+.table {
+  margin-top: 0.5rem;
+}

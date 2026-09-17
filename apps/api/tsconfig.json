@@ -1,0 +1,10 @@
+{
+  "extends": "@fc/tsconfig/nestjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*", "drizzle.config.ts"]
+}
