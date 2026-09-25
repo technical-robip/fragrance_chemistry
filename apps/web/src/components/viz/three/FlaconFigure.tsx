@@ -181,7 +181,10 @@ export function FlaconFigure({ view = 'packaged', label, onUnavailable }: Props)
           cancelAnimationFrame(raf);
           resizeObserver.disconnect();
           built.geometries.forEach((geometry) => geometry.dispose());
-          built.materials.forEach((material) => material.dispose());
+          built.materials.forEach((material) => {
+            if ('map' in material && material.map) material.map.dispose();
+            material.dispose();
+          });
           environment.texture.dispose();
           renderer.dispose();
           renderer.domElement.remove();

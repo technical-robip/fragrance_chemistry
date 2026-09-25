@@ -187,7 +187,10 @@ export function WeighScaleFigure({ panGrams, targetGrams, label, onReady, onUnav
           scale.geometries.forEach((g) => g.dispose());
           scale.materials.forEach((m) => m.dispose());
           flacon.geometries.forEach((g) => g.dispose());
-          flacon.materials.forEach((m) => m.dispose());
+          flacon.materials.forEach((material) => {
+            if ('map' in material && material.map) material.map.dispose();
+            material.dispose();
+          });
           environment.texture.dispose();
           renderer.dispose();
           renderer.domElement.remove();

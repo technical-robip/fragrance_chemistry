@@ -1,6 +1,6 @@
 import {
-  BoxGeometry,
   BufferGeometry,
+  CanvasTexture,
   Color,
   ExtrudeGeometry,
   Group,
@@ -8,7 +8,9 @@ import {
   Mesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  PlaneGeometry,
   Shape,
+  SRGBColorSpace,
   Vector2,
   type Material,
 } from 'three';
@@ -145,6 +147,10 @@ export type CostView = 'concentrate' | 'packaged';
 
 export type FlaconModel = {
   root: Group;
+  /** Bottle assembly that lifts off the bench in the concentrate view. */
+  vessel: Group;
+  /** Lab flask that seats when the bottle has left. */
+  flask: Group;
   /** Pivot nodes the costing view drives, keyed by part. */
   tiers: Record<FlaconTier, Group>;
   materials: Material[];
@@ -153,11 +159,89 @@ export type FlaconModel = {
 
 /** Neat-oil fill as a fraction of the bottled juice volume (EDP ~20%). */
 export const CONCENTRATE_FILL = 0.2;
-/** How far the closure lifts when the bottle is still concentrate, in body widths. */
-export const CAP_LIFT = 0.32;
+/** How far the bottle rises off the bench on the way to concentrate, in body widths. */
+const BOTTLE_LIFT = 2.6;
+/** How far the bottle shifts back while it clears the bench. */
+const BOTTLE_BACK = 0.28;
+/** How far the flask sits below the bench before it arrives. */
+const FLASK_DROP = 1.2;
+
+function smoothWindow(edge0: number, edge1: number, x: number): number {
+  const span = edge1 - edge0;
+  const t = Math.min(1, Math.max(0, (x - edge0) / span));
+  return t * t * (3 - 2 * t);
+}
+
+/** Conical flask: flat foot, wide base, narrow neck, small lip. */
+function erlenmeyerProfile(): Vector2[] {
+  return [
+    new Vector2(0, 0),
+    new Vector2(0.4, 0),
+    new Vector2(0.48, 0.05),
+    new Vector2(0.54, 0.16),
+    new Vector2(0.5, 0.4),
+    new Vector2(0.26, 0.78),
+    new Vector2(0.12, 0.94),
+    new Vector2(0.12, 1.08),
+    new Vector2(0.16, 1.12),
+    new Vector2(0.16, 1.15),
+    new Vector2(0, 1.15),
+  ];
+}
+
+function erlenmeyerJuiceProfile(): Vector2[] {
+  return [
+    new Vector2(0, 0.02),
+    new Vector2(0.42, 0.04),
+    new Vector2(0.46, 0.28),
+    new Vector2(0, 0.28),
+  ];
+}
 
 const JUICE_CONCENTRATE = new Color(0x7a5424);
-const JUICE_PACKAGED = new Color(0xc9923e);
+/** How far the closure lifts as the bottle leaves the bench, in body widths. */
+export const CAP_LIFT = 0.32;
+
+/** Dark plaque, two tracked lines — same wordmark as the dashboard vessel sticker. */
+function brandLabelTexture(): CanvasTexture | null {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.fillStyle = '#1a1e22';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#f4f1ea';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '600 96px "Avenir Next", "Segoe UI", Helvetica, sans-serif';
+  drawTracked(ctx, 'FRAGRANCE', canvas.width / 2, 190, 22);
+  drawTracked(ctx, 'CHEMISTRY', canvas.width / 2, 330, 22);
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function drawTracked(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  centerX: number,
+  y: number,
+  tracking: number,
+) {
+  const widths = [...text].map((ch) => ctx.measureText(ch).width);
+  const total = widths.reduce((sum, w) => sum + w, 0) + tracking * (text.length - 1);
+  let x = centerX - total / 2;
+  for (let i = 0; i < text.length; i += 1) {
+    ctx.fillText(text[i], x + widths[i] / 2, y);
+    x += widths[i] + tracking;
+  }
+}
 
 /**
  * Builds the model. Colours come from the committed palette rather than from the
@@ -200,10 +284,12 @@ export function createFlaconModel(): FlaconModel {
     roughness: 0.6,
   });
 
+  const labelMap = brandLabelTexture();
   const labelMaterial = new MeshStandardMaterial({
-    color: 0xd8d3c8,
+    color: labelMap ? 0xffffff : 0x1a1e22,
+    map: labelMap,
     metalness: 0,
-    roughness: 0.88,
+    roughness: 0.82,
   });
 
   const bodyGeometry = extrudedProfile(BODY_WIDTH, BODY_DEPTH, CORNER_FILLET, BODY_HEIGHT);
@@ -221,7 +307,7 @@ export function createFlaconModel(): FlaconModel {
   );
   const collarGeometry = new LatheGeometry(collarProfile(), RADIAL_SEGMENTS);
   const capGeometry = new LatheGeometry(capProfile(), RADIAL_SEGMENTS);
-  const labelGeometry = new BoxGeometry(0.4, 0.17, 0.004);
+  const labelGeometry = new PlaneGeometry(0.62, 0.32);
 
   const root = new Group();
   root.name = 'packaged-unit';
@@ -244,7 +330,17 @@ export function createFlaconModel(): FlaconModel {
   shoulderMesh.position.y = BODY_HEIGHT;
   const labelMesh = new Mesh(labelGeometry, labelMaterial);
   labelMesh.name = 'label';
-  labelMesh.position.set(0, 0.35, BODY_DEPTH / 2 + 0.002);
+  // Plane faces +Z, flush on the front face so it does not poke past the silhouette.
+  labelMesh.position.set(0, 0.62, BODY_DEPTH / 2 + 0.002);
+  labelMesh.renderOrder = 2;
+  // The glass transmission pass rebakes opaque meshes and refracts them. That
+  // second copy reads as a faded label sticking out of the bottle. Skip writing
+  // the sticker into any offscreen target; the main pass (target === null) keeps it.
+  labelMesh.onBeforeRender = (renderer) => {
+    const onCanvas = renderer.getRenderTarget() === null;
+    labelMaterial.colorWrite = onCanvas;
+    labelMaterial.depthWrite = onCanvas;
+  };
   juiceTier.add(bodyMesh, shoulderMesh, labelMesh);
 
   // Tier 3: the packaged unit, the closure hardware.
@@ -258,15 +354,51 @@ export function createFlaconModel(): FlaconModel {
   capMesh.position.y = COLLAR_TOP;
   packaged.add(collarMesh, capMesh);
 
-  root.add(concentrate, juiceTier, packaged);
+  const vessel = new Group();
+  vessel.name = 'vessel';
+  vessel.add(concentrate, juiceTier, packaged);
+
+  const flaskGlass = glass.clone();
+  const flaskJuiceMat = new MeshPhysicalMaterial({
+    color: JUICE_CONCENTRATE,
+    metalness: 0,
+    roughness: 0.04,
+    transmission: 0.55,
+    ior: 1.45,
+    thickness: 0.2,
+    transparent: true,
+  });
+  const flaskGeo = new LatheGeometry(erlenmeyerProfile(), RADIAL_SEGMENTS);
+  const flaskJuiceGeo = new LatheGeometry(erlenmeyerJuiceProfile(), RADIAL_SEGMENTS);
+  const flask = new Group();
+  flask.name = 'erlenmeyer';
+  const flaskBody = new Mesh(flaskGeo, flaskGlass);
+  flaskBody.name = 'flask-body';
+  const flaskJuice = new Mesh(flaskJuiceGeo, flaskJuiceMat);
+  flaskJuice.name = 'flask-juice';
+  flask.add(flaskBody, flaskJuice);
+  flask.position.y = -FLASK_DROP;
+  flask.visible = false;
+
+  root.add(vessel, flask);
 
   // Centre the assembly on its own bounding height so the figure sits in frame.
   root.position.y = -(COLLAR_TOP + CAP_HEIGHT) / 2;
 
   return {
     root,
+    vessel,
+    flask,
     tiers: { concentrate, juice: juiceTier, packaged },
-    materials: [glass, juiceMaterial, collarMaterial, capMaterial, labelMaterial],
+    materials: [
+      glass,
+      juiceMaterial,
+      collarMaterial,
+      capMaterial,
+      labelMaterial,
+      flaskGlass,
+      flaskJuiceMat,
+    ],
     geometries: [
       bodyGeometry,
       juiceGeometry,
@@ -274,27 +406,33 @@ export function createFlaconModel(): FlaconModel {
       collarGeometry,
       capGeometry,
       labelGeometry,
+      flaskGeo,
+      flaskJuiceGeo,
     ],
   };
 }
 
 /**
- * Pose the flacon for a costing view. `packaged` is 0 for concentrate (open
- * bottle, a slug of neat oil) and 1 for the assembled SKU (cap seated, full fill).
- * The glass body never leaves its socket; this is filling and capping, not an explode.
+ * Pose the costing plate. `packaged` is 1 for the seated SKU and 0 for the
+ * concentrate flask. The bottle clears the bench first; the Erlenmeyer seats
+ * in the second half of the same curve, and the reverse plays it backwards.
  */
 export function applyCostView(model: FlaconModel, packaged: number): void {
   const t = Math.min(1, Math.max(0, packaged));
-  const juice = model.tiers.concentrate.getObjectByName('juice');
-  if (juice) {
-    juice.scale.y = CONCENTRATE_FILL + (1 - CONCENTRATE_FILL) * t;
-    const material = (juice as Mesh).material;
-    if (material instanceof MeshPhysicalMaterial) {
-      material.color.lerpColors(JUICE_CONCENTRATE, JUICE_PACKAGED, t);
-    }
-  }
+  const towardConcentrate = 1 - t;
+  const bottleLift = smoothWindow(0, 0.62, towardConcentrate);
+  const flaskRise = smoothWindow(0.38, 1, towardConcentrate);
+
+  model.vessel.position.y = BOTTLE_LIFT * bottleLift;
+  model.vessel.position.z = -BOTTLE_BACK * bottleLift;
   model.tiers.juice.position.y = 0;
-  model.tiers.packaged.position.y = CAP_LIFT * (1 - t);
+  model.tiers.packaged.position.y = CAP_LIFT * bottleLift;
+
+  const juice = model.tiers.concentrate.getObjectByName('juice');
+  if (juice) juice.scale.y = 1;
+
+  model.flask.position.y = -FLASK_DROP * (1 - flaskRise);
+  model.flask.visible = flaskRise > 0.02;
 }
 
 /**
