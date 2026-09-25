@@ -18,11 +18,18 @@ export function isLowStock(item: InventoryLike): boolean {
   return Number(item.quantityGrams) <= min;
 }
 
-export function isExpiringSoon(item: InventoryLike, withinDays = 60): boolean {
+export function isExpired(item: InventoryLike, now = Date.now()): boolean {
   if (!item.expiresAt) return false;
   const expires = new Date(item.expiresAt).getTime();
   if (Number.isNaN(expires)) return false;
-  const limit = Date.now() + withinDays * 24 * 60 * 60 * 1000;
+  return expires < now;
+}
+
+export function isExpiringSoon(item: InventoryLike, withinDays = 60, now = Date.now()): boolean {
+  if (!item.expiresAt || isExpired(item, now)) return false;
+  const expires = new Date(item.expiresAt).getTime();
+  if (Number.isNaN(expires)) return false;
+  const limit = now + withinDays * 24 * 60 * 60 * 1000;
   return expires <= limit;
 }
 
@@ -34,7 +41,17 @@ export function filterInventory<T extends InventoryLike & { kind?: string | null
   if (filter === 'low') return items.filter(isLowStock);
   if (filter === 'material') return items.filter((i) => (i.kind ?? 'material') === 'material');
   if (filter === 'consumable') return items.filter((i) => i.kind === 'consumable');
-  return items.filter((i) => isExpiringSoon(i));
+  return items.filter((i) => isExpired(i) || isExpiringSoon(i));
+}
+
+export const INVENTORY_PAGE_SIZE = 25;
+
+export function paginateInventory<T>(items: T[], page: number, pageSize = INVENTORY_PAGE_SIZE) {
+  const total = items.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize) || 1);
+  const safe = Math.min(Math.max(1, page), pages);
+  const start = (safe - 1) * pageSize;
+  return { page: safe, pages, total, items: items.slice(start, start + pageSize) };
 }
 
 export function searchInventory<T extends InventorySearchable>(items: T[], query: string): T[] {

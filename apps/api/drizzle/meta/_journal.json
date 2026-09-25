@@ -71,6 +71,13 @@
       "when": 1736467200000,
       "tag": "0009_evaluation_line_marks",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1736553600000,
+      "tag": "0010_inventory_events",
+      "breakpoints": true
     }
   ]
 }

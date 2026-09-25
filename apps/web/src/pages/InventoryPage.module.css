@@ -89,13 +89,21 @@
 
 .addGrid input,
 .addGrid select {
+  height: var(--fc-touch-min);
   min-height: var(--fc-touch-min);
+  box-sizing: border-box;
   padding: 0.45rem 0.6rem;
   border-radius: var(--fc-radius-sm);
   border: 1px solid var(--fc-input-border);
   background: var(--fc-input-bg);
   color: var(--fc-text);
   font: inherit;
+}
+
+.addGrid input.control,
+.addGrid input[type='date'] {
+  height: var(--fc-touch-min);
+  min-height: var(--fc-touch-min);
 }
 
 .addActions {
@@ -155,9 +163,58 @@
   color: var(--fc-warn-soft);
 }
 
-.badgeExp {
-  background: color-mix(in srgb, var(--fc-accent) 18%, transparent);
+.lightOk,
+.lightSoon,
+.lightExpired {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lightOk::before,
+.lightSoon::before,
+.lightExpired::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.lightOk {
   color: var(--fc-accent-soft);
+}
+
+.lightSoon {
+  color: var(--fc-warn-soft);
+}
+
+.lightExpired {
+  color: var(--fc-danger);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.history {
+  margin-top: 0.75rem;
+}
+
+.historyList {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--fc-text-muted);
+  font-size: 0.85rem;
 }
 
 .rowActions {

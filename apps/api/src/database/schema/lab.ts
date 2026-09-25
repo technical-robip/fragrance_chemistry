@@ -100,6 +100,17 @@ export const inventoryItems = labSchema.table(
   }),
 );
 
+export const inventoryEvents = labSchema.table('inventory_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  ownerId: uuid('owner_id').notNull(),
+  itemId: uuid('item_id').notNull(),
+  actorId: uuid('actor_id').notNull(),
+  action: text('action').notNull(),
+  before: jsonb('before'),
+  after: jsonb('after'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const evaluations = labSchema.table('evaluations', {
   id: uuid('id').primaryKey().defaultRandom(),
   ownerId: uuid('owner_id').notNull(),

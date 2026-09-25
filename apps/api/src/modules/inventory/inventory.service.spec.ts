@@ -52,6 +52,7 @@ describe('InventoryService', () => {
           }),
         }),
       }),
+      insert: vi.fn().mockReturnValue({ values: async () => undefined }),
     };
     const svc = new InventoryService(
       { client: () => client } as any,
@@ -62,6 +63,7 @@ describe('InventoryService', () => {
     const row = await svc.adjust(user, 'i1', { deltaGrams: -10 });
     expect(row.quantityGrams).toBe('5');
     expect(row.materialName).toBe('Linalool');
+    expect(client.insert).toHaveBeenCalled();
   });
 
   it('throws when inventory item missing', async () => {
@@ -137,6 +139,7 @@ describe('InventoryService', () => {
           };
         },
       }),
+      insert: vi.fn().mockReturnValue({ values: async () => undefined }),
     };
     const svc = new InventoryService(
       { client: () => client } as any,
@@ -203,6 +206,7 @@ describe('InventoryService', () => {
           };
         },
       }),
+      insert: vi.fn().mockReturnValue({ values: async () => undefined }),
     };
     const svc = new InventoryService(
       { client: () => client } as any,
@@ -213,5 +217,24 @@ describe('InventoryService', () => {
     const row = await svc.patch(user, 'i1', { minQuantityGrams: 8 });
     expect(row.minQuantityGrams).toBe('8');
     expect(row.slug).toBe('linalool');
+  });
+
+  it('refuses another owner the event log', async () => {
+    const client = {
+      select: vi.fn().mockReturnValue({
+        from: () => ({
+          where: () => ({
+            limit: async () => [],
+          }),
+        }),
+      }),
+    };
+    const svc = new InventoryService(
+      { client: () => client } as any,
+      { assertQuota: vi.fn(async () => undefined) } as any,
+    );
+    await expect(svc.listEvents({ sub: 'other', email: 'o@b.co' }, 'i1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 });

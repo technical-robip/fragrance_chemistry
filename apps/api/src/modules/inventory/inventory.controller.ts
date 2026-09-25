@@ -22,6 +22,11 @@ export class InventoryController {
     return this.inventory.list(req.user);
   }
 
+  @Get(':id/events')
+  events(@Req() req: { user: JwtPayload }, @Param('id') id: string) {
+    return this.inventory.listEvents(req.user, id);
+  }
+
   @Post()
   upsert(
     @Req() req: { user: JwtPayload },

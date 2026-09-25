@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +8,10 @@ import { FcSelect } from '@/components/FcSelect';
 import { api } from '@/lib/api-client';
 import {
   filterInventory,
+  isExpired,
   isExpiringSoon,
   isLowStock,
+  paginateInventory,
   restockEstimate,
   searchInventory,
   type InventoryFilter,
@@ -78,6 +80,7 @@ export function InventoryPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [copied, setCopied] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
@@ -93,6 +96,22 @@ export function InventoryPage() {
     costPerGram: i.costPerGram ? Number(i.costPerGram) : 0,
   }));
   const visible = searchInventory(filterInventory(normalized, filter), query);
+  const paged = paginateInventory(visible, page);
+  const events = useQuery({
+    queryKey: ['inventory', editingId, 'events'],
+    queryFn: () =>
+      api.get<
+        Array<{
+          id: string;
+          action: string;
+          before: { quantityGrams?: string } | null;
+          after: { quantityGrams?: string } | null;
+          createdAt: string;
+        }>
+      >(`/inventory/${editingId}/events`),
+    enabled: Boolean(editingId),
+  });
+
   const lowItems = normalized.filter(isLowStock);
   const restockTotal = restockEstimate(lowItems);
 
@@ -171,6 +190,7 @@ export function InventoryPage() {
   );
 
   function setFilter(next: InventoryFilter) {
+    setPage(1);
     setParams((prev) => {
       const p = new URLSearchParams(prev);
       if (next === 'all') p.delete('filter');
@@ -225,7 +245,7 @@ export function InventoryPage() {
     window.setTimeout(() => setCopied(false), 1500);
   }
 
-  const panelOpen = Boolean(draft.material || pickerOpen || editingId);
+  const adding = Boolean(draft.material || pickerOpen) && !editingId;
   const saving = upsert.isPending || patch.isPending;
 
   return (
@@ -246,7 +266,10 @@ export function InventoryPage() {
           <input
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
             placeholder={t('inventory.search')}
           />
         </label>
@@ -266,9 +289,9 @@ export function InventoryPage() {
         </div>
       </div>
 
-      {panelOpen ? (
+      {adding ? (
         <div className={`fc-card ${styles.addPanel}`}>
-          <h2>{editingId ? t('inventory.editStock') : t('inventory.addStock')}</h2>
+          <h2>{t('inventory.addStock')}</h2>
           <p className="fc-muted">
             {t('inventory.material')}:{' '}
             {draft.material ? (
@@ -336,6 +359,7 @@ export function InventoryPage() {
             <label>
               {t('inventory.expires')}
               <input
+                className={styles.control}
                 type="date"
                 value={draft.expiresAt}
                 onChange={(e) => setDraft((d) => ({ ...d, expiresAt: e.target.value }))}
@@ -347,7 +371,7 @@ export function InventoryPage() {
               type="button"
               className="fc-btn fc-btn--amber"
               disabled={!draft.material || saving}
-              onClick={() => (editingId ? patch.mutate() : upsert.mutate())}
+              onClick={() => upsert.mutate()}
             >
               {saving ? t('inventory.saving') : t('inventory.saveStock')}
             </button>
@@ -369,17 +393,19 @@ export function InventoryPage() {
               <th>{t('inventory.kind')}</th>
               <th>{t('inventory.qty')}</th>
               <th>{t('inventory.minQty')}</th>
-              <th>{t('inventory.expires')}</th>
               <th>{t('inventory.costPerGram')}</th>
               <th>{t('inventory.location')}</th>
+              <th>{t('inventory.expires')}</th>
               <th>{t('inventory.status')}</th>
               <th>{t('inventory.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {visible.map((row) => {
+            {paged.items.map((row) => {
               const low = isLowStock(row);
+              const expired = isExpired(row);
               const expiring = isExpiringSoon(row);
+              const editing = editingId === row.id;
               const name = (
                 <div className={styles.materialCell}>
                   <MaterialAvatar
@@ -397,78 +423,195 @@ export function InventoryPage() {
                 </div>
               );
               return (
-                <tr key={row.id}>
-                  <td>
-                    {row.slug ? (
-                      <Link to={`/catalog/${row.slug}`} className={styles.materialLink}>
-                        {name}
-                      </Link>
-                    ) : (
-                      name
-                    )}
-                  </td>
-                  <td>
-                    {row.kind === 'consumable'
-                      ? t('inventory.kindConsumable')
-                      : t('inventory.kindMaterial')}
-                  </td>
-                  <td className={low ? styles.low : undefined}>{row.quantityGrams.toFixed(1)}</td>
-                  <td>{row.minQuantityGrams.toFixed(1)}</td>
-                  <td>{formatDate(row.expiresAt)}</td>
-                  <td>{formatMoney(row.costPerGram)}</td>
-                  <td>{row.location ?? '—'}</td>
-                  <td>
-                    <span className={styles.badges}>
-                      {low ? (
-                        <span className={styles.badgeLow}>{t('inventory.badgeLow')}</span>
-                      ) : null}
-                      {expiring ? (
-                        <span className={styles.badgeExp}>{t('inventory.badgeExpiring')}</span>
-                      ) : null}
-                      {!low && !expiring ? '—' : null}
-                    </span>
-                  </td>
-                  <td>
-                    <div className={styles.rowActions}>
-                      <button
-                        type="button"
-                        className="fc-btn fc-btn--ghost"
-                        aria-label={t('inventory.decrease')}
-                        onClick={() => adjust.mutate({ id: row.id, deltaGrams: -10 })}
-                      >
-                        −
-                      </button>
-                      <button
-                        type="button"
-                        className="fc-btn fc-btn--ghost"
-                        aria-label={t('inventory.increase')}
-                        onClick={() => adjust.mutate({ id: row.id, deltaGrams: 10 })}
-                      >
-                        +
-                      </button>
-                      <button
-                        type="button"
-                        className="fc-btn fc-btn--ghost"
-                        onClick={() => startEdit(row)}
-                      >
-                        {t('inventory.edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="fc-btn fc-btn--ghost"
-                        onClick={() => {
-                          if (
-                            window.confirm(t('inventory.deleteConfirm', { name: row.materialName }))
-                          ) {
-                            remove.mutate(row.id);
-                          }
-                        }}
-                      >
-                        {t('inventory.delete')}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <Fragment key={row.id}>
+                  <tr>
+                    <td>
+                      {row.slug ? (
+                        <Link to={`/catalog/${row.slug}`} className={styles.materialLink}>
+                          {name}
+                        </Link>
+                      ) : (
+                        name
+                      )}
+                    </td>
+                    <td>
+                      {row.kind === 'consumable'
+                        ? t('inventory.kindConsumable')
+                        : t('inventory.kindMaterial')}
+                    </td>
+                    <td className={low ? styles.low : undefined}>{row.quantityGrams.toFixed(1)}</td>
+                    <td>{row.minQuantityGrams.toFixed(1)}</td>
+                    <td>{formatMoney(row.costPerGram)}</td>
+                    <td>{row.location ?? '—'}</td>
+                    <td>{formatDate(row.expiresAt)}</td>
+                    <td>
+                      <span className={styles.badges}>
+                        {expired ? (
+                          <span className={styles.lightExpired}>{t('inventory.badgeExpired')}</span>
+                        ) : null}
+                        {expiring ? (
+                          <span className={styles.lightSoon}>{t('inventory.badgeExpiring')}</span>
+                        ) : null}
+                        {!expired && !expiring && row.expiresAt ? (
+                          <span className={styles.lightOk}>{t('inventory.badgeOk')}</span>
+                        ) : null}
+                        {low ? (
+                          <span className={styles.badgeLow}>{t('inventory.badgeLow')}</span>
+                        ) : null}
+                        {!low && !expired && !expiring && !row.expiresAt ? '—' : null}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.rowActions}>
+                        <button
+                          type="button"
+                          className="fc-btn fc-btn--ghost"
+                          aria-label={t('inventory.decrease')}
+                          onClick={() => adjust.mutate({ id: row.id, deltaGrams: -10 })}
+                        >
+                          −
+                        </button>
+                        <button
+                          type="button"
+                          className="fc-btn fc-btn--ghost"
+                          aria-label={t('inventory.increase')}
+                          onClick={() => adjust.mutate({ id: row.id, deltaGrams: 10 })}
+                        >
+                          +
+                        </button>
+                        <button
+                          type="button"
+                          className="fc-btn fc-btn--ghost"
+                          onClick={() => startEdit(row)}
+                        >
+                          {t('inventory.edit')}
+                        </button>
+                        <button
+                          type="button"
+                          className="fc-btn fc-btn--ghost"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                t('inventory.deleteConfirm', { name: row.materialName }),
+                              )
+                            ) {
+                              remove.mutate(row.id);
+                            }
+                          }}
+                        >
+                          {t('inventory.delete')}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {editing ? (
+                    <tr>
+                      <td colSpan={9}>
+                        <div className={styles.addGrid}>
+                          <label>
+                            {t('inventory.qty')}
+                            <input
+                              className={styles.control}
+                              type="number"
+                              min={0}
+                              value={draft.quantityGrams}
+                              onChange={(e) =>
+                                setDraft((d) => ({ ...d, quantityGrams: Number(e.target.value) }))
+                              }
+                            />
+                          </label>
+                          <label>
+                            {t('inventory.kind')}
+                            <FcSelect
+                              options={[
+                                { value: 'material', label: t('inventory.kindMaterial') },
+                                { value: 'consumable', label: t('inventory.kindConsumable') },
+                              ]}
+                              value={draft.kind}
+                              onChange={(v) =>
+                                v &&
+                                setDraft((d) => ({ ...d, kind: v as 'material' | 'consumable' }))
+                              }
+                              aria-label={t('inventory.kind')}
+                            />
+                          </label>
+                          <label>
+                            {t('inventory.location')}
+                            <input
+                              className={styles.control}
+                              value={draft.location}
+                              onChange={(e) =>
+                                setDraft((d) => ({ ...d, location: e.target.value }))
+                              }
+                            />
+                          </label>
+                          <label>
+                            {t('inventory.minQty')}
+                            <input
+                              className={styles.control}
+                              type="number"
+                              min={0}
+                              value={draft.minQuantityGrams}
+                              onChange={(e) =>
+                                setDraft((d) => ({
+                                  ...d,
+                                  minQuantityGrams: Number(e.target.value),
+                                }))
+                              }
+                            />
+                          </label>
+                          <label>
+                            {t('inventory.expires')}
+                            <input
+                              className={styles.control}
+                              type="date"
+                              value={draft.expiresAt}
+                              onChange={(e) =>
+                                setDraft((d) => ({ ...d, expiresAt: e.target.value }))
+                              }
+                            />
+                          </label>
+                        </div>
+                        <div className={styles.addActions}>
+                          <button
+                            type="button"
+                            className="fc-btn fc-btn--amber"
+                            disabled={saving}
+                            onClick={() => patch.mutate()}
+                          >
+                            {saving ? t('inventory.saving') : t('inventory.saveStock')}
+                          </button>
+                          <button
+                            type="button"
+                            className="fc-btn fc-btn--ghost"
+                            onClick={closePanel}
+                          >
+                            {t('inventory.cancel')}
+                          </button>
+                        </div>
+                        <div className={styles.history}>
+                          <strong>{t('inventory.history')}</strong>
+                          <ul className={styles.historyList}>
+                            {(events.data ?? []).map((event) => (
+                              <li key={event.id}>
+                                {formatDate(event.createdAt)} ·{' '}
+                                {t(
+                                  `inventory.event${event.action[0]?.toUpperCase()}${event.action.slice(1)}`,
+                                )}
+                                {event.after?.quantityGrams
+                                  ? ` · ${Number(event.after.quantityGrams).toFixed(1)} g`
+                                  : ''}
+                              </li>
+                            ))}
+                            {!events.isLoading && (events.data ?? []).length === 0 ? (
+                              <li>{t('inventory.historyEmpty')}</li>
+                            ) : null}
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
               );
             })}
             {!isLoading && visible.length === 0 ? (
@@ -480,6 +623,27 @@ export function InventoryPage() {
             ) : null}
           </tbody>
         </table>
+        {paged.pages > 1 ? (
+          <nav className={styles.pager} aria-label={t('inventory.title')}>
+            <button
+              type="button"
+              className="fc-btn fc-btn--ghost"
+              disabled={paged.page <= 1}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              {t('inventory.pagePrev')}
+            </button>
+            <span>{t('inventory.pageOf', { page: paged.page, pages: paged.pages })}</span>
+            <button
+              type="button"
+              className="fc-btn fc-btn--ghost"
+              disabled={paged.page >= paged.pages}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              {t('inventory.pageNext')}
+            </button>
+          </nav>
+        ) : null}
       </div>
 
       <aside className={`fc-card ${styles.restock}`}>

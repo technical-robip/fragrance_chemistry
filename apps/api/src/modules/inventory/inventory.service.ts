@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AdjustInventoryBody, PatchInventoryBody, UpsertInventoryBody } from '@fc/shared';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
-import { inventoryItems, materials } from '../../database/schema';
+import { inventoryEvents, inventoryItems, materials } from '../../database/schema';
 import { JwtPayload } from '../auth/auth.types';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 
@@ -24,6 +24,24 @@ const inventorySelect = {
   slug: materials.slug,
   imageUrl: materials.imageUrl,
 };
+
+type StockSnap = {
+  quantityGrams: string;
+  kind: string;
+  location: string | null;
+  minQuantityGrams: string | null;
+  expiresAt: string | null;
+};
+
+function snap(row: StockSnap) {
+  return {
+    quantityGrams: row.quantityGrams,
+    kind: row.kind,
+    location: row.location,
+    minQuantityGrams: row.minQuantityGrams,
+    expiresAt: row.expiresAt,
+  };
+}
 
 @Injectable()
 export class InventoryService {
@@ -68,6 +86,7 @@ export class InventoryService {
         })
         .where(eq(inventoryItems.id, existing.id))
         .returning();
+      await this.record(user, existing.id, 'update', snap(existing), snap(row!));
       return this.getById(user, row!.id);
     }
 
@@ -85,6 +104,7 @@ export class InventoryService {
         expiresAt: body.expiresAt ?? null,
       })
       .returning();
+    await this.record(user, row!.id, 'create', null, snap(row!));
     return this.getById(user, row!.id);
   }
 
@@ -114,6 +134,7 @@ export class InventoryService {
       })
       .where(eq(inventoryItems.id, id))
       .returning();
+    await this.record(user, id, 'update', snap(existing), snap(row!));
     return this.getById(user, row!.id);
   }
 
@@ -136,6 +157,7 @@ export class InventoryService {
       })
       .where(eq(inventoryItems.id, id))
       .returning();
+    await this.record(user, id, 'adjust', snap(existing), snap(row!));
     return this.getById(user, row!.id);
   }
 
@@ -146,7 +168,47 @@ export class InventoryService {
       .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
       .returning();
     if (!row) throw new NotFoundException('Inventory item not found');
+    await this.record(user, row.id, 'delete', snap(row), null);
     return { id: row.id, deleted: true };
+  }
+
+  async listEvents(user: JwtPayload, id: string) {
+    const db = this.db.client();
+    const [owned] = await db
+      .select({ id: inventoryItems.id })
+      .from(inventoryItems)
+      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
+      .limit(1);
+    if (!owned) throw new NotFoundException('Inventory item not found');
+    return db
+      .select({
+        id: inventoryEvents.id,
+        action: inventoryEvents.action,
+        before: inventoryEvents.before,
+        after: inventoryEvents.after,
+        createdAt: inventoryEvents.createdAt,
+      })
+      .from(inventoryEvents)
+      .where(and(eq(inventoryEvents.itemId, id), eq(inventoryEvents.ownerId, user.sub)))
+      .orderBy(desc(inventoryEvents.createdAt))
+      .limit(20);
+  }
+
+  private async record(
+    user: JwtPayload,
+    itemId: string,
+    action: 'create' | 'update' | 'adjust' | 'delete',
+    before: ReturnType<typeof snap> | null,
+    after: ReturnType<typeof snap> | null,
+  ) {
+    await this.db.client().insert(inventoryEvents).values({
+      ownerId: user.sub,
+      itemId,
+      actorId: user.sub,
+      action,
+      before,
+      after,
+    });
   }
 
   private async getById(user: JwtPayload, id: string) {
