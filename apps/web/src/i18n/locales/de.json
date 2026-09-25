@@ -35,6 +35,7 @@
   },
   "auth": {
     "secureAccess": "Sicherer Laborzugang",
+    "home": "Start",
     "signIn": "Anmelden",
     "register": "Registrieren",
     "email": "E-Mail",

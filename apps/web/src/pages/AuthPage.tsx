@@ -1,12 +1,29 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ApiError } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
+import { LanguageMenu } from '@/components/layout/LanguageMenu';
+import { ThemeSwitch } from '@/components/layout/ThemeSwitch';
 import { AuthAtmosphere } from '@/components/viz/AuthAtmosphere';
 import styles from './AuthPage.module.css';
 
 type Mode = 'login' | 'register';
+
+function AuthBar() {
+  const { t } = useTranslation();
+  return (
+    <header className={styles.bar}>
+      <Link to="/" className={styles.home}>
+        {t('auth.home')}
+      </Link>
+      <div className={styles.barActions}>
+        <ThemeSwitch />
+        <LanguageMenu placement="down" />
+      </div>
+    </header>
+  );
+}
 
 export function AuthPage() {
   const { t } = useTranslation();
@@ -37,6 +54,7 @@ export function AuthPage() {
     return (
       <div className={styles.wrap}>
         <AuthAtmosphere />
+        <AuthBar />
         <p className={`fc-muted ${styles.loading}`}>{t('common.loading')}</p>
       </div>
     );
@@ -77,6 +95,7 @@ export function AuthPage() {
   return (
     <div className={styles.wrap}>
       <AuthAtmosphere />
+      <AuthBar />
       <main className={styles.main}>
         <form className={styles.card} onSubmit={onSubmit} noValidate>
           <div className={styles.brand}>

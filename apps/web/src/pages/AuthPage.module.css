@@ -14,6 +14,38 @@
   min-height: 100vh;
   display: grid;
   place-items: center;
+  padding-top: 4.5rem;
+}
+
+.bar {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: calc(0.75rem + env(safe-area-inset-top)) 1.25rem 0.75rem;
+}
+
+.home {
+  color: var(--fc-text);
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.home:hover {
+  color: var(--fc-text-muted);
+}
+
+.barActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .main {
@@ -24,7 +56,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  padding: 5.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
 }
 
 .card {

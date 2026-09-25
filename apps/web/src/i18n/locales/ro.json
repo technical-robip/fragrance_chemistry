@@ -35,6 +35,7 @@
   },
   "auth": {
     "secureAccess": "Acces securizat la laborator",
+    "home": "Acasă",
     "signIn": "Autentificare",
     "register": "Înregistrare",
     "email": "Email",
