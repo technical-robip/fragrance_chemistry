@@ -281,38 +281,73 @@ export function CostLeaf() {
       </div>
 
       <dl className={styles.rows}>
-        <div className={styles.row}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.cost.volume')}</dt>
-          <dd className={styles.rowValue}>{units}</dd>
-          <dd className={styles.rowMuted}>{bottleMl} ml</dd>
-        </div>
-        <div className={`${styles.row} ${view === 'concentrate' ? leaves.rowLit : ''}`}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.cost.concentrate')}</dt>
-          <dd className={styles.rowValue}>{cost.totalCost.toFixed(2)}</dd>
-          <dd className={styles.rowMuted}>/ {DEMO_BATCH_GRAMS} g</dd>
-        </div>
-        <div className={styles.row}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.cost.juice')}</dt>
-          <dd className={styles.rowValue}>{juicePerBottle.toFixed(2)}</dd>
-          <dd className={styles.rowMuted}>/ {bottleMl} ml</dd>
-        </div>
-        <div className={`${styles.row} ${view === 'packaged' ? leaves.rowLit : ''}`}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.cost.cogs')}</dt>
-          <dd className={styles.rowValue}>{cogs.toFixed(2)}</dd>
-          <dd className={styles.rowMuted}>{t('landing.divisions.cost.packaged')}</dd>
-        </div>
-        <div className={styles.row}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.cost.wholesale')}</dt>
-          <dd className={styles.rowValue}>{wholesale.toFixed(2)}</dd>
-          <dd className={styles.rowMuted}>
-            {t('landing.divisions.cost.retail')} {retail.toFixed(2)}
-          </dd>
-        </div>
-        <div className={styles.row}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.cost.margin')}</dt>
-          <dd className={`${styles.rowValue} ${leaves.emphasis}`}>{percent(margin)} %</dd>
-          <dd className={styles.rowMuted} />
-        </div>
+        {view === 'concentrate' ? (
+          <>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.batch')}</dt>
+              <dd className={styles.rowValue}>{DEMO_BATCH_GRAMS}</dd>
+              <dd className={styles.rowMuted}>g</dd>
+            </div>
+            <div className={`${styles.row} ${leaves.rowLit}`}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.concentrate')}</dt>
+              <dd className={styles.rowValue}>{cost.totalCost.toFixed(2)}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.perGram')}</dt>
+              <dd className={styles.rowValue}>{cost.costPerGramBatch.toFixed(3)}</dd>
+              <dd className={styles.rowMuted}>/ g</dd>
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.juice')}</dt>
+              <dd className={styles.rowValue}>{juicePerBottle.toFixed(2)}</dd>
+              <dd className={styles.rowMuted}>/ {bottleMl} ml</dd>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.bottle')}</dt>
+              <dd className={styles.rowValue}>{bottleMl}</dd>
+              <dd className={styles.rowMuted}>ml</dd>
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.volume')}</dt>
+              <dd className={styles.rowValue}>{units}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.juice')}</dt>
+              <dd className={styles.rowValue}>{juicePerBottle.toFixed(2)}</dd>
+              <dd className={styles.rowMuted}>/ {bottleMl} ml</dd>
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.packaging')}</dt>
+              <dd className={styles.rowValue}>{packaging.toFixed(2)}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={`${styles.row} ${leaves.rowLit}`}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.cogs')}</dt>
+              <dd className={styles.rowValue}>{cogs.toFixed(2)}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.wholesale')}</dt>
+              <dd className={styles.rowValue}>{wholesale.toFixed(2)}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.retail')}</dt>
+              <dd className={styles.rowValue}>{retail.toFixed(2)}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={styles.row}>
+              <dt className={styles.rowTerm}>{t('landing.divisions.cost.margin')}</dt>
+              <dd className={`${styles.rowValue} ${leaves.emphasis}`}>{percent(margin)}</dd>
+              <dd className={styles.rowMuted}>%</dd>
+            </div>
+          </>
+        )}
       </dl>
     </Leaf>
   );
