@@ -7,7 +7,13 @@ import {
 } from '@fc/shared';
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
-import { formulaLines, formulas, materials } from '../../database/schema';
+import {
+  formulaLines,
+  formulas,
+  ifraCategories,
+  ifraLimits,
+  materials,
+} from '../../database/schema';
 import { FORMULA_DETAIL_CACHE_TTL_SEC, RedisService } from '../../redis/redis.service';
 import { JwtPayload } from '../auth/auth.types';
 import { EntitlementsService } from '../entitlements/entitlements.service';
@@ -253,9 +259,15 @@ export class FormulasService {
         casNumber: materials.casNumber,
         allergenProfile: materials.allergenProfile,
         tenacityHours: materials.tenacityHours,
+        ifraCat4MaxPercent: ifraLimits.maxPercent,
       })
       .from(formulaLines)
       .innerJoin(materials, eq(formulaLines.materialId, materials.id))
+      .leftJoin(ifraCategories, eq(ifraCategories.code, '4'))
+      .leftJoin(
+        ifraLimits,
+        and(eq(ifraLimits.materialId, materials.id), eq(ifraLimits.categoryId, ifraCategories.id)),
+      )
       .where(eq(formulaLines.formulaId, formula.id))
       .orderBy(asc(formulaLines.sortOrder));
 

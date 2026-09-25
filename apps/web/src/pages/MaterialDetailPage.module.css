@@ -212,6 +212,34 @@
   margin: 0;
 }
 
+.ifraFeatured {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--fc-accent, #2a9d8f) 55%, transparent);
+  background: color-mix(in srgb, var(--fc-accent, #2a9d8f) 12%, transparent);
+}
+
+.ifraFeatured span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ifraFeatured strong {
+  font-family: var(--fc-display, inherit);
+  font-size: 1.6rem;
+}
+
+.ifraFeatured p {
+  margin: 0;
+}
+
+.ifraGrid li.ifraPrimary {
+  border-color: color-mix(in srgb, var(--fc-accent, #2a9d8f) 70%, transparent);
+  background: color-mix(in srgb, var(--fc-accent, #2a9d8f) 14%, transparent);
+}
+
 .ifraGrid {
   list-style: none;
   margin: 0;

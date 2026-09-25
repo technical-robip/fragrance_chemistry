@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   diluentGrams,
   finishedJuiceGrams,
+  ifraLineStatus,
+  ifraUsageInFinishedPct,
   juiceClassFromConcentration,
   neatPercent,
   percentToGrams,
@@ -13,10 +15,8 @@ import {
   emptyEuLabelReport,
   evaluateEuAnnexRestrictions,
   evaluateEuLabelAllergens,
-  evaluateIfraCompliance,
   pyramidPercents,
   pyramidPercentsFromVolatility,
-  type AllergenLimitsByCategory,
   type FormulaLine,
   type IfraCategory,
   type PyramidNote,
@@ -27,29 +27,17 @@ import { DatabaseService } from '../../database/database.service';
 import {
   evaluations,
   formulas,
-  ifraCategories,
-  ifraLimits,
   inventoryItems,
   materials,
-  users,
   weighingSessions,
 } from '../../database/schema';
-import {
-  DASHBOARD_BRIEFING_CACHE_TTL_SEC,
-  IFRA_LIMITS_CACHE_TTL_SEC,
-  RedisService,
-} from '../../redis/redis.service';
+import { DASHBOARD_BRIEFING_CACHE_TTL_SEC, RedisService } from '../../redis/redis.service';
 import { JwtPayload } from '../auth/auth.types';
 import { CostingService } from '../costing/costing.service';
 import { EvaluationsService } from '../evaluations/evaluations.service';
 import { FormulasService } from '../formulas/formulas.service';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-type CachedIfraLimits = {
-  categoryLabel: string;
-  limits: Record<string, number>;
-};
 
 function parseAllergens(profile: unknown): Array<{ name: string; fraction: number }> | undefined {
   if (!profile || typeof profile !== 'object') return undefined;
@@ -172,12 +160,6 @@ export class DashboardService {
         return { costPer50ml: null as number | null, currency: 'USD' };
       }
     });
-    const categoryP = this.db.db
-      .select({ defaultIfraCategory: users.defaultIfraCategory })
-      .from(users)
-      .where(eq(users.id, user.sub))
-      .limit(1)
-      .then((rows) => (Number(rows[0]?.defaultIfraCategory ?? 4) || 4) as IfraCategory);
     const evalsP = this.evaluationsSvc.list(user, formula.id);
     const linesP = Promise.all(
       formula.lines.map(async (line, idx) => {
@@ -245,11 +227,11 @@ export class DashboardService {
       }),
     );
 
-    const ifraCategory = await categoryP;
+    const ifraCategory = 4 as IfraCategory;
     const [costResult, evals, compliance, lines] = await Promise.all([
       costP,
       evalsP,
-      this.buildCompliance(engineLines, ifraCategory).catch(() => ({
+      this.buildCompliance(formula.lines, concentrationPct, engineLines).catch(() => ({
         category: ifraCategory,
         categoryLabel: 'Fine fragrance',
         overallStatus: 'green' as const,
@@ -334,68 +316,53 @@ export class DashboardService {
     return payload;
   }
 
-  private async buildCompliance(engineLines: FormulaLine[], category: IfraCategory) {
-    const cacheKey = this.redis.ifraLimitsKey(String(category));
-    let cached = await this.redis.cacheGet<CachedIfraLimits>(cacheKey);
-    if (!cached) {
-      const db = this.db.client();
-      const [cat] = await db
-        .select()
-        .from(ifraCategories)
-        .where(eq(ifraCategories.code, String(category)))
-        .limit(1);
-
-      const limits: Record<string, number> = {};
-      if (cat) {
-        const rows = await db
-          .select({
-            maxPercent: ifraLimits.maxPercent,
-            materialName: materials.name,
-            allergenProfile: materials.allergenProfile,
-          })
-          .from(ifraLimits)
-          .innerJoin(materials, eq(ifraLimits.materialId, materials.id))
-          .where(eq(ifraLimits.categoryId, cat.id));
-
-        for (const row of rows) {
-          const max = Number(row.maxPercent);
-          if (!Number.isFinite(max)) continue;
-          limits[row.materialName] = max;
-          const profile = row.allergenProfile as Record<string, unknown> | null;
-          if (profile && typeof profile === 'object') {
-            for (const key of Object.keys(profile)) {
-              if (limits[key] == null) limits[key] = max;
-            }
-          }
-        }
-      }
-
-      if (Object.keys(limits).length === 0) {
-        Object.assign(limits, {
-          Linalool: 20,
-          Coumarin: 1.5,
-          Limonene: 100,
-          Citral: 1,
-        });
-      }
-
-      cached = {
-        categoryLabel: cat?.label ?? 'Fine fragrance',
-        limits,
-      };
-      await this.redis.cacheSet(cacheKey, cached, IFRA_LIMITS_CACHE_TTL_SEC);
-    }
-
-    const limitsByCategory = { [category]: cached.limits } as AllergenLimitsByCategory;
-    const report = evaluateIfraCompliance(engineLines, category, limitsByCategory);
+  private async buildCompliance(
+    formulaLines: Array<{
+      materialName: string;
+      percent: string | number;
+      stockConcentrationPct?: string | number | null;
+      ifraCat4MaxPercent?: string | number | null;
+    }>,
+    concentrationPct: number,
+    engineLines: FormulaLine[],
+  ) {
+    const category = 4 as IfraCategory;
+    const allergens = formulaLines.flatMap((line) => {
+      if (line.ifraCat4MaxPercent == null || line.ifraCat4MaxPercent === '') return [];
+      const limitPercent = Number(line.ifraCat4MaxPercent);
+      if (!Number.isFinite(limitPercent)) return [];
+      const usage = ifraUsageInFinishedPct(
+        Number(line.percent),
+        concentrationPct,
+        Number(line.stockConcentrationPct ?? 100),
+      );
+      const lineStatus = ifraLineStatus(usage, limitPercent);
+      if (lineStatus === 'n/a') return [];
+      const status =
+        lineStatus === 'exceeded' ? 'red' : lineStatus === 'warning' ? 'yellow' : 'green';
+      return [
+        {
+          name: line.materialName,
+          gramsInBatch: 0,
+          percentOfBatch: usage,
+          limitPercent,
+          status: status as 'green' | 'yellow' | 'red',
+        },
+      ];
+    });
+    const overallStatus = allergens.some((row) => row.status === 'red')
+      ? 'red'
+      : allergens.some((row) => row.status === 'yellow')
+        ? 'yellow'
+        : 'green';
     const euLabel = evaluateEuLabelAllergens(engineLines, 'leave_on');
     const euAnnex = evaluateEuAnnexRestrictions(engineLines);
 
     return {
       category,
-      categoryLabel: cached.categoryLabel,
-      overallStatus: report.overallStatus,
-      allergens: report.allergens,
+      categoryLabel: 'Fine fragrance',
+      overallStatus,
+      allergens,
       labelAllergens: euLabel.declared.map((hit) => hit.inci),
       euLabel,
       euAnnex,

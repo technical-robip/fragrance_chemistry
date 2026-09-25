@@ -65,13 +65,16 @@ describe('FormulasService', () => {
         }),
       })
       .mockReturnValueOnce({
-        from: () => ({
-          innerJoin: () => ({
+        from: () => {
+          const chain = {
+            innerJoin: () => chain,
+            leftJoin: () => chain,
             where: () => ({
               orderBy: async () => [],
             }),
-          }),
-        }),
+          };
+          return chain;
+        },
       });
 
     client.insert

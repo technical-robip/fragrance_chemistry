@@ -7,7 +7,9 @@ const FORMULA_UUID = '11111111-1111-4111-8111-111111111111';
 
 function makeRedis() {
   return {
-    dashboardBriefingKey: vi.fn((owner: string, id: string) => `dashboard:briefing:${owner}:${id}`),
+    dashboardBriefingKey: vi.fn(
+      (owner: string, id: string) => `dashboard:briefing:v2:${owner}:${id}`,
+    ),
     ifraLimitsKey: vi.fn((code: string) => `ifra:limits:${code}`),
     cacheGet: vi.fn(async (_key: string) => null as unknown),
     cacheSet: vi.fn(async () => undefined),
@@ -161,7 +163,7 @@ describe('DashboardService', () => {
     expect(briefing.pyramidVolatility).toBeTruthy();
     expect(costing.estimateFromLines).toHaveBeenCalled();
     expect(redis.cacheSet).toHaveBeenCalledWith(
-      'dashboard:briefing:u1:f1',
+      'dashboard:briefing:v2:u1:f1',
       expect.objectContaining({ formula: expect.objectContaining({ id: 'f1' }) }),
       DASHBOARD_BRIEFING_CACHE_TTL_SEC,
     );
@@ -198,7 +200,7 @@ describe('DashboardService', () => {
     const { svc, formulas, costing, evaluationsSvc, redis } = briefingHarness(FORMULA_UUID);
     const cached = { formula: { id: FORMULA_UUID, name: 'Cached' } };
     redis.cacheGet.mockImplementation(async (key: string) => {
-      if (key === `dashboard:briefing:u1:${FORMULA_UUID}`) return cached;
+      if (key === `dashboard:briefing:v2:u1:${FORMULA_UUID}`) return cached;
       return null;
     });
 
@@ -210,10 +212,12 @@ describe('DashboardService', () => {
     expect(redis.cacheSet).not.toHaveBeenCalled();
   });
 
-  it('uses cached IFRA limits instead of querying the catalog join', async () => {
+  it('checks category 4 from each material limit, not a shared allergen map', async () => {
     const { svc, db, redis } = briefingHarness();
-    await svc.briefing(user, 'f1');
-    expect(redis.ifraLimitsKey).toHaveBeenCalledWith('4');
+    const briefing = await svc.briefing(user, 'f1');
+    expect(briefing.compliance.category).toBe(4);
+    expect(briefing.compliance.categoryLabel).toBe('Fine fragrance');
+    expect(redis.ifraLimitsKey).not.toHaveBeenCalled();
     expect(db.client).not.toHaveBeenCalled();
   });
 });

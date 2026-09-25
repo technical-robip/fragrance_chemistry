@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import {
   diluentGrams,
   finishedJuiceGrams,
+  ifraLineStatus,
+  ifraUsageInFinishedPct,
   juiceClassFromConcentration,
   latestProbeMark,
   type EvaluationLineMarkRow,
@@ -64,6 +66,7 @@ type FormulaDetail = {
     manufacturer: string | null;
     olfactoryFamily: string | null;
     costPerGram: string | null;
+    ifraCat4MaxPercent?: string | null;
     sortOrder: number;
   }>;
 };
@@ -143,6 +146,7 @@ type LocalLine = {
   percent: number;
   weighedGrams: number;
   costPerGram: number;
+  ifraCat4MaxPercent: number | null;
 };
 
 type AmountUnit = 'grams' | 'drops' | 'ml';
@@ -176,6 +180,10 @@ function toLocal(lines: FormulaDetail['lines']): LocalLine[] {
     percent: Number(l.percent),
     weighedGrams: Number(l.weighedGrams ?? 0),
     costPerGram: Number(l.costPerGram ?? 0),
+    ifraCat4MaxPercent:
+      l.ifraCat4MaxPercent != null && l.ifraCat4MaxPercent !== ''
+        ? Number(l.ifraCat4MaxPercent)
+        : null,
   }));
 }
 
@@ -570,9 +578,26 @@ export function WorkbenchPage() {
           percent: 0,
           weighedGrams: 0,
           costPerGram: Number(m.costPerGram ?? 0),
+          ifraCat4MaxPercent: null,
         },
       ];
     });
+    void api
+      .get<{ limits: Array<{ categoryCode: string; maxPercent: string }> }>(
+        `/ifra/materials/${m.id}/limits`,
+      )
+      .then((payload) => {
+        const row = payload.limits.find((limit) => limit.categoryCode === '4');
+        if (!row) return;
+        const max = Number(row.maxPercent);
+        if (!Number.isFinite(max)) return;
+        setLines((prev) =>
+          prev.map((line) =>
+            line.materialId === m.id ? { ...line, ifraCat4MaxPercent: max } : line,
+          ),
+        );
+      })
+      .catch(() => undefined);
     scheduleSave();
   }
 
@@ -1261,6 +1286,25 @@ export function WorkbenchPage() {
                                 .filter(Boolean)
                                 .join(' · ')}
                             </div>
+                            {line.ifraCat4MaxPercent != null ? (
+                              <span
+                                className={
+                                  ifraLineStatus(
+                                    ifraUsageInFinishedPct(line.percent, concPct, 100),
+                                    line.ifraCat4MaxPercent,
+                                  ) === 'exceeded'
+                                    ? styles.ifraExceeded
+                                    : styles.ifraOk
+                                }
+                              >
+                                {t('workbench.ifraCat4', {
+                                  usage: ifraUsageInFinishedPct(line.percent, concPct, 100).toFixed(
+                                    2,
+                                  ),
+                                  limit: line.ifraCat4MaxPercent.toFixed(2),
+                                })}
+                              </span>
+                            ) : null}
                           </div>
                         </div>
                         <div

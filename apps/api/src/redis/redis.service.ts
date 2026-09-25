@@ -35,11 +35,11 @@ export class RedisService implements OnModuleDestroy {
   }
 
   formulaDetailKey(ownerId: string, formulaId: string) {
-    return `formula:detail:${ownerId}:${formulaId}`;
+    return `formula:detail:v2:${ownerId}:${formulaId}`;
   }
 
   dashboardBriefingKey(ownerId: string, formulaId: string) {
-    return `dashboard:briefing:${ownerId}:${formulaId}`;
+    return `dashboard:briefing:v2:${ownerId}:${formulaId}`;
   }
 
   ifraLimitsKey(categoryCode: string) {

@@ -375,20 +375,40 @@ export function MaterialDetailPage() {
                   ) : null}
                 </dl>
                 {standard.standardType !== 'PROHIBITION' && standard.limits.length > 0 ? (
-                  <ul className={styles.ifraGrid}>
-                    {standard.limits.map((row) => (
-                      <li key={row.categoryCode}>
-                        <span>{row.categoryCode}</span>
-                        <strong>
-                          {formatIfraPercent(
-                            row.maxPercent,
-                            row.unrestricted,
-                            t('material.ifraNoRestriction'),
-                          )}
-                        </strong>
-                      </li>
-                    ))}
-                  </ul>
+                  <>
+                    {standard.limits
+                      .filter((row) => row.categoryCode === '4')
+                      .map((row) => (
+                        <div key="cat4" className={styles.ifraFeatured}>
+                          <span>{t('material.ifraCat4Title')}</span>
+                          <strong>
+                            {formatIfraPercent(
+                              row.maxPercent,
+                              row.unrestricted,
+                              t('material.ifraNoRestriction'),
+                            )}
+                          </strong>
+                          <p>{t('material.ifraCat4Hint')}</p>
+                        </div>
+                      ))}
+                    <ul className={styles.ifraGrid}>
+                      {standard.limits.map((row) => (
+                        <li
+                          key={row.categoryCode}
+                          className={row.categoryCode === '4' ? styles.ifraPrimary : undefined}
+                        >
+                          <span>{row.categoryCode}</span>
+                          <strong>
+                            {formatIfraPercent(
+                              row.maxPercent,
+                              row.unrestricted,
+                              t('material.ifraNoRestriction'),
+                            )}
+                          </strong>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 ) : null}
                 <div className={styles.ifraNotes}>
                   {(

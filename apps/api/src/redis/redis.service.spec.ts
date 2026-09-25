@@ -27,8 +27,8 @@ describe('RedisService', () => {
     const svc = new RedisService();
     expect(svc.refreshKey('u1', 'j1')).toBe('auth:refresh:u1:j1');
     expect(svc.pdfExportCountKey('u1', '2026-01')).toBe('entitlements:pdf:u1:2026-01');
-    expect(svc.formulaDetailKey('u1', 'f1')).toBe('formula:detail:u1:f1');
-    expect(svc.dashboardBriefingKey('u1', 'f1')).toBe('dashboard:briefing:u1:f1');
+    expect(svc.formulaDetailKey('u1', 'f1')).toBe('formula:detail:v2:u1:f1');
+    expect(svc.dashboardBriefingKey('u1', 'f1')).toBe('dashboard:briefing:v2:u1:f1');
     expect(svc.ifraLimitsKey('4')).toBe('ifra:limits:4');
     expect(svc.catalogPublicIndexKey()).toBe('catalog:index:public');
     expect(svc.catalogPrivateIndexKey('u1')).toBe('catalog:index:private:u1');
