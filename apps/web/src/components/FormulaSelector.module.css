@@ -1,0 +1,141 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: grid;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 180px;
+  color: var(--fc-text-muted);
+}
+
+.label > span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  min-height: var(--fc-touch-min);
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.rowDelete {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: var(--fc-touch-min);
+  height: var(--fc-touch-min);
+  min-width: var(--fc-touch-min);
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--fc-danger) 35%, transparent);
+  border-radius: var(--fc-radius-sm);
+  background: transparent;
+  color: var(--fc-danger);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rowDelete:hover,
+.rowDelete:focus-visible {
+  background: color-mix(in srgb, var(--fc-danger) 16%, transparent);
+  outline: none;
+}
+
+.confirmRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  width: 100%;
+  min-height: var(--fc-touch-min);
+  white-space: normal;
+}
+
+.confirmPrompt {
+  flex: 1 1 8rem;
+  min-width: 0;
+  font-size: 0.84rem;
+  font-weight: 650;
+  line-height: 1.3;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.confirmActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex: 0 1 auto;
+}
+
+.confirmYes,
+.confirmNo {
+  min-height: var(--fc-touch-min);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--fc-radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirmYes {
+  border: 1px solid color-mix(in srgb, var(--fc-danger) 45%, transparent);
+  background: color-mix(in srgb, var(--fc-danger) 16%, transparent);
+  color: var(--fc-danger);
+}
+
+.confirmYes:hover,
+.confirmYes:focus-visible {
+  background: color-mix(in srgb, var(--fc-danger) 26%, transparent);
+  outline: none;
+}
+
+.confirmNo {
+  border: 1px solid var(--fc-border-strong);
+  background: transparent;
+  color: var(--fc-text);
+}
+
+.confirmNo:hover,
+.confirmNo:focus-visible {
+  background: color-mix(in srgb, var(--fc-accent) 12%, transparent);
+  outline: none;
+}
+
+.confirmYes:disabled,
+.confirmNo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .bar {
+    align-items: stretch;
+  }
+
+  .label {
+    min-width: 0;
+  }
+}

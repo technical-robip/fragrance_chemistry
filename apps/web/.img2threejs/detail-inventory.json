@@ -1,0 +1,197 @@
+{
+  "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/reference.png",
+  "zonesDir": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones",
+  "detailInventory": {
+    "scanMethod": "grid-3x3",
+    "targetMinDetails": 6,
+    "details": [
+      {
+        "id": "zone-r0c0",
+        "kind": "background",
+        "description": "Empty ground, flat dark desaturated teal-black. No object ink. Confirms the reference is an isolated single-object plate with no scene content.",
+        "region": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "macro",
+        "affects": "lighting",
+        "mapsTo": {
+          "type": "lighting",
+          "ref": "background"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r0c0.png",
+        "confidence": 0.95
+      },
+      {
+        "id": "zone-r0c1",
+        "kind": "form+relief",
+        "description": "Cap in full. CORRECTION on the first-pass analysis: the top edge carries a generous round, not a slight chamfer, roughly a tenth of the cap radius. There are TWO fine bright circumferential grooves near the lower edge, not one, set close together, with a short straight band below them. Cap height reads about three quarters of cap diameter. Surface is satin: a broad low-intensity highlight lobe across the upper third, no point specular.",
+        "region": {
+          "x": 0.3333,
+          "y": 0.0,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "geometry",
+        "mapsTo": {
+          "type": "component",
+          "ref": "cap.localFeatures.machinedGroove"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r0c1.png",
+        "confidence": 0.9
+      },
+      {
+        "id": "zone-r0c2",
+        "kind": "background",
+        "description": "Empty ground with a faint falloff toward the frame edge. No object ink.",
+        "region": {
+          "x": 0.6667,
+          "y": 0.0,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "macro",
+        "affects": "lighting",
+        "mapsTo": {
+          "type": "lighting",
+          "ref": "background"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r0c2.png",
+        "confidence": 0.95
+      },
+      {
+        "id": "zone-r1c0",
+        "kind": "form+material",
+        "description": "Proximal-left body edge and shoulder. The vertical corner fillet radius is larger than first estimated, roughly an eighth of the body depth. The inner wall boundary is visible as a second vertical line inboard of the outer edge, which is the read used for the glass thickness estimate. A bright vertical lighting highlight runs the full edge and is excluded from albedo.",
+        "region": {
+          "x": 0.0,
+          "y": 0.3333,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "geometry",
+        "mapsTo": {
+          "type": "repetitionSystem",
+          "ref": "cornerFillets"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r1c0.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "zone-r1c1",
+        "kind": "material",
+        "description": "Body centre through the juice. Amber deepens markedly through the thick centre against the thin edges, which is depth absorption rather than a flat tint. The rear inner wall is visible through the front wall. No caustic pattern is present to reproduce.",
+        "region": {
+          "x": 0.3333,
+          "y": 0.3333,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "macro",
+        "affects": "material",
+        "mapsTo": {
+          "type": "material",
+          "ref": "juice.localOverrides.depthAbsorption"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r1c1.png",
+        "confidence": 0.88
+      },
+      {
+        "id": "zone-r1c2",
+        "kind": "form+material",
+        "description": "Lateral-right body face and its fillet, carrying the rim light. The lateral face is visibly narrower than the front face, confirming body depth at roughly four tenths of body width.",
+        "region": {
+          "x": 0.6667,
+          "y": 0.3333,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "geometry",
+        "mapsTo": {
+          "type": "component",
+          "ref": "bottleBody.localFeatures.cornerFillet"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r1c2.png",
+        "confidence": 0.87
+      },
+      {
+        "id": "zone-r2c0",
+        "kind": "form",
+        "description": "Lower proximal corner and contact shadow. The base meets the ground on a pronounced horizontal round, not a sharp edge.",
+        "region": {
+          "x": 0.0,
+          "y": 0.6667,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "geometry",
+        "mapsTo": {
+          "type": "component",
+          "ref": "bottleBody.localFeatures.baseSlab"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r2c0.png",
+        "confidence": 0.86
+      },
+      {
+        "id": "zone-r2c1",
+        "kind": "form+relief",
+        "description": "Base slab and label in full. The solid unfilled glass foot is unmistakable: a strong horizontal internal boundary separates it from the juice above, and it occupies roughly a sixth of the body height. The bottom outer edge is a large round. The label is a plain light rectangle, flush on the front face, with no lettering and a visible straight edge.",
+        "region": {
+          "x": 0.3333,
+          "y": 0.6667,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "geometry",
+        "mapsTo": {
+          "type": "component",
+          "ref": "bottleBody.localFeatures.baseSlab"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r2c1.png",
+        "confidence": 0.93
+      },
+      {
+        "id": "zone-r2c2",
+        "kind": "lighting",
+        "description": "Ground plane and contact shadow only. The shadow is soft and short, consistent with one large key from upper left; it grounds the object and must be reproduced as a contact shadow rather than baked into the body.",
+        "region": {
+          "x": 0.6667,
+          "y": 0.6667,
+          "width": 0.3333,
+          "height": 0.3333,
+          "units": "normalized"
+        },
+        "scale": "macro",
+        "affects": "lighting",
+        "mapsTo": {
+          "type": "lighting",
+          "ref": "contactShadow"
+        },
+        "evidenceRef": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/zones/zone-r2c2.png",
+        "confidence": 0.9
+      }
+    ],
+    "corrections": [
+      "Cap top edge: generous round, not a slight chamfer (zone-r0c1).",
+      "Cap grooves: two fine circumferential grooves, not one (zone-r0c1).",
+      "Collar brushing: fine AXIAL striations, not circumferential lathe brushing (zone-r0c1). The first-pass analysis had this wrong; the spec follows the crop.",
+      "Corner fillet radius and base bottom round are both larger than the first-pass estimate (zone-r1c0, zone-r2c0, zone-r2c1)."
+    ]
+  },
+  "authoringInstruction": "Open each zone crop under zonesDir and replace every detail stub's kind, description, scale, affects, mapsTo, and confidence with what is actually observed. Add more detail entries per zone if a single zone contains multiple distinct marks; do not leave stubs unfilled or unlinked (mapsTo must reference a real component.localFeatures or material.localOverrides entry)."
+}

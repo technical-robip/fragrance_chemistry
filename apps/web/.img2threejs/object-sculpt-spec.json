@@ -1,0 +1,3229 @@
+{
+  "targetName": "Packaged unit 50 ml flacon",
+  "targetId": "packaged-unit-50-ml-flacon",
+  "schemaVersion": "2.1",
+  "terminologyProfile": {
+    "domain": "real-time procedural Three.js asset",
+    "geometryTerms": [
+      "silhouette",
+      "topology",
+      "primitive",
+      "bevel",
+      "chamfer",
+      "taper",
+      "bend",
+      "boolean cut",
+      "edge loop",
+      "surface normal",
+      "displacement"
+    ],
+    "materialTerms": [
+      "albedo",
+      "baseColor",
+      "roughness",
+      "metalness",
+      "normal map",
+      "bump map",
+      "ambient occlusion",
+      "cavity dirt",
+      "edge wear",
+      "clearcoat"
+    ],
+    "lightingTerms": [
+      "key light",
+      "fill light",
+      "rim light",
+      "HDRI/environment reflection",
+      "contact shadow"
+    ],
+    "descriptionRule": "Use measurable 3D graphics terms. Avoid vague words unless they are paired with concrete geometry/material/shader parameters."
+  },
+  "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/reference.png",
+  "referenceCamera": {
+    "solved": false,
+    "fovDegrees": 40.0,
+    "aspect": 1.0,
+    "orientation": {
+      "yaw": 0.0,
+      "pitch": 0.0,
+      "roll": 0.0
+    },
+    "positionHint": [0.0, 0.0, 3.0],
+    "note": "For likeness work, solve the reference camera (forge/stage1_intake/solve_camera_pose.py) so the review render aligns with the photo and the reference can be projected. Confirm by overlay review."
+  },
+  "suitability": "conditional",
+  "scores": {
+    "object_isolation": 0,
+    "silhouette_readability": 0,
+    "depth_inference": 0,
+    "primitive_decomposition": 0,
+    "material_procedurality": 0,
+    "occlusion_risk": 0,
+    "interaction_fit": 0
+  },
+  "preSpecAssessment": {
+    "objectClass": {
+      "primaryType": "rectangular glass perfume flacon with metal collar and cylindrical overcap",
+      "primaryDomain": "object",
+      "formLanguage": ["geometric", "hard-surface", "filleted-cuboid", "stacked-cylinders"],
+      "structureKind": ["container", "closure-assembly", "applied-label"],
+      "motionPotential": ["cap-lift-off", "assembly-explode-along-vertical-axis", "turntable"],
+      "materialFamilies": [
+        "transparent-glass",
+        "transmissive-liquid",
+        "brushed-metal",
+        "satin-polymer",
+        "matte-paper"
+      ],
+      "notes": "Identity lives in geometry, not in caustics: filleted cuboid body, short flat shoulder bevel, thick unfilled base slab, coaxial collar and cap. Built as the manual plate for the costing division, so an explode along the vertical axis is the required motion."
+    },
+    "complexity": {
+      "tier": "moderate",
+      "scores": {
+        "silhouetteComplexity": 2,
+        "componentCount": 2,
+        "hierarchyDepth": 2,
+        "repetitionDensity": 1,
+        "materialLayerCount": 3,
+        "localDetailDensity": 3,
+        "occlusionRisk": 1,
+        "actionReadinessNeed": 3
+      },
+      "estimatedCounts": {
+        "macroComponents": 5,
+        "mesoComponents": 6,
+        "microFeatureGroups": 3,
+        "materialLayers": 5,
+        "repetitionSystems": 1
+      },
+      "reasoning": [
+        "Silhouette is two primitive families: one filleted cuboid plus two coaxial cylinders.",
+        "Five macro parts (body, juice, collar, cap, label) with a three-level hierarchy.",
+        "Five distinct material responses, two of them transmissive, which is where the risk sits.",
+        "Repetition is limited to the four identical vertical corner fillets.",
+        "Action readiness is high because the plate must explode into the three costing levels.",
+        "Occlusion is low: only the collar rim under the cap shadow is hidden by another part."
+      ]
+    },
+    "specDepthDecision": {
+      "requiredDepth": "moderate",
+      "minimumComponentLevels": ["macro", "meso", "micro"],
+      "needsRepetitionSystems": true,
+      "needsMaterialLocalOverrides": true,
+      "needsMultipleReviewViews": true,
+      "needsActionReadyHierarchy": true,
+      "rationale": "Observed structure is shallow in part count but demands micro depth: the shoulder bevel, the base slab boundary and the cap groove are each identity-defining and each can be built wrong while the silhouette still scores well. The explode animation requires a real socket hierarchy rather than a merged mesh."
+    },
+    "unknownsToResolveBeforeImplementation": [],
+    "detailInventory": {
+      "scanMethod": "component-zones",
+      "targetMinDetails": 6,
+      "note": "Every detail below maps to a component localFeature or a material localOverride in the spec, never prose only.",
+      "details": [
+        {
+          "id": "base-slab",
+          "zone": "body-inferior",
+          "observation": "Lower fifth of the body carries no liquid and refracts the body edges through solid glass.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "baseSlab"
+          },
+          "identityDefining": true,
+          "confidence": 0.9,
+          "realization": "unreported",
+          "kind": "contour"
+        },
+        {
+          "id": "liquid-meniscus",
+          "zone": "body-superior-interior",
+          "observation": "Hard horizontal liquid boundary on the inner wall at about four fifths fill height.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "meniscus"
+          },
+          "identityDefining": true,
+          "confidence": 0.92,
+          "realization": "unreported",
+          "kind": "contour"
+        },
+        {
+          "id": "shoulder-bevel",
+          "zone": "body-superior",
+          "observation": "Face steps inward on a short flat before the neck rather than curving continuously.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "shoulderBevel"
+          },
+          "identityDefining": true,
+          "confidence": 0.85,
+          "realization": "unreported",
+          "kind": "bevel"
+        },
+        {
+          "id": "cap-groove",
+          "zone": "cap-inferior",
+          "observation": "One fine recessed circumferential band near the cap lower edge.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "grooveUpper"
+          },
+          "identityDefining": true,
+          "confidence": 0.88,
+          "realization": "unreported",
+          "kind": "groove"
+        },
+        {
+          "id": "corner-fillets",
+          "zone": "body-lateral",
+          "observation": "Four identical small-radius vertical rounds, constant along the full body height.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "cornerFillet"
+          },
+          "identityDefining": true,
+          "confidence": 0.93,
+          "realization": "unreported",
+          "kind": "bevel"
+        },
+        {
+          "id": "collar-brushing",
+          "zone": "collar",
+          "observation": "Fine circumferential brushing on the metal; anisotropic, not isotropic polish.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "circumferentialBrushing"
+          },
+          "identityDefining": false,
+          "confidence": 0.8,
+          "realization": "unreported",
+          "kind": "linework"
+        },
+        {
+          "id": "blank-label",
+          "zone": "body-front-inferior",
+          "observation": "Plain rectangle, no lettering, centred laterally and set low on the front face.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "blankLabel"
+          },
+          "identityDefining": true,
+          "confidence": 0.95,
+          "realization": "unreported",
+          "kind": "decal"
+        },
+        {
+          "id": "juice-absorption",
+          "zone": "body-interior",
+          "observation": "Amber reads deeper through the thick centre than at the thin edges: absorption with depth.",
+          "mapsTo": {
+            "type": "component",
+            "ref": "depthAbsorption"
+          },
+          "identityDefining": false,
+          "confidence": 0.82,
+          "realization": "unreported",
+          "kind": "gloss"
+        }
+      ]
+    },
+    "anatomy": {
+      "applies": false,
+      "styleHeads": 0.0,
+      "proportions": {
+        "headUnit": 0.0,
+        "torso": 0.0,
+        "legs": 0.0,
+        "shoulderWidth": 0.0,
+        "hipWidth": 0.0
+      },
+      "pose": {
+        "type": "unassessed",
+        "jointAngles": {}
+      },
+      "faceLandmarks": {
+        "eyeLine": 0.0,
+        "eyeSpacing": 0.0,
+        "noseBase": 0.0,
+        "mouthLine": 0.0,
+        "hairline": 0.0
+      },
+      "features": [],
+      "confidence": 0.0,
+      "note": "Only meaningful when objectClass.primaryDomain is character or hybrid. Set applies=true and fill from forge/stage1_intake/extract_landmarks.py. See grimoire/character/reconstruction.md and grimoire/character/likeness_maximization.md."
+    },
+    "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/reference.png",
+    "featureReviewTargets": [
+      {
+        "id": "base-slab",
+        "severity": "critical"
+      },
+      {
+        "id": "liquid-meniscus",
+        "severity": "critical"
+      },
+      {
+        "id": "shoulder-bevel",
+        "severity": "critical"
+      },
+      {
+        "id": "corner-fillets",
+        "severity": "important"
+      },
+      {
+        "id": "cap-groove",
+        "severity": "important"
+      }
+    ],
+    "referenceCamera": {
+      "framing": "three-quarter view, slightly above eye level",
+      "azimuthDeg": 34,
+      "elevationDeg": 12,
+      "fovDeg": 32,
+      "note": "Read off the reference: both the front face and one lateral face are visible, top face is not."
+    },
+    "resolvedUnknowns": [
+      {
+        "unknown": "Distal face not visible",
+        "resolution": "Mirrored from the front face; bilateral symmetry recorded in silhouette.symmetry."
+      },
+      {
+        "unknown": "Neck interior, pump, dip tube",
+        "resolution": "Omitted. Not modelled, not invented; stated in the figure caption."
+      },
+      {
+        "unknown": "Glass wall thickness",
+        "resolution": "Fixed at 0.05 body widths from the inner-wall offset in zone-r1c0."
+      },
+      {
+        "unknown": "Base underside",
+        "resolution": "Built flat."
+      },
+      {
+        "unknown": "Cap top doming",
+        "resolution": "Built flat under a 0.021 round, per zone-r0c1."
+      },
+      {
+        "unknown": "Label stock weight",
+        "resolution": "Matte paper, roughness 0.88."
+      }
+    ]
+  },
+  "qualityContract": {
+    "qualityBar": "moderate",
+    "definitionOfDone": [
+      "Silhouette, primary proportions and the five-part hierarchy match the reference.",
+      "All three critical featureReviewTargets are present and correctly placed: base slab, liquid meniscus, shoulder bevel.",
+      "Glass and juice read as transmissive, the collar as brushed metal, the cap as satin polymer.",
+      "The assembly explodes along the vertical axis into the three costing levels without any child detaching from its parent socket.",
+      "Runs at interactive frame rate in a browser and degrades to a static frame under prefers-reduced-motion."
+    ],
+    "minimumSpecDepth": {
+      "macroComponents": 2,
+      "mesoComponents": 3,
+      "microFeatureGroups": 2,
+      "materialLayers": 2,
+      "repetitionSystems": 0,
+      "reviewViewpoints": 3
+    },
+    "featureGroups": [
+      {
+        "id": "overall-silhouette",
+        "name": "Overall silhouette and proportions",
+        "required": true,
+        "qualityCriteria": [
+          "Bounding shape, dominant curves, negative spaces, and scale relationships are explicitly described."
+        ],
+        "evidenceRefs": ["full-object"],
+        "failureModes": [
+          "model reads as a generic placeholder instead of the reference object",
+          "major proportions are guessed without evidence"
+        ]
+      },
+      {
+        "id": "primary-structure",
+        "name": "Primary structure and hierarchy",
+        "required": true,
+        "qualityCriteria": [
+          "Major parts, joints, seams, contact points, and parent-child relationships are named before code generation."
+        ],
+        "evidenceRefs": ["full-object"],
+        "failureModes": [
+          "large visible parts are merged into one mesh",
+          "component hierarchy is too shallow for the observed complexity"
+        ]
+      },
+      {
+        "id": "attachment-joint-correctness",
+        "name": "Attachment and joint correctness",
+        "required": true,
+        "qualityCriteria": [
+          "Every visible child appendage, branch, limb, handle, connector, tube, cable, horn, wing, leg, or hinged part has an attachment contract with parent socket, localStart/localEnd, contact type, embed/overlap, and gap tolerance."
+        ],
+        "evidenceRefs": ["full-object"],
+        "failureModes": [
+          "child part root floats away from the parent",
+          "branch/limb/tube is centered in space instead of pivoting from its root",
+          "parent-child transform mixes world and local coordinates"
+        ]
+      },
+      {
+        "id": "surface-material-response",
+        "name": "Surface material response",
+        "required": true,
+        "qualityCriteria": [
+          "Albedo zones, roughness, normal/bump/displacement intent, cavity dirt, edge wear, and local overrides are specified where visible.",
+          "Important materials define independent albedo, roughness, height/normal, and AO responses instead of reusing one texture for unrelated PBR channels.",
+          "Surface response is decomposed into macro, meso, and micro frequency bands with scale and amplitude tied to object scale."
+        ],
+        "evidenceRefs": ["full-object"],
+        "failureModes": [
+          "surface looks like flat plastic",
+          "local material variation is missing or not tied to image evidence"
+        ]
+      },
+      {
+        "id": "reference-lookdev",
+        "name": "Reference color, material, and lighting response",
+        "required": true,
+        "qualityCriteria": [
+          "Material-pass names the reference-derived albedo palette, roughness variation, tactile normal/bump/displacement response, and local masks.",
+          "When a source image is available, run reference PBR extraction and require confidence >= 0.7 before treating maps as implementation-ready.",
+          "Lighting-pass names key/fill/rim or environment light, exposure, tone mapping, background, and contact shadow behavior.",
+          "Neutral, grazing-angle, and reference-matched renders prove that surface relief survives relighting and is not painted into albedo."
+        ],
+        "evidenceRefs": ["full-object"],
+        "failureModes": [
+          "model has acceptable shape but reads as flat shaded or plastic",
+          "colors are a generic average instead of reference-observed local color zones",
+          "lighting is evenly ambient and cannot reproduce the source value range"
+        ]
+      }
+    ],
+    "visualDeltaChecks": [
+      "silhouette and negative-space delta",
+      "component hierarchy depth delta",
+      "repetition density and distribution delta",
+      "material albedo/roughness/normal response delta",
+      "local feature placement and scale delta"
+    ],
+    "antiShallowSpecRules": [
+      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
+      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
+      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
+      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
+      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
+      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
+      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
+      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
+      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity.",
+      "Do not place adjacent separate-geometry parts below 0.02 world-unit seam overlap (source: grimoire/build/geometry_patterns.md).",
+      "Do not satisfy raised or recessed relief, fasteners, or grip structure with a map alone when the feature affects form; use geometry or displacement (source: grimoire/build/geometry_patterns.md).",
+      "Adjacent components must overlap by at least 0.02 world units at shared seams (source: grimoire/build/geometry_patterns.md).",
+      "Raised or recessed relief and fasteners must be geometry, instanced micro-parts, or displacement; a map alone is an approximation (source: grimoire/build/geometry_patterns.md)."
+    ],
+    "declaredLimitations": [
+      "This is a technical figure in a reference manual, not a photoreal product render.",
+      "Refraction is approximated by MeshPhysicalMaterial transmission. No caustics, no dispersion, no reflection of a real environment.",
+      "No referencePbr map extraction was run and none is implementation-ready: the figure is rendered in the committed brand palette rather than matched to the reference photograph pixel for pixel. This is the explicit documented limitation the reference-lookdev feature group allows.",
+      "Single view only; the distal face is symmetric by assumption."
+    ],
+    "mustNotDo": [
+      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
+      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
+      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
+      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
+      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
+      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
+      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
+      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
+      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity.",
+      "Do not place adjacent separate-geometry parts below 0.02 world-unit seam overlap (source: grimoire/build/geometry_patterns.md).",
+      "Do not satisfy raised or recessed relief, fasteners, or grip structure with a map alone when the feature affects form; use geometry or displacement (source: grimoire/build/geometry_patterns.md).",
+      "Adjacent components must overlap by at least 0.02 world units at shared seams (source: grimoire/build/geometry_patterns.md).",
+      "Raised or recessed relief and fasteners must be geometry, instanced micro-parts, or displacement; a map alone is an approximation (source: grimoire/build/geometry_patterns.md)."
+    ]
+  },
+  "qualityTargets": {
+    "targetFidelity": 0.7,
+    "mustMatch": [
+      "macro silhouette and proportions",
+      "primary material albedo/roughness response",
+      "reference-derived PBR material response at or above 0.7 confidence when source pixels are usable",
+      "most recognizable local features"
+    ],
+    "niceToHave": ["micro scratches, stains, chips, and dirt masks", "secondary lighting match"],
+    "fpsTarget": 60,
+    "reviewViewpoints": ["front", "three-quarter", "side", "thickness-axis", "long-axis"]
+  },
+  "selfCorrectLoop": {
+    "enabled": true,
+    "visualAcceptance": {
+      "reviewer": "ai-vision",
+      "threshold": 0.7,
+      "comparisonArtifactRequired": true,
+      "layerScoresRequired": true,
+      "codePixelDiffIsAcceptanceAuthority": false,
+      "scoringRule": "AI vision must inspect a side-by-side reference/render sheet and score the current pass from 0 to 1. Pixel-diff code may assist diagnostics but cannot approve a pass.",
+      "requiredLayerScores": [
+        "silhouetteProportion",
+        "componentStructure",
+        "formDetail",
+        "materialSurface",
+        "lightingCamera"
+      ],
+      "featureReviewPolicy": {
+        "enabled": true,
+        "reviewUnit": "semantic-subsystem",
+        "maxCriticalFeaturesPerPass": 5,
+        "maxImportantFeaturesPerPass": 3,
+        "criticalDefaultThreshold": 0.8,
+        "importantAverageThreshold": 0.65,
+        "adaptiveEscalation": true,
+        "singleImagePairOnly": true,
+        "selectionRule": "Choose only the most visually salient, identity-defining, user-prioritized, or high-risk semantic systems. Group repeated parts instead of reviewing every mesh. AI vision scores every selected feature from the same full reference/render pair."
+      }
+    },
+    "reviewAfterPasses": [
+      "blockout",
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "surface-pass",
+      "lighting-pass",
+      "interaction-pass",
+      "optimization-pass"
+    ],
+    "allowedActions": ["continue", "refine-spec", "refine-code", "request-input", "stop"],
+    "specRefineTriggers": [
+      "missing component",
+      "wrong primitive family",
+      "wrong proportions",
+      "material layer under-specified",
+      "local feature not traceable to viewEvidence",
+      "reference ambiguity discovered during implementation"
+    ],
+    "codeRefineTriggers": [
+      "spec is adequate but generated geometry/material does not match",
+      "browser render differs from reference",
+      "performance budget exceeded",
+      "lighting hides geometry or material response"
+    ],
+    "stopCriteria": [
+      "target fidelity reached or user accepts current approximation",
+      "remaining gaps require new reference images or manual art"
+    ],
+    "screenshotPolicy": {
+      "requiredForPasses": [
+        "blockout",
+        "structural-pass",
+        "form-refinement",
+        "material-pass",
+        "surface-pass",
+        "lighting-pass",
+        "interaction-pass"
+      ],
+      "preferredCapture": "in-app-browser-screenshot",
+      "fallbackCapture": "user-supplied-screenshot-path",
+      "minimumEvidence": "Each visual pass needs a reference image, rendered screenshot, side-by-side comparison sheet, AI vision score, layer scores, and critique before choosing continue.",
+      "reviewPairRule": "Compare the same camera/viewpoint whenever possible; do not judge a front reference against a random render angle.",
+      "acceptanceAuthority": "AI vision review of the comparison sheet. Code-generated pixel similarity is not sufficient evidence."
+    }
+  },
+  "featureReviewTargets": [
+    {
+      "id": "base-slab-boundary",
+      "name": "Solid glass foot and its internal boundary",
+      "componentRefs": ["bottleBody", "baseSlabAssembly"],
+      "failureMode": "Body reads as a thin-walled bottle and loses the flacon identity.",
+      "tier": "critical"
+    },
+    {
+      "id": "liquid-meniscus-height",
+      "name": "Meniscus height and hardness",
+      "componentRefs": ["juice"],
+      "failureMode": "Fill line drifts or softens and the vessel reads empty or full.",
+      "tier": "critical"
+    },
+    {
+      "id": "shoulder-step",
+      "name": "Flat shoulder step before the neck",
+      "componentRefs": ["shoulderAssembly"],
+      "failureMode": "Shoulder curves continuously and the profile reads as a generic bottle.",
+      "tier": "critical"
+    },
+    {
+      "id": "corner-fillet-radius",
+      "name": "Vertical corner fillet radius",
+      "componentRefs": ["bottleBody"],
+      "failureMode": "Radius too tight and the body reads as a sharp-edged cuboid.",
+      "tier": "important"
+    },
+    {
+      "id": "cap-groove-pair",
+      "name": "The pair of cap grooves",
+      "componentRefs": ["grooveBand"],
+      "failureMode": "One groove or none; the closure loses its turned-part character.",
+      "tier": "important"
+    }
+  ],
+  "sculptPipeline": {
+    "passGateMode": "locked-sequential",
+    "passOrder": [
+      "blockout",
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "surface-pass",
+      "lighting-pass",
+      "interaction-pass",
+      "optimization-pass"
+    ],
+    "currentPass": "blockout",
+    "completedPasses": [],
+    "lastCompletedPass": "",
+    "blockedReason": "blockout requires a browser screenshot and self-correction review before structural-pass unlocks",
+    "nextRequiredEvidence": [
+      "blockout browser render screenshot from your agent's browser/screenshot tool",
+      "side-by-side reference/render comparison sheet",
+      "AI vision score >= 0.7 with layer scores and mismatch critique",
+      "critical semantic feature scores from the same image pair meeting their individual thresholds",
+      "reviewHistory entry for blockout with action=continue"
+    ]
+  },
+  "lookDevTargets": {
+    "qualityPriority": "reference-fidelity",
+    "materialPass": {
+      "albedoPaletteRequired": true,
+      "roughnessVariationRequired": true,
+      "normalOrBumpRequired": true,
+      "localOverridesRequired": true,
+      "minimumTextureResolution": 1024,
+      "preferredTextureResolution": 2048,
+      "independentMapChannels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"],
+      "requiredSurfaceFrequencyBands": ["macro", "meso", "micro"],
+      "geometryReliefRequiredWhenSilhouetteAffected": true,
+      "referencePbrExtraction": {
+        "requiredWhenSourceImagePresent": true,
+        "targetThreshold": 0.7,
+        "stopOnLowConfidence": true,
+        "script": "forge/stage1_intake/extract_pbr_evidence.py",
+        "acceptedLimitation": "single-image extraction is reference-derived inference, not exact photogrammetry"
+      },
+      "mustAvoid": [
+        "single flat albedo per material",
+        "uniform roughness",
+        "albedo texture reused as roughness/height/normal/AO",
+        "single-frequency random noise",
+        "plastic-looking smooth bark, stone, cloth, foliage, or aged material",
+        "local color/detail described only in prose without material masks",
+        "claiming exact PBR recovery when confidence is below the target threshold"
+      ]
+    },
+    "lightingPass": {
+      "requiredTerms": [
+        "key light",
+        "fill light",
+        "rim or environment light",
+        "exposure",
+        "tone mapping",
+        "background",
+        "contact shadow"
+      ],
+      "mustAvoid": [
+        "ambient-only lighting",
+        "flat value range",
+        "missing contact shadow",
+        "reference lighting copied without separating material readability"
+      ]
+    },
+    "screenshotReview": [
+      "Compare albedo palette and local color zones.",
+      "Compare roughness/normal/bump response under light.",
+      "Compare cavity dirt, edge wear, stains, moss, scratches, or other local masks.",
+      "Compare key/fill/rim structure, exposure, tone mapping, background, and contact shadows.",
+      "Capture a neutral-light render to verify material readability without reference lighting.",
+      "Capture a grazing-light close-up to expose flat normals, uniform roughness, tiling, and plastic highlights.",
+      "Capture a reference-matched render from the same camera framing as the source."
+    ]
+  },
+  "actionReadiness": {
+    "contract": "Every macro/meso component should be generated as a stable named Object3D pivot node with a mesh child, action metadata, optional sockets, collider proxy, and destruction metadata.",
+    "defaultRigType": "action-ready-static-rig",
+    "rootMotionNode": "root",
+    "requiredComponentFields": [
+      "id",
+      "parent",
+      "transform",
+      "attachment for child appendages, connectors, limbs, tubes, handles, legs, horns, wings, branches, or cables",
+      "actionProfile.animationRole",
+      "actionProfile.pivot",
+      "actionProfile.collider",
+      "actionProfile.destruction"
+    ],
+    "transformChannels": [
+      "translate",
+      "rotate",
+      "scale",
+      "bend",
+      "twist",
+      "detach",
+      "visibility",
+      "material-state"
+    ],
+    "authoringRules": [
+      "Do not collapse independently movable parts into one mesh.",
+      "Put transforms on component pivot groups, not only on raw meshes.",
+      "For attached child parts, put the pivot at the semantic root/socket and build visible geometry from localStart to localEnd.",
+      "Represent hinge, socket, detachable, and breakable intent even when no animation is implemented yet.",
+      "Use simplified collider proxies for runtime physics instead of visual mesh colliders by default."
+    ],
+    "destructionPolicy": {
+      "defaultBreakable": false,
+      "fractureGroupNaming": "Use stable semantic names such as body-shell, left-hinge, glass-panel, branch-segment.",
+      "debrisStrategy": "Prefer detachable component groups and a small number of procedural fragments over random mesh explosion."
+    }
+  },
+  "assumptions": [
+    "Distal face mirrored from the visible front face (bilateral symmetry).",
+    "Neck interior, pump and dip tube omitted: not visible, not invented.",
+    "Glass wall thickness 0.05 body widths, estimated from the visible inner-wall offset.",
+    "Base underside flat.",
+    "Cap top face flat under its round."
+  ],
+  "coordinateFrame": {
+    "front": "+Z is the labelled front face of the flacon",
+    "up": "+Y, the flacon stands on the XZ plane with its base at y=0",
+    "scaleReference": "body width = 1.0 world unit; all other dimensions are body-width relative"
+  },
+  "silhouette": {
+    "boundingShape": "filleted cuboid surmounted by two coaxial cylinders",
+    "aspectRatios": [
+      {
+        "name": "bodyHeight/bodyWidth",
+        "value": 1.18
+      },
+      {
+        "name": "bodyDepth/bodyWidth",
+        "value": 0.42
+      },
+      {
+        "name": "collarDiameter/bodyWidth",
+        "value": 0.44
+      },
+      {
+        "name": "collarHeight/bodyWidth",
+        "value": 0.13
+      },
+      {
+        "name": "capDiameter/bodyWidth",
+        "value": 0.42
+      },
+      {
+        "name": "capHeight/capDiameter",
+        "value": 0.75
+      },
+      {
+        "name": "baseSlabHeight/bodyHeight",
+        "value": 0.17
+      },
+      {
+        "name": "fillHeight/bodyHeight",
+        "value": 0.8
+      }
+    ],
+    "symmetry": "bilateral about the YZ and XY planes; collar and cap are radial about Y",
+    "dominantCurves": [
+      "four constant-radius vertical corner fillets on the body",
+      "large horizontal round where the base meets the ground",
+      "generous round on the cap top edge"
+    ],
+    "negativeSpaces": [
+      "the step between the body shoulder and the narrower collar, read as a notch in profile",
+      "the unfilled headspace between the meniscus and the shoulder"
+    ],
+    "landmarks": [
+      {
+        "id": "meniscus",
+        "y": 0.944,
+        "note": "liquid boundary, 0.8 of body height"
+      },
+      {
+        "id": "baseSlabTop",
+        "y": 0.2,
+        "note": "top of the solid unfilled glass foot"
+      },
+      {
+        "id": "shoulder",
+        "y": 1.18,
+        "note": "top of the body before the bevel"
+      },
+      {
+        "id": "collarSeat",
+        "y": 1.24,
+        "note": "collar lower rim, flush with the bevel"
+      },
+      {
+        "id": "capSeat",
+        "y": 1.37,
+        "note": "cap lower face resting on the collar rim"
+      }
+    ]
+  },
+  "viewEvidence": [
+    {
+      "id": "full-object",
+      "view": "primary",
+      "imageRegion": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0,
+        "units": "normalized"
+      },
+      "observations": [],
+      "confidence": 0.5
+    }
+  ],
+  "componentTree": [
+    {
+      "id": "root",
+      "name": "Packaged unit",
+      "level": "macro",
+      "role": "assembly",
+      "importance": 1.0,
+      "confidence": 0.95,
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A closure assembly of discrete manufactured parts, not one continuous surface: each part is separately moulded or turned and meets its neighbour at a real seam, so separate geometry per part is correct.",
+      "geometryDescriptor": {
+        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates",
+        "normalStrategy": "vertex normals from generated geometry"
+      },
+      "parent": null,
+      "attachment": null,
+      "dimensions": {
+        "width": 1.0,
+        "height": 1.0,
+        "depth": 1.0,
+        "units": "relative",
+        "confidence": 0.5
+      },
+      "transform": {
+        "position": [0, 0, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "root",
+        "pivot": {
+          "mode": "explicit",
+          "position": [0, 0, 0],
+          "confidence": 1.0
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": false
+        },
+        "collider": {
+          "type": "box",
+          "size": [1.11, 1.685, 0.53],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "breakImpulse": 0.0,
+          "mode": "none"
+        }
+      },
+      "material": "glass",
+      "materialLayers": [],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(113, 86, 46, 1.0)",
+        "secondaryAlbedo": "rgba(24, 28, 30, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.6,
+        "provenance": "inherited from the parent component recipe extracted by extract_part_color_recipe.py; this component shares its parent surface."
+      }
+    },
+    {
+      "id": "bottleBody",
+      "name": "Glass body",
+      "level": "macro",
+      "role": "body",
+      "importance": 1.0,
+      "confidence": 0.9,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "One press-moulded glass blank: the faces, fillets, shoulder bevel and base slab are one continuous surface, so a single filleted box with a bevelled top is correct rather than assembled panels.",
+      "geometryDescriptor": {
+        "topologyIntent": "filleted cuboid, bevel-ready edges, enough segments on the fillets to read round in silhouette at plate scale",
+        "edgeTreatment": {
+          "type": "fillet",
+          "bevelRadius": 0.055,
+          "segments": 5
+        },
+        "deformationStack": [
+          {
+            "op": "shoulder-bevel",
+            "note": "short flat inward step at the top, not a continuous curve"
+          }
+        ],
+        "uvStrategy": "box projection per face",
+        "normalStrategy": "smooth on fillets, flat on faces, split at the bevel"
+      },
+      "parent": "root",
+      "attachment": null,
+      "dimensions": {
+        "width": 1.0,
+        "height": 1.18,
+        "depth": 0.42
+      },
+      "transform": {
+        "position": [0, 0.59, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "static",
+        "pivot": {
+          "mode": "base-centre",
+          "position": [0, -0.59, 0],
+          "confidence": 0.95
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": false,
+          "scale": false
+        },
+        "collider": {
+          "type": "box",
+          "size": [1.0, 1.18, 0.42],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": true,
+          "breakImpulse": 6.0,
+          "mode": "shatter"
+        },
+        "sockets": [
+          {
+            "id": "bottleBody.interior",
+            "position": [0, 0.0, 0]
+          },
+          {
+            "id": "bottleBody.neck",
+            "position": [0, 0.65, 0]
+          },
+          {
+            "id": "bottleBody.frontFace",
+            "position": [0, -0.24, 0.21]
+          }
+        ]
+      },
+      "material": "glass",
+      "materialLayers": ["glass"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "baseSlab",
+          "kind": "internal-boundary",
+          "description": "Solid unfilled glass foot occupying the lower 0.17 of body height, with a visible horizontal internal boundary against the juice above.",
+          "evidenceRef": "zones/zone-r2c1.png",
+          "confidence": 0.93
+        },
+        {
+          "id": "shoulderBevel",
+          "kind": "geometry",
+          "description": "Short flat step inward at the top face before the neck; flat, not filleted.",
+          "evidenceRef": "zones/zone-r1c0.png",
+          "confidence": 0.85
+        },
+        {
+          "id": "baseRound",
+          "kind": "geometry",
+          "description": "Large horizontal round where the base meets the ground plane.",
+          "evidenceRef": "zones/zone-r2c0.png",
+          "confidence": 0.86
+        },
+        {
+          "id": "cornerFillet",
+          "kind": "geometry",
+          "description": "Constant-radius vertical round, 0.055 body widths, full body height.",
+          "evidenceRef": "zones/zone-r1c2.png",
+          "confidence": 0.87
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "glass",
+      "colorMaterialRecipe": {
+        "componentId": "bottleBody",
+        "dominantAlbedo": "rgba(113, 86, 46, 1.0)",
+        "secondaryAlbedo": "rgba(75, 57, 31, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.6,
+        "roughnessEstimate": 0.127,
+        "metalnessEstimate": 0.0,
+        "highlightEvidence": "sharp, tight specular hotspot \u2014 supports low roughness/high specularity",
+        "sourceCropPath": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/bottleBody.png",
+        "labClusterMeta": {
+          "clusterCount": 3,
+          "dominantClusterSharePct": 0.469
+        }
+      }
+    },
+    {
+      "id": "juice",
+      "name": "Juice volume",
+      "level": "macro",
+      "role": "content",
+      "importance": 0.9,
+      "confidence": 0.88,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "A liquid volume takes the shape of its container interior; one inset filleted box with a flat top face is exactly that, and the flat top is the meniscus.",
+      "geometryDescriptor": {
+        "topologyIntent": "inset from the inner wall by the glass thickness, flat top at the meniscus",
+        "edgeTreatment": {
+          "type": "fillet",
+          "bevelRadius": 0.03,
+          "segments": 4
+        },
+        "deformationStack": [],
+        "uvStrategy": "box projection",
+        "normalStrategy": "smooth on fillets, flat on the meniscus"
+      },
+      "parent": "bottleBody",
+      "attachment": {
+        "parentSocket": "bottleBody.interior",
+        "localStart": [0, 0.2, 0],
+        "localEnd": [0, 0.944, 0],
+        "contactType": "embed",
+        "embedDepth": 0.05,
+        "gapTolerance": 0.0
+      },
+      "dimensions": {
+        "width": 0.9,
+        "height": 0.744,
+        "depth": 0.32
+      },
+      "transform": {
+        "position": [0, -0.075, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "explode-tier-1",
+        "pivot": {
+          "mode": "volume-centre",
+          "position": [0, 0, 0],
+          "confidence": 0.9
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": false,
+          "scale": false
+        },
+        "collider": {
+          "type": "none",
+          "size": [0, 0, 0],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "breakImpulse": 0.0,
+          "mode": "none"
+        }
+      },
+      "material": "juice",
+      "materialLayers": ["juice"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "meniscus",
+          "kind": "boundary",
+          "description": "Hard horizontal liquid boundary at 0.8 of body height, crisp against the inner wall.",
+          "evidenceRef": "zones/zone-r1c1.png",
+          "confidence": 0.92
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "juice",
+      "colorMaterialRecipe": {
+        "componentId": "juice",
+        "dominantAlbedo": "rgba(95, 72, 37, 1.0)",
+        "secondaryAlbedo": "rgba(117, 88, 47, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.6,
+        "roughnessEstimate": 0.132,
+        "metalnessEstimate": 0.0,
+        "highlightEvidence": "sharp, tight specular hotspot \u2014 supports low roughness/high specularity",
+        "sourceCropPath": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/juice.png",
+        "labClusterMeta": {
+          "clusterCount": 3,
+          "dominantClusterSharePct": 0.368
+        }
+      }
+    },
+    {
+      "id": "collar",
+      "name": "Brushed metal collar",
+      "level": "macro",
+      "role": "hardware",
+      "importance": 0.8,
+      "confidence": 0.88,
+      "primitive": "lathe",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "A turned metal sleeve: one revolved profile, no assembled panels.",
+      "geometryDescriptor": {
+        "topologyIntent": "revolved sleeve, 48 radial segments so the silhouette reads round",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.008,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "cylindrical, V along the axis so axial brushing runs the right way",
+        "normalStrategy": "smooth around the axis, flat on the rims"
+      },
+      "parent": "root",
+      "attachment": {
+        "parentSocket": "bottleBody.neck",
+        "localStart": [0, 1.24, 0],
+        "localEnd": [0, 1.37, 0],
+        "contactType": "socket",
+        "embedDepth": 0.04,
+        "gapTolerance": 0.0
+      },
+      "dimensions": {
+        "radius": 0.22,
+        "height": 0.13
+      },
+      "transform": {
+        "position": [0, 1.305, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "explode-tier-3",
+        "pivot": {
+          "mode": "lower-rim",
+          "position": [0, -0.065, 0],
+          "confidence": 0.92
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": false
+        },
+        "collider": {
+          "type": "cylinder",
+          "size": [0.22, 0.13, 0.22],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": true,
+          "breakImpulse": 12.0,
+          "mode": "detach"
+        },
+        "sockets": [
+          {
+            "id": "collar.topRim",
+            "position": [0, 0.065, 0]
+          }
+        ]
+      },
+      "material": "brushedGold",
+      "materialLayers": ["brushedGold"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "brushedGold",
+      "colorMaterialRecipe": {
+        "componentId": "collar",
+        "dominantAlbedo": "rgba(227, 214, 199, 1.0)",
+        "secondaryAlbedo": "rgba(56, 49, 37, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.75,
+        "roughnessEstimate": 0.323,
+        "metalnessEstimate": 1.0,
+        "highlightEvidence": "sharp, tight specular hotspot \u2014 supports low roughness/high specularity",
+        "sourceCropPath": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/collar.png",
+        "labClusterMeta": {
+          "clusterCount": 3,
+          "dominantClusterSharePct": 0.391
+        }
+      }
+    },
+    {
+      "id": "cap",
+      "name": "Satin overcap",
+      "level": "macro",
+      "role": "closure",
+      "importance": 0.85,
+      "confidence": 0.9,
+      "primitive": "lathe",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "One moulded polymer cylinder with a rounded top and two turned grooves; the grooves are recessed geometry, not a texture, because they catch light on their own edges.",
+      "geometryDescriptor": {
+        "topologyIntent": "revolved profile with a generous top round and two recessed grooves near the lower edge; 48 radial segments",
+        "edgeTreatment": {
+          "type": "fillet",
+          "bevelRadius": 0.021,
+          "segments": 4
+        },
+        "deformationStack": [],
+        "uvStrategy": "cylindrical",
+        "normalStrategy": "smooth around the axis, split at the groove shoulders"
+      },
+      "parent": "root",
+      "attachment": {
+        "parentSocket": "collar.topRim",
+        "localStart": [0, 1.37, 0],
+        "localEnd": [0, 1.685, 0],
+        "contactType": "butt",
+        "embedDepth": 0.0,
+        "gapTolerance": 0.004
+      },
+      "dimensions": {
+        "radius": 0.21,
+        "height": 0.315
+      },
+      "transform": {
+        "position": [0, 1.5275, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "explode-tier-3",
+        "pivot": {
+          "mode": "lower-face",
+          "position": [0, -0.1575, 0],
+          "confidence": 0.93
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": true,
+          "scale": false
+        },
+        "collider": {
+          "type": "cylinder",
+          "size": [0.21, 0.315, 0.21],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": true,
+          "breakImpulse": 10.0,
+          "mode": "detach"
+        },
+        "sockets": [
+          {
+            "id": "cap.wall",
+            "position": [0, -0.115, 0.21]
+          }
+        ]
+      },
+      "material": "satinCharcoal",
+      "materialLayers": ["satinCharcoal"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "machinedGroove",
+          "kind": "relief",
+          "description": "TWO fine recessed circumferential grooves close together near the lower edge, each about 0.006 body widths deep. Corrected from the first-pass reading of one groove.",
+          "evidenceRef": "zones/zone-r0c1.png",
+          "confidence": 0.9
+        },
+        {
+          "id": "capTopRound",
+          "kind": "geometry",
+          "description": "Generous round on the top edge, about a tenth of the cap radius. Corrected from the first-pass reading of a slight chamfer.",
+          "evidenceRef": "zones/zone-r0c1.png",
+          "confidence": 0.9
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "satinCharcoal",
+      "colorMaterialRecipe": {
+        "componentId": "cap",
+        "dominantAlbedo": "rgba(24, 28, 30, 1.0)",
+        "secondaryAlbedo": "rgba(71, 73, 76, 1.0)",
+        "materialClass": "plastic",
+        "materialClassConfidence": 0.6,
+        "roughnessEstimate": 0.131,
+        "metalnessEstimate": 0.0,
+        "highlightEvidence": "sharp, tight specular hotspot \u2014 supports low roughness/high specularity",
+        "sourceCropPath": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/cap.png",
+        "labClusterMeta": {
+          "clusterCount": 3,
+          "dominantClusterSharePct": 0.464
+        }
+      }
+    },
+    {
+      "id": "label",
+      "name": "Front label",
+      "level": "meso",
+      "role": "applied-graphic",
+      "importance": 0.5,
+      "confidence": 0.95,
+      "primitive": "plane-card",
+      "topologyClass": "conforming-shell",
+      "topologyRationale": "A thin applied paper rectangle: a shell laid on the parent face, not a solid.",
+      "geometryDescriptor": {
+        "topologyIntent": "thin shell offset 0.002 in front of the body face to avoid z-fighting",
+        "edgeTreatment": {
+          "type": "none",
+          "bevelRadius": 0.0,
+          "segments": 1
+        },
+        "deformationStack": [],
+        "uvStrategy": "planar",
+        "normalStrategy": "flat"
+      },
+      "parent": "bottleBody",
+      "attachment": {
+        "parentSocket": "bottleBody.frontFace",
+        "localStart": [0, -0.325, 0.21],
+        "localEnd": [0, -0.155, 0.212],
+        "contactType": "overlap",
+        "embedDepth": 0.0,
+        "gapTolerance": 0.002
+      },
+      "dimensions": {
+        "width": 0.4,
+        "height": 0.17,
+        "depth": 0.002
+      },
+      "transform": {
+        "position": [0, -0.24, 0.212],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "static",
+        "pivot": {
+          "mode": "centre",
+          "position": [0, 0, 0],
+          "confidence": 0.95
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": false,
+          "scale": false
+        },
+        "collider": {
+          "type": "none",
+          "size": [0, 0, 0],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "breakImpulse": 0.0,
+          "mode": "none"
+        }
+      },
+      "material": "labelPaper",
+      "materialLayers": ["labelPaper"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "blankLabel",
+          "kind": "graphic",
+          "description": "No lettering, no logo. Deliberately blank in the reference and kept blank.",
+          "evidenceRef": "zones/zone-r2c1.png",
+          "confidence": 0.95
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "labelPaper",
+      "colorMaterialRecipe": {
+        "componentId": "label",
+        "dominantAlbedo": "rgba(175, 168, 160, 1.0)",
+        "secondaryAlbedo": "rgba(98, 77, 43, 1.0)",
+        "materialClass": "unknown",
+        "materialClassConfidence": 0.691,
+        "roughnessEstimate": 0.124,
+        "metalnessEstimate": 0.0,
+        "highlightEvidence": "sharp, tight specular hotspot \u2014 supports low roughness/high specularity",
+        "sourceCropPath": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/label.png",
+        "labClusterMeta": {
+          "clusterCount": 3,
+          "dominantClusterSharePct": 0.635
+        }
+      }
+    },
+    {
+      "id": "shoulderAssembly",
+      "name": "Shoulder and neck",
+      "level": "meso",
+      "role": "sub-assembly",
+      "importance": 0.6,
+      "confidence": 0.85,
+      "primitive": "lathe",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "Continuous with the body blank: the flat inward step and the short neck are one revolved transition, so they are lathed as a profile rather than assembled.",
+      "geometryDescriptor": {
+        "topologyIntent": "filleted cuboid, bevel-ready edges, enough segments on the fillets to read round in silhouette at plate scale",
+        "edgeTreatment": {
+          "type": "fillet",
+          "bevelRadius": 0.055,
+          "segments": 5
+        },
+        "deformationStack": [
+          {
+            "op": "shoulder-bevel",
+            "note": "short flat inward step at the top, not a continuous curve"
+          }
+        ],
+        "uvStrategy": "box projection per face",
+        "normalStrategy": "smooth on fillets, flat on faces, split at the bevel"
+      },
+      "parent": "bottleBody",
+      "attachment": {
+        "parentSocket": "bottleBody.neck",
+        "localStart": [0, 1.18, 0],
+        "localEnd": [0, 1.27, 0],
+        "contactType": "butt",
+        "embedDepth": 0.02,
+        "gapTolerance": 0.0
+      },
+      "dimensions": {
+        "radius": 0.2,
+        "height": 0.09
+      },
+      "transform": {
+        "position": [0, 0.59, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "static",
+        "pivot": {
+          "mode": "centre",
+          "position": [0, 0, 0],
+          "confidence": 0.85
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": false,
+          "scale": false
+        },
+        "collider": {
+          "type": "none",
+          "size": [0, 0, 0],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "breakImpulse": 0.0,
+          "mode": "none"
+        }
+      },
+      "material": "glass",
+      "materialLayers": ["glass"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "shoulderStep",
+          "kind": "bevel",
+          "description": "Flat inward step, 0.06 body widths wide, before the neck rises.",
+          "evidenceRef": "zones/zone-r1c0.png",
+          "confidence": 0.85
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "glass",
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(113, 86, 46, 1.0)",
+        "secondaryAlbedo": "rgba(207, 224, 224, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.8,
+        "provenance": "inherited from the parent component recipe extracted by extract_part_color_recipe.py; this component shares its parent surface."
+      }
+    },
+    {
+      "id": "baseSlabAssembly",
+      "name": "Solid glass foot",
+      "level": "meso",
+      "role": "sub-assembly",
+      "importance": 0.6,
+      "confidence": 0.85,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "The foot is the same continuous glass blank, distinguished only by carrying no liquid; it is modelled as part of the body profile with its own internal boundary.",
+      "geometryDescriptor": {
+        "topologyIntent": "filleted cuboid, bevel-ready edges, enough segments on the fillets to read round in silhouette at plate scale",
+        "edgeTreatment": {
+          "type": "fillet",
+          "bevelRadius": 0.055,
+          "segments": 5
+        },
+        "deformationStack": [
+          {
+            "op": "shoulder-bevel",
+            "note": "short flat inward step at the top, not a continuous curve"
+          }
+        ],
+        "uvStrategy": "box projection per face",
+        "normalStrategy": "smooth on fillets, flat on faces, split at the bevel"
+      },
+      "parent": "bottleBody",
+      "attachment": {
+        "parentSocket": "bottleBody.interior",
+        "localStart": [0, 0.0, 0],
+        "localEnd": [0, 0.2, 0],
+        "contactType": "embed",
+        "embedDepth": 0.2,
+        "gapTolerance": 0.0
+      },
+      "dimensions": {
+        "width": 1.0,
+        "height": 0.2,
+        "depth": 0.42
+      },
+      "transform": {
+        "position": [0, -0.49, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "static",
+        "pivot": {
+          "mode": "centre",
+          "position": [0, 0, 0],
+          "confidence": 0.85
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": false,
+          "scale": false
+        },
+        "collider": {
+          "type": "none",
+          "size": [0, 0, 0],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "breakImpulse": 0.0,
+          "mode": "none"
+        }
+      },
+      "material": "glass",
+      "materialLayers": ["glass"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "slabBoundary",
+          "kind": "contour",
+          "description": "Horizontal internal boundary at the top of the solid foot.",
+          "evidenceRef": "zones/zone-r2c1.png",
+          "confidence": 0.93
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "glass",
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(113, 86, 46, 1.0)",
+        "secondaryAlbedo": "rgba(207, 224, 224, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.85,
+        "provenance": "inherited from the parent component recipe extracted by extract_part_color_recipe.py; this component shares its parent surface."
+      }
+    },
+    {
+      "id": "grooveBand",
+      "name": "Cap groove band",
+      "level": "meso",
+      "role": "sub-assembly",
+      "importance": 0.6,
+      "confidence": 0.85,
+      "primitive": "lathe",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "Two turned recesses in the cap wall: relief on an existing surface, not a separate solid, but built as geometry because each groove edge catches its own highlight.",
+      "geometryDescriptor": {
+        "topologyIntent": "filleted cuboid, bevel-ready edges, enough segments on the fillets to read round in silhouette at plate scale",
+        "edgeTreatment": {
+          "type": "fillet",
+          "bevelRadius": 0.055,
+          "segments": 5
+        },
+        "deformationStack": [
+          {
+            "op": "shoulder-bevel",
+            "note": "short flat inward step at the top, not a continuous curve"
+          }
+        ],
+        "uvStrategy": "box projection per face",
+        "normalStrategy": "smooth on fillets, flat on faces, split at the bevel"
+      },
+      "parent": "cap",
+      "attachment": {
+        "parentSocket": "cap.wall",
+        "localStart": [0, -0.13, 0],
+        "localEnd": [0, -0.1, 0],
+        "contactType": "embed",
+        "embedDepth": 0.006,
+        "gapTolerance": 0.0
+      },
+      "dimensions": {
+        "radius": 0.21,
+        "height": 0.03
+      },
+      "transform": {
+        "position": [0, -0.115, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "actionProfile": {
+        "animationRole": "static",
+        "pivot": {
+          "mode": "centre",
+          "position": [0, 0, 0],
+          "confidence": 0.85
+        },
+        "transformChannels": {
+          "translate": true,
+          "rotate": false,
+          "scale": false
+        },
+        "collider": {
+          "type": "none",
+          "size": [0, 0, 0],
+          "isTrigger": false
+        },
+        "constraints": [],
+        "destruction": {
+          "breakable": false,
+          "breakImpulse": 0.0,
+          "mode": "none"
+        }
+      },
+      "material": "satinCharcoal",
+      "materialLayers": ["satinCharcoal"],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        {
+          "id": "grooveUpper",
+          "kind": "groove",
+          "description": "Upper of the two fine recessed circumferential grooves.",
+          "evidenceRef": "zones/zone-r0c1.png",
+          "confidence": 0.9
+        },
+        {
+          "id": "grooveLower",
+          "kind": "groove",
+          "description": "Lower of the two fine recessed circumferential grooves.",
+          "evidenceRef": "zones/zone-r0c1.png",
+          "confidence": 0.9
+        }
+      ],
+      "surfaceDetail": {
+        "macroRoughness": 0.0,
+        "microRoughness": 0.0,
+        "bumpAmplitude": 0.0,
+        "normalPattern": "",
+        "displacementPattern": "",
+        "occlusionPattern": "",
+        "edgeWearPattern": "",
+        "notes": ""
+      },
+      "evidenceRefs": ["full-object"],
+      "details": [],
+      "fidelityTier": "blockout",
+      "materialRef": "satinCharcoal",
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(24, 28, 30, 1.0)",
+        "secondaryAlbedo": "rgba(52, 56, 60, 1.0)",
+        "materialClass": "plastic",
+        "materialClassConfidence": 0.88,
+        "provenance": "inherited from the parent component recipe extracted by extract_part_color_recipe.py; this component shares its parent surface."
+      }
+    }
+  ],
+  "materials": [
+    {
+      "id": "glass",
+      "name": "Flacon glass",
+      "type": "physical",
+      "shaderModel": "MeshPhysicalMaterial, transmission",
+      "baseColor": "#eaf2f2",
+      "color": "#eaf2f2",
+      "albedo": {
+        "dominant": "#6E542D",
+        "secondary": ["#574222", "#3E311A", "#9E8256"],
+        "samplingNotes": "Reference-derived from foreground pixels; de-lit to reduce baked shadows/highlights.",
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_albedo.png",
+          "url": "/media/flacon/glass/glass_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "colorVariation": {
+        "palette": ["#6E542D", "#574222", "#3E311A", "#9E8256", "#CFBFA3"],
+        "pattern": "reference-derived pixel palette",
+        "amplitude": 0.215,
+        "heightCorrelation": 0.42
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [2.0, 2.0],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 1.0,
+          "amplitude": 0.0006,
+          "note": "Form only: faces and fillets are geometry; the glass itself is smooth."
+        },
+        {
+          "id": "meso",
+          "frequency": 8.0,
+          "amplitude": 0.001,
+          "note": "Very faint moulding undulation across the faces, near visibility limit."
+        },
+        {
+          "id": "micro",
+          "frequency": 110.0,
+          "amplitude": 0.0004,
+          "note": "Polished micro-roughness; stops the highlight reading as a mirror."
+        }
+      ],
+      "roughness": {
+        "base": 0.045,
+        "map": "/media/flacon/glass/glass_roughness.png",
+        "source": "reference-pixel-extraction, independent of the albedo map"
+      },
+      "metalness": 0.0,
+      "normal": {
+        "map": "/media/flacon/glass/glass_normal.png",
+        "scale": 0.6
+      },
+      "bump": {
+        "pattern": "reference-derived height field",
+        "amplitude": 0.021,
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_height.png",
+          "url": "/media/flacon/glass/glass_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "map": "/media/flacon/glass/glass_ao.png",
+        "intensity": 0.8,
+        "source": "reference-pixel-extraction, independent of the albedo and roughness maps"
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "baseSlabDensity",
+          "target": "bottleBody.localFeatures.baseSlab",
+          "channel": "thickness",
+          "note": "Thicker in the solid foot, so it refracts more strongly."
+        },
+        {
+          "id": "reference-pbr-pixel-evidence",
+          "type": "material-map-evidence",
+          "evidenceRefs": ["full-object"],
+          "channels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"],
+          "notes": "Use generated maps as material evidence, then refine after browser screenshot comparison."
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there.",
+        "Reference-derived maps are estimates from image pixels; verify with neutral, grazing, and reference-matched renders.",
+        "Do not treat baked image shadows as final albedo; rerun extraction with a tighter material crop if highlights/shadows pollute the maps."
+      ],
+      "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.",
+      "pbr": {
+        "metalness": 0.0,
+        "roughness": 0.045,
+        "transmission": 0.94,
+        "ior": 1.5,
+        "thickness": 0.22,
+        "specularF0": 0.04
+      },
+      "declaredLimitation": "Transmission approximation only: no caustics, no dispersion, no real environment reflection.",
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/bottleBody.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.829,
+        "estimatedFidelity": 0.829,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_albedo.png",
+            "url": "/media/flacon/glass/glass_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_roughness.png",
+            "url": "/media/flacon/glass/glass_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_height.png",
+            "url": "/media/flacon/glass/glass_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_normal.png",
+            "url": "/media/flacon/glass/glass_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_ao.png",
+            "url": "/media/flacon/glass/glass_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 300,
+          "sourceHeight": 300,
+          "mapSize": 1024,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 300,
+            "height": 300
+          },
+          "mask": {
+            "backgroundColor": "#555030",
+            "backgroundNoise": 63.246,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 0.9325
+          },
+          "mapStats": {
+            "valueRange": 0.5116,
+            "heightP90Gradient": 0.04601,
+            "roughnessBase": 0.688,
+            "roughnessVariation": 0.075,
+            "normalStrength": 0.21,
+            "blurRadius": 21
+          },
+          "palette": ["#6E542D", "#574222", "#3E311A", "#9E8256", "#CFBFA3"]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      }
+    },
+    {
+      "id": "juice",
+      "name": "Amber juice",
+      "type": "physical",
+      "shaderModel": "MeshPhysicalMaterial, transmission with attenuation",
+      "baseColor": "#c9923e",
+      "color": "#c9923e",
+      "albedo": {
+        "dominant": "#70552E",
+        "secondary": ["#624A27", "#554020", "#483518"],
+        "samplingNotes": "Reference-derived from foreground pixels; de-lit to reduce baked shadows/highlights.",
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_albedo.png",
+          "url": "/media/flacon/juice/juice_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "colorVariation": {
+        "palette": ["#70552E", "#624A27", "#554020", "#483518", "#B68F54"],
+        "pattern": "reference-derived pixel palette",
+        "amplitude": 0.08,
+        "heightCorrelation": 0.42
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [2.0, 2.0],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 1.0,
+          "amplitude": 0.0004,
+          "note": "Still liquid, no macro relief."
+        },
+        {
+          "id": "meso",
+          "frequency": 5.0,
+          "amplitude": 0.0005,
+          "note": "Meniscus is the only meso event and it is geometry, not relief."
+        },
+        {
+          "id": "micro",
+          "frequency": 130.0,
+          "amplitude": 0.0002,
+          "note": "Near-mirror liquid surface."
+        }
+      ],
+      "roughness": {
+        "base": 0.02,
+        "map": "/media/flacon/juice/juice_roughness.png",
+        "source": "reference-pixel-extraction, independent of the albedo map"
+      },
+      "metalness": 0.0,
+      "normal": {
+        "map": "/media/flacon/juice/juice_normal.png",
+        "scale": 0.6
+      },
+      "bump": {
+        "pattern": "reference-derived height field",
+        "amplitude": 0.01,
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_height.png",
+          "url": "/media/flacon/juice/juice_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "map": "/media/flacon/juice/juice_ao.png",
+        "intensity": 0.8,
+        "source": "reference-pixel-extraction, independent of the albedo and roughness maps"
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "depthAbsorption",
+          "target": "juice",
+          "channel": "attenuationDistance",
+          "note": "Absorption with path length is what makes the centre read darker; this is the channel that carries it, not albedo."
+        },
+        {
+          "id": "reference-pbr-pixel-evidence",
+          "type": "material-map-evidence",
+          "evidenceRefs": ["full-object"],
+          "channels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"],
+          "notes": "Use generated maps as material evidence, then refine after browser screenshot comparison."
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there.",
+        "Reference-derived maps are estimates from image pixels; verify with neutral, grazing, and reference-matched renders.",
+        "Do not treat baked image shadows as final albedo; rerun extraction with a tighter material crop if highlights/shadows pollute the maps."
+      ],
+      "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.",
+      "pbr": {
+        "metalness": 0.0,
+        "roughness": 0.02,
+        "transmission": 0.88,
+        "ior": 1.45,
+        "thickness": 0.3,
+        "attenuationDistance": 0.35,
+        "attenuationColor": "#8f6a32"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/juice.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_albedo.png",
+            "url": "/media/flacon/juice/juice_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_roughness.png",
+            "url": "/media/flacon/juice/juice_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_height.png",
+            "url": "/media/flacon/juice/juice_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_normal.png",
+            "url": "/media/flacon/juice/juice_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_ao.png",
+            "url": "/media/flacon/juice/juice_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 200,
+          "sourceHeight": 260,
+          "mapSize": 1024,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 260
+          },
+          "mask": {
+            "backgroundColor": "#69502B",
+            "backgroundNoise": 54.827,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.1492,
+            "heightP90Gradient": 0.02022,
+            "roughnessBase": 0.701,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.18,
+            "blurRadius": 21
+          },
+          "palette": ["#70552E", "#624A27", "#554020", "#483518", "#B68F54"]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      }
+    },
+    {
+      "id": "brushedGold",
+      "name": "Brushed collar",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial, anisotropic intent",
+      "baseColor": "#c9b487",
+      "color": "#c9b487",
+      "albedo": {
+        "dominant": "#F0E5D8",
+        "secondary": ["#5E523F", "#28231A", "#CCBCA8"],
+        "samplingNotes": "Reference-derived from foreground pixels; de-lit to reduce baked shadows/highlights.",
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_albedo.png",
+          "url": "/media/flacon/brushedGold/brushedgold_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "colorVariation": {
+        "palette": ["#F0E5D8", "#5E523F", "#28231A", "#CCBCA8", "#978670"],
+        "pattern": "reference-derived pixel palette",
+        "amplitude": 0.349,
+        "heightCorrelation": 0.42
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [2.0, 2.0],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 1.0,
+          "amplitude": 0.0005,
+          "note": "Turned sleeve; no macro relief."
+        },
+        {
+          "id": "meso",
+          "frequency": 16.0,
+          "amplitude": 0.002,
+          "note": "Axial brushing bands at the striation pitch read in zone-r0c1."
+        },
+        {
+          "id": "micro",
+          "frequency": 240.0,
+          "amplitude": 0.0012,
+          "note": "Grain inside each stroke; carries the anisotropic highlight."
+        }
+      ],
+      "roughness": {
+        "base": 0.31,
+        "map": "/media/flacon/brushedGold/brushedgold_roughness.png",
+        "source": "reference-pixel-extraction, independent of the albedo map"
+      },
+      "metalness": 1.0,
+      "normal": {
+        "map": "/media/flacon/brushedGold/brushedgold_normal.png",
+        "scale": 0.6
+      },
+      "bump": {
+        "pattern": "reference-derived height field",
+        "amplitude": 0.01,
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_height.png",
+          "url": "/media/flacon/brushedGold/brushedgold_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "map": "/media/flacon/brushedGold/brushedgold_ao.png",
+        "intensity": 0.8,
+        "source": "reference-pixel-extraction, independent of the albedo and roughness maps"
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "circumferentialBrushing",
+          "target": "collar",
+          "channel": "roughness",
+          "note": "AXIAL striations, corrected from the first-pass reading. Roughness is modulated along the circumference so the streaks run parallel to the axis. The override id is kept for traceability to the detail inventory entry."
+        },
+        {
+          "id": "reference-pbr-pixel-evidence",
+          "type": "material-map-evidence",
+          "evidenceRefs": ["full-object"],
+          "channels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"],
+          "notes": "Use generated maps as material evidence, then refine after browser screenshot comparison."
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there.",
+        "Reference-derived maps are estimates from image pixels; verify with neutral, grazing, and reference-matched renders.",
+        "Do not treat baked image shadows as final albedo; rerun extraction with a tighter material crop if highlights/shadows pollute the maps."
+      ],
+      "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.",
+      "pbr": {
+        "metalness": 1.0,
+        "roughness": 0.31,
+        "specularF0": null
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/collar.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.764,
+        "estimatedFidelity": 0.764,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_albedo.png",
+            "url": "/media/flacon/brushedGold/brushedgold_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_roughness.png",
+            "url": "/media/flacon/brushedGold/brushedgold_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_height.png",
+            "url": "/media/flacon/brushedGold/brushedgold_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_normal.png",
+            "url": "/media/flacon/brushedGold/brushedgold_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_ao.png",
+            "url": "/media/flacon/brushedGold/brushedgold_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 210,
+          "sourceHeight": 55,
+          "mapSize": 1024,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 210,
+            "height": 55
+          },
+          "mask": {
+            "backgroundColor": "#554734",
+            "backgroundNoise": 11.747,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 0.9984
+          },
+          "mapStats": {
+            "valueRange": 0.8302,
+            "heightP90Gradient": 0.01141,
+            "roughnessBase": 0.69,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.17,
+            "blurRadius": 21
+          },
+          "palette": ["#F0E5D8", "#5E523F", "#28231A", "#CCBCA8", "#978670"]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      }
+    },
+    {
+      "id": "satinCharcoal",
+      "name": "Satin overcap",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial",
+      "baseColor": "#26292c",
+      "color": "#26292c",
+      "albedo": {
+        "dominant": "#414345",
+        "secondary": ["#0D1112", "#1E2225", "#5F6164"],
+        "samplingNotes": "Reference-derived from foreground pixels; de-lit to reduce baked shadows/highlights.",
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_albedo.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "colorVariation": {
+        "palette": ["#414345", "#0D1112", "#1E2225", "#5F6164", "#8F9093"],
+        "pattern": "reference-derived pixel palette",
+        "amplitude": 0.207,
+        "heightCorrelation": 0.42
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [2.0, 2.0],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 1.0,
+          "amplitude": 0.0005,
+          "note": "Moulded cylinder; no macro relief."
+        },
+        {
+          "id": "meso",
+          "frequency": 11.0,
+          "amplitude": 0.0006,
+          "note": "The two turned grooves; geometry, so this band only carries AO."
+        },
+        {
+          "id": "micro",
+          "frequency": 170.0,
+          "amplitude": 0.002,
+          "note": "Fine moulding texture that broadens the highlight into a lobe."
+        }
+      ],
+      "roughness": {
+        "base": 0.6,
+        "map": "/media/flacon/satinCharcoal/satincharcoal_roughness.png",
+        "source": "reference-pixel-extraction, independent of the albedo map"
+      },
+      "metalness": 0.0,
+      "normal": {
+        "map": "/media/flacon/satinCharcoal/satincharcoal_normal.png",
+        "scale": 0.6
+      },
+      "bump": {
+        "pattern": "reference-derived height field",
+        "amplitude": 0.014,
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_height.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "map": "/media/flacon/satinCharcoal/satincharcoal_ao.png",
+        "intensity": 0.8,
+        "source": "reference-pixel-extraction, independent of the albedo and roughness maps"
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "grooveShadow",
+          "target": "cap.localFeatures.machinedGroove",
+          "channel": "ao",
+          "note": "Occlusion inside the two grooves; the grooves themselves are geometry."
+        },
+        {
+          "id": "reference-pbr-pixel-evidence",
+          "type": "material-map-evidence",
+          "evidenceRefs": ["full-object"],
+          "channels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"],
+          "notes": "Use generated maps as material evidence, then refine after browser screenshot comparison."
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there.",
+        "Reference-derived maps are estimates from image pixels; verify with neutral, grazing, and reference-matched renders.",
+        "Do not treat baked image shadows as final albedo; rerun extraction with a tighter material crop if highlights/shadows pollute the maps."
+      ],
+      "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.",
+      "pbr": {
+        "metalness": 0.0,
+        "roughness": 0.6,
+        "specularF0": 0.04
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/cap.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.86,
+        "estimatedFidelity": 0.86,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_albedo.png",
+            "url": "/media/flacon/satinCharcoal/satincharcoal_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_roughness.png",
+            "url": "/media/flacon/satinCharcoal/satincharcoal_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_height.png",
+            "url": "/media/flacon/satinCharcoal/satincharcoal_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_normal.png",
+            "url": "/media/flacon/satinCharcoal/satincharcoal_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_ao.png",
+            "url": "/media/flacon/satinCharcoal/satincharcoal_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 210,
+          "sourceHeight": 150,
+          "mapSize": 1024,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 210,
+            "height": 150
+          },
+          "mask": {
+            "backgroundColor": "#1D2325",
+            "backgroundNoise": 13.379,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 0.8338
+          },
+          "mapStats": {
+            "valueRange": 0.4935,
+            "heightP90Gradient": 0.03058,
+            "roughnessBase": 0.7,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.192,
+            "blurRadius": 21
+          },
+          "palette": ["#414345", "#0D1112", "#1E2225", "#5F6164", "#8F9093"]
+        },
+        "warnings": [
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      }
+    },
+    {
+      "id": "labelPaper",
+      "name": "Label paper",
+      "type": "standard",
+      "shaderModel": "MeshStandardMaterial",
+      "baseColor": "#d8d3c8",
+      "color": "#d8d3c8",
+      "albedo": {
+        "dominant": "#B1AAA2",
+        "secondary": ["#ACA59C", "#66502C", "#4E4025"],
+        "samplingNotes": "Reference-derived from foreground pixels; de-lit to reduce baked shadows/highlights.",
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_albedo.png",
+          "url": "/media/flacon/labelPaper/labelpaper_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "colorVariation": {
+        "palette": ["#B1AAA2", "#ACA59C", "#66502C", "#4E4025", "#D4CBC1"],
+        "pattern": "reference-derived pixel palette",
+        "amplitude": 0.17,
+        "heightCorrelation": 0.42
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [2.0, 2.0],
+        "anisotropy": 8,
+        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 1.0,
+          "amplitude": 0.0004,
+          "note": "Flat applied rectangle."
+        },
+        {
+          "id": "meso",
+          "frequency": 7.0,
+          "amplitude": 0.0004,
+          "note": "Slight lift at the label edges."
+        },
+        {
+          "id": "micro",
+          "frequency": 330.0,
+          "amplitude": 0.003,
+          "note": "Paper fibre grain."
+        }
+      ],
+      "roughness": {
+        "base": 0.88,
+        "map": "/media/flacon/labelPaper/labelpaper_roughness.png",
+        "source": "reference-pixel-extraction, independent of the albedo map"
+      },
+      "metalness": 0.0,
+      "normal": {
+        "map": "/media/flacon/labelPaper/labelpaper_normal.png",
+        "scale": 0.6
+      },
+      "bump": {
+        "pattern": "reference-derived height field",
+        "amplitude": 0.01,
+        "map": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_height.png",
+          "url": "/media/flacon/labelPaper/labelpaper_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "displacement": {
+        "pattern": "none",
+        "amplitude": 0.0,
+        "scale": 1.0,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "map": "/media/flacon/labelPaper/labelpaper_ao.png",
+        "intensity": 0.8,
+        "source": "reference-pixel-extraction, independent of the albedo and roughness maps"
+      },
+      "wear": {
+        "edgeWear": 0.0,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.0,
+        "cavityBias": 0.0,
+        "color": "#2F2A22"
+      },
+      "localOverrides": [
+        {
+          "id": "reference-pbr-pixel-evidence",
+          "type": "material-map-evidence",
+          "evidenceRefs": ["full-object"],
+          "channels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"],
+          "notes": "Use generated maps as material evidence, then refine after browser screenshot comparison."
+        }
+      ],
+      "shaderNotes": [
+        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
+        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
+        "Use normal/bump/displacement only when they map to observed surface relief.",
+        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there.",
+        "Reference-derived maps are estimates from image pixels; verify with neutral, grazing, and reference-matched renders.",
+        "Do not treat baked image shadows as final albedo; rerun extraction with a tighter material crop if highlights/shadows pollute the maps."
+      ],
+      "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.",
+      "pbr": {
+        "metalness": 0.0,
+        "roughness": 0.88,
+        "specularF0": 0.04
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/crops/label.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.81,
+        "estimatedFidelity": 0.81,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_albedo.png",
+            "url": "/media/flacon/labelPaper/labelpaper_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_roughness.png",
+            "url": "/media/flacon/labelPaper/labelpaper_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_height.png",
+            "url": "/media/flacon/labelPaper/labelpaper_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_normal.png",
+            "url": "/media/flacon/labelPaper/labelpaper_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_ao.png",
+            "url": "/media/flacon/labelPaper/labelpaper_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 210,
+          "sourceHeight": 90,
+          "mapSize": 1024,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 210,
+            "height": 90
+          },
+          "mask": {
+            "backgroundColor": "#504127",
+            "backgroundNoise": 22.913,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.4046,
+            "heightP90Gradient": 0.02125,
+            "roughnessBase": 0.695,
+            "roughnessVariation": 0.05,
+            "normalStrength": 0.181,
+            "blurRadius": 21
+          },
+          "palette": ["#B1AAA2", "#ACA59C", "#66502C", "#4E4025", "#D4CBC1"]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      }
+    }
+  ],
+  "repetitionSystems": [
+    {
+      "id": "cornerFillets",
+      "name": "Vertical corner fillets",
+      "count": 4,
+      "distribution": "one per vertical body edge, radial symmetry about Y at 90 degree steps",
+      "element": "constant-radius vertical round, 0.055 body widths",
+      "variation": {
+        "amplitude": 0.0,
+        "note": "Identical by manufacture; no jitter."
+      },
+      "evidenceRef": "zones/zone-r1c2.png",
+      "confidence": 0.93
+    }
+  ],
+  "buildPasses": [
+    {
+      "id": "blockout",
+      "goal": "Match macro silhouette and proportions.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Silhouette reads correctly without materials.",
+        "Quality contract has named all required macro feature groups before code generation.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "structural-pass",
+      "goal": "Build the component hierarchy implied by the pre-spec complexity assessment.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Macro, meso, and repeated structures meet qualityContract.minimumSpecDepth.",
+        "Parent-child relations, joints, seams, sockets, and contact points are explicit.",
+        "Every attached child appendage/connector has parentSocket, localStart/localEnd, contactType, embedDepth or overlap, and gapTolerance.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "form-refinement",
+      "goal": "Refine shape, deformation, bevels, tapers, curves, asymmetry, and visible local geometry.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Important visible forms are represented in component geometryDescriptor, deformations, localFeatures, or repetitionSystems.",
+        "Endpoint-based child parts are rooted at their attachment sockets and do not visibly float away from parents.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "material-pass",
+      "goal": "Match material color, roughness, bump, and local variation.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Reference-derived albedo palette records dominant, secondary, and accent colors per visible material.",
+        "Each important material defines roughness variation and at least one normal/bump/displacement response.",
+        "Local material overrides, dirt/wear/stains/moss/chips/scratches or equivalent masks are tied to evidenceRefs.",
+        "Thin, transparent, reflective, wet, or fibrous materials document alpha/transmission/clearcoat/metalness/fiber response when relevant.",
+        "Generated preview uses procedural albedo/roughness/bump texture or vertex color variation instead of one flat color.",
+        "Generated preview uses independent PBR maps at 1024px or higher for the quality-first tier.",
+        "If source pixels are available, referencePbr extraction passed at confidence >= 0.7 or the pass is stopped/requesting better references.",
+        "Macro, meso, and micro surface frequency bands are visible at the intended review distance without obvious tiling.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "surface-pass",
+      "goal": "Add procedural surface locality such as normal/bump/displacement, AO, dirt, stains, chips, grain, moss, scratches, and wear.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Every required material feature group has local overrides or surfaceDetail tied to evidenceRefs.",
+        "A grazing-angle close-up proves that normal/height detail breaks highlights naturally and does not read as smooth plastic.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "lighting-pass",
+      "goal": "Make material and form readable under neutral turntable lighting plus optional reference lighting.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "lightingFromPhoto identifies key light direction/color/intensity, fill light, rim or environment light, and ambient color.",
+        "Exposure, tone mapping, background color/gradient, shadow softness, and contact shadow behavior are specified.",
+        "Lighting does not hide geometry/material gaps and screenshots can be compared fairly to the reference.",
+        "Neutral, grazing, and reference-matched lighting checks distinguish material errors from lighting errors.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "interaction-pass",
+      "goal": "Make the model ready for future animation, transformation, physics, or destruction.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Macro and movable meso components have stable pivot nodes.",
+        "Sockets, collider proxies, and destruction metadata are present for future runtime actions.",
+        "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold."
+      ]
+    },
+    {
+      "id": "optimization-pass",
+      "goal": "Protect runtime performance after visual fidelity is accepted.",
+      "componentRefs": ["root"],
+      "acceptance": [
+        "Triangle count, draw calls, instancing, LOD strategy, and FPS target are documented or verified.",
+        "Repeated detail is instanced or simplified where possible without breaking silhouette/material believability."
+      ]
+    }
+  ],
+  "visualEvidence": [],
+  "reviewHistory": [],
+  "lodPlan": [
+    {
+      "tier": "near",
+      "distance": 0,
+      "strategy": "full component tree and material layers"
+    },
+    {
+      "tier": "far",
+      "distance": 30,
+      "strategy": "merge static components and reduce local feature geometry"
+    }
+  ],
+  "performanceBudget": {
+    "targetTriangles": 26000,
+    "targetDrawCalls": 6,
+    "targetFps": 60,
+    "note": "One transmissive material is the expensive item; the plate renders at most two transmissive meshes and mounts only while on screen."
+  },
+  "lightingFromPhoto": [
+    {
+      "id": "key",
+      "type": "area",
+      "azimuthDeg": -40,
+      "elevationDeg": 38,
+      "intensity": 2.6,
+      "size": "large soft",
+      "note": "Single large key from upper left, read off the highlight lobe. Exposure 1.0 with ACES filmic tone mapping, which is what keeps the amber out of clipping."
+    },
+    {
+      "id": "fill",
+      "type": "ambient",
+      "azimuthDeg": 0,
+      "elevationDeg": 0,
+      "intensity": 0.35,
+      "note": "Low ambient; the reference keeps deep shadow on the distal side."
+    },
+    {
+      "id": "rim",
+      "type": "directional",
+      "azimuthDeg": 115,
+      "elevationDeg": 10,
+      "intensity": 0.9,
+      "note": "Low rim separating the lateral-right edge from the ground."
+    },
+    {
+      "id": "environment",
+      "type": "gradient",
+      "azimuthDeg": 0,
+      "elevationDeg": 90,
+      "intensity": 0.6,
+      "note": "Transmissive materials need structure to refract; a vertical gradient environment supplies it without pretending to be a real room."
+    },
+    {
+      "id": "ground",
+      "type": "shadow-catcher",
+      "azimuthDeg": 0,
+      "elevationDeg": -90,
+      "intensity": 0.55,
+      "note": "Contact shadow under the base: soft and short, consistent with the large key. Ambient occlusion carries the remaining ground shadow. Background is flat dark desaturated teal-black matching the page ground."
+    }
+  ],
+  "proceduralStrategy": [
+    {
+      "id": "code-only",
+      "rule": "Procedural primitives written in TypeScript. No imported mesh, no downloaded asset, no photogrammetry."
+    },
+    {
+      "id": "body-profile",
+      "rule": "Body, juice and base foot are extruded rounded rectangular profiles, which is what gives the constant-radius vertical fillets."
+    },
+    {
+      "id": "turned-parts",
+      "rule": "Collar and cap are lathed profiles; the cap profile carries the top round and both grooves as real vertices."
+    },
+    {
+      "id": "no-map-faking",
+      "rule": "The cap grooves and the shoulder step affect the silhouette, so they are geometry rather than normal-map detail."
+    },
+    {
+      "id": "label",
+      "rule": "A thin offset plane card; blank, as in the reference."
+    }
+  ],
+  "animationAnchors": [
+    {
+      "id": "explode",
+      "type": "translate-along-Y",
+      "targets": ["cap", "collar", "juice"],
+      "note": "Separates the assembly into the three costing levels: concentrate (juice), diluted juice in the body, packaged unit (collar and cap)."
+    },
+    {
+      "id": "turntable",
+      "type": "rotate-about-Y",
+      "targets": ["root"],
+      "note": "Slow continuous yaw; disabled under prefers-reduced-motion."
+    }
+  ],
+  "destructionAnchors": [
+    "actionProfile.destruction.fractureGroup marks detachable or breakable component sets",
+    "component seams and sockets define plausible break points instead of random explosions"
+  ],
+  "risks": [
+    {
+      "id": "transmission-cost",
+      "severity": "medium",
+      "mitigation": "Mount only while on screen; cap pixel ratio at 2; fall back to the existing CSS vessel when WebGL is unavailable."
+    },
+    {
+      "id": "back-face-unknown",
+      "severity": "low",
+      "mitigation": "Symmetry assumption stated in the spec and in the figure caption."
+    },
+    {
+      "id": "glass-reads-flat-without-environment",
+      "severity": "medium",
+      "mitigation": "Transmissive materials need something to refract; the figure lights a simple gradient environment so the glass has structure to bend."
+    }
+  ],
+  "localSpecSearch": {
+    "collection": "core_3d",
+    "query": "Packaged unit 50 ml flacon",
+    "index": {
+      "status": "rebuilt",
+      "reason": "missing",
+      "fingerprint": "62f2831e1d52eeb6dbb94a87c44fa25b1f4926626a7b1f8c2bcadc63e04e9471"
+    },
+    "matches": [
+      {
+        "record_id": "core.coordinate-relative-units",
+        "file_path": "grimoire/glossary/3d_vocabulary.md",
+        "heading": "Geometry And Topology",
+        "key_path": null,
+        "score": 5.226280734608,
+        "snippets": ["A bevel radius is sized in object-relative units."],
+        "source_refs": [
+          {
+            "path": "grimoire/glossary/3d_vocabulary.md",
+            "heading": "Geometry And Topology",
+            "key_path": null
+          },
+          {
+            "path": "grimoire/intake/image_analysis.md",
+            "heading": "Layer 2 \u2014 Overall form & silhouette",
+            "key_path": null
+          }
+        ],
+        "evidence_refs": [
+          {
+            "kind": "source",
+            "ref": "grimoire/glossary/3d_vocabulary.md"
+          },
+          {
+            "kind": "notebooklm-research",
+            "ref": "notebooklm:4b03c2f9-8393-411f-b5b4-039ab9532843",
+            "note": "Validated generic schema vocabulary; numeric claims remain backed by local source_refs."
+          }
+        ]
+      }
+    ]
+  },
+  "pbrExtractionHistory": [
+    {
+      "materialId": "glass",
+      "confidence": 0.829,
+      "verdict": "pass",
+      "usable": true,
+      "maps": {
+        "albedo": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_albedo.png",
+          "url": "/media/flacon/glass/glass_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_roughness.png",
+          "url": "/media/flacon/glass/glass_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_height.png",
+          "url": "/media/flacon/glass/glass_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_normal.png",
+          "url": "/media/flacon/glass/glass_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/glass/glass_ao.png",
+          "url": "/media/flacon/glass/glass_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "materialId": "juice",
+      "confidence": 0.751,
+      "verdict": "pass",
+      "usable": true,
+      "maps": {
+        "albedo": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_albedo.png",
+          "url": "/media/flacon/juice/juice_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_roughness.png",
+          "url": "/media/flacon/juice/juice_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_height.png",
+          "url": "/media/flacon/juice/juice_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_normal.png",
+          "url": "/media/flacon/juice/juice_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/juice/juice_ao.png",
+          "url": "/media/flacon/juice/juice_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "materialId": "brushedGold",
+      "confidence": 0.764,
+      "verdict": "pass",
+      "usable": true,
+      "maps": {
+        "albedo": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_albedo.png",
+          "url": "/media/flacon/brushedGold/brushedgold_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_roughness.png",
+          "url": "/media/flacon/brushedGold/brushedgold_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_height.png",
+          "url": "/media/flacon/brushedGold/brushedgold_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_normal.png",
+          "url": "/media/flacon/brushedGold/brushedgold_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/brushedGold/brushedgold_ao.png",
+          "url": "/media/flacon/brushedGold/brushedgold_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "materialId": "satinCharcoal",
+      "confidence": 0.86,
+      "verdict": "pass",
+      "usable": true,
+      "maps": {
+        "albedo": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_albedo.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_roughness.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_height.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_normal.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/satinCharcoal/satincharcoal_ao.png",
+          "url": "/media/flacon/satinCharcoal/satincharcoal_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "materialId": "labelPaper",
+      "confidence": 0.81,
+      "verdict": "pass",
+      "usable": true,
+      "maps": {
+        "albedo": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_albedo.png",
+          "url": "/media/flacon/labelPaper/labelpaper_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_roughness.png",
+          "url": "/media/flacon/labelPaper/labelpaper_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_height.png",
+          "url": "/media/flacon/labelPaper/labelpaper_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_normal.png",
+          "url": "/media/flacon/labelPaper/labelpaper_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/pbr/labelPaper/labelpaper_ao.png",
+          "url": "/media/flacon/labelPaper/labelpaper_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    }
+  ],
+  "lightingIntent": {
+    "background": "flat dark desaturated teal-black, matching the page ground",
+    "contactShadow": "soft and short, consistent with the large key from upper left",
+    "toneMapping": "ACES filmic"
+  }
+}

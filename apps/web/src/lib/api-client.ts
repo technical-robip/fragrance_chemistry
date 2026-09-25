@@ -58,7 +58,7 @@ async function ensureRefreshed(): Promise<boolean> {
   return refreshPromise;
 }
 
-export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function apiFetch(path: string, options: RequestOptions = {}): Promise<Response> {
   const { body, auth = true, headers, ...rest } = options;
   const url = `${apiBaseUrl()}${path.startsWith('/') ? path : `/${path}`}`;
 
@@ -93,6 +93,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     throw new ApiError(res.statusText || 'Request failed', res.status, payload);
   }
 
+  return res;
+}
+
+export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const res = await apiFetch(path, options);
+
   if (res.status === 204) {
     return undefined as T;
   }
@@ -100,9 +106,34 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   return (await res.json()) as T;
 }
 
+function parseFilename(header: string | null): string | null {
+  if (!header) return null;
+  const star = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(header);
+  if (star?.[1]) {
+    try {
+      return decodeURIComponent(star[1].replace(/"/g, '').trim());
+    } catch {
+      return star[1].replace(/"/g, '').trim();
+    }
+  }
+  const plain = /filename="?([^";]+)"?/i.exec(header);
+  return plain?.[1]?.trim() ?? null;
+}
+
+export async function apiRequestBlob(
+  path: string,
+  options: RequestOptions = {},
+): Promise<{ blob: Blob; filename: string; mime: string }> {
+  const res = await apiFetch(path, options);
+  const mime = res.headers.get('Content-Type')?.split(';')[0]?.trim() || 'application/octet-stream';
+  const filename = parseFilename(res.headers.get('Content-Disposition')) || 'download';
+  return { blob: await res.blob(), filename, mime };
+}
+
 export const api = {
   get: <T>(path: string) => apiRequest<T>(path, { method: 'GET' }),
   post: <T>(path: string, body?: unknown) => apiRequest<T>(path, { method: 'POST', body }),
+  postBlob: (path: string, body?: unknown) => apiRequestBlob(path, { method: 'POST', body }),
   put: <T>(path: string, body?: unknown) => apiRequest<T>(path, { method: 'PUT', body }),
   patch: <T>(path: string, body?: unknown) => apiRequest<T>(path, { method: 'PATCH', body }),
   delete: <T>(path: string) => apiRequest<T>(path, { method: 'DELETE' }),

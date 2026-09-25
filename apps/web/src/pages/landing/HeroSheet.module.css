@@ -1,0 +1,207 @@
+/* First viewport: the manual lying open at its title page. */
+
+/*
+ * The title page overrides the four-column sheet: the statement needs a measure
+ * wide enough that the headline sets in two or three lines rather than five, and
+ * the plate needs enough room for the worked example's third column.
+ */
+.sheet {
+  align-items: start;
+  grid-template-columns: 8rem minmax(0, 1.08fr) minmax(0, 0.92fr);
+  padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3rem, 6vw, 5rem);
+  border-bottom: 0;
+}
+
+.statement {
+  grid-column: 2;
+}
+
+.headline {
+  font-size: clamp(2.25rem, 4.6vw, 4.25rem);
+  line-height: 1;
+  margin: 0 0 1.5rem;
+  max-width: 22ch;
+}
+
+.subhead {
+  font-size: clamp(1rem, 1.35vw, 1.1875rem);
+  line-height: 1.5;
+  color: var(--fc-text);
+  margin-bottom: 2rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.actions svg {
+  margin-left: 0.4rem;
+}
+
+.beta {
+  margin: 1.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--fc-text-muted);
+}
+
+.vessel {
+  width: min(16rem, 100%);
+  margin-top: 2rem;
+}
+
+/* The plate: board beneath, acetate leaf laid over it and offset. */
+.plate {
+  grid-column: 3;
+  position: relative;
+  margin: 0;
+  padding-bottom: 2.25rem;
+}
+
+.board {
+  padding-bottom: 5.5rem;
+}
+
+.boardHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.formulaName {
+  font-family: var(--fc-font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  margin: 0.75rem 0 0;
+}
+
+.specs div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.specs dt {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+}
+
+.specs dd {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.leaf {
+  margin-top: -4.25rem;
+  margin-left: 1.75rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.table th,
+.table td {
+  text-align: right;
+  padding: 0.3rem 0 0.3rem 0.6rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--fc-text) 12%, transparent);
+  font-weight: 400;
+}
+
+.table thead th {
+  font-size: 0.5625rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+  border-bottom-color: var(--fc-text-muted);
+  padding-bottom: 0.4rem;
+}
+
+.table tbody th,
+.table thead th:first-child,
+.table tfoot th {
+  text-align: left;
+  padding-left: 0;
+}
+
+.table tbody th {
+  color: var(--fc-text);
+}
+
+.table td {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table tfoot th,
+.table tfoot td {
+  border-bottom: 0;
+  border-top: 1px solid var(--fc-text-muted);
+  font-weight: 600;
+  padding-top: 0.45rem;
+}
+
+.dilution {
+  margin-left: 0.4rem;
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-size: 0.6875rem;
+  color: var(--fc-warn);
+}
+
+/* A value the bench scale cannot resolve, flagged where the decision is made. */
+.flagged {
+  color: var(--fc-warn);
+  font-weight: 600;
+}
+
+.ghostHint {
+  margin: 0.9rem 0 0;
+  font-size: 0.6875rem;
+  color: var(--fc-text-muted);
+}
+
+.caption {
+  margin: 1.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--fc-text-muted);
+  max-width: 34ch;
+}
+
+@media (max-width: 60rem) {
+  .sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .statement,
+  .plate {
+    grid-column: 1;
+  }
+  .headline {
+    max-width: none;
+  }
+  .plate {
+    margin-top: 1rem;
+  }
+  .board {
+    padding-bottom: 1.5rem;
+  }
+  .leaf {
+    margin-top: 0.75rem;
+    margin-left: 0;
+  }
+  .headline {
+    font-size: clamp(2.125rem, 9vw, 3.25rem);
+  }
+}

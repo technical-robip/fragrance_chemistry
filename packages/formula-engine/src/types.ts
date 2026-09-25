@@ -33,6 +33,8 @@ export interface FormulaLine {
   /** Cost per gram of the stock line (dilution or neat as weighed). */
   costPerGram?: number;
   allergens?: AllergenContribution[];
+  /** CAS registry number when known; used by EU Annex matching, not IFRA. */
+  casNumber?: string | null;
 }
 
 export interface Formula {

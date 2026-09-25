@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
 
 export type WorkbenchLine = {
   id: string;
@@ -8,6 +9,8 @@ export type WorkbenchLine = {
   targetPct: number;
   actualG: number;
   lot?: string;
+  pyramidNote?: 'top' | 'middle' | 'base' | 'modifier';
+  olfactoryFamily?: string;
 };
 
 type WorkbenchState = {
@@ -44,6 +47,8 @@ const seedLines: WorkbenchLine[] = [
     materialName: 'Benzyl acetate',
     targetPct: 12,
     actualG: 0,
+    pyramidNote: 'middle',
+    olfactoryFamily: 'Floral',
   },
   {
     id: '2',
@@ -51,6 +56,8 @@ const seedLines: WorkbenchLine[] = [
     materialName: 'Iso E Super',
     targetPct: 18,
     actualG: 0,
+    pyramidNote: 'base',
+    olfactoryFamily: 'Woody',
   },
   {
     id: '3',
@@ -58,9 +65,10 @@ const seedLines: WorkbenchLine[] = [
     materialName: 'Bergamot oil CP',
     targetPct: 8,
     actualG: 0,
+    pyramidNote: 'top',
+    olfactoryFamily: 'Fresh',
   },
 ];
-
 const draft = loadDraft();
 
 export const useWorkbenchStore = create<WorkbenchState>()(
@@ -131,4 +139,5 @@ useWorkbenchStore.subscribe(
       useWorkbenchStore.getState().markSaved();
     }, 600);
   },
+  { equalityFn: shallow },
 );

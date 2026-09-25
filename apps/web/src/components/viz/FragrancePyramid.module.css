@@ -1,0 +1,223 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.layoutBeside {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Gutter on the right mirrors CssPerfumeVessel — callouts live outside the silhouette. */
+.stage {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0.15rem 4.75rem 0.15rem 0.35rem;
+  overflow: visible;
+}
+
+.stageNoCallouts {
+  padding-right: 0.35rem;
+}
+
+.wrapCompact {
+  gap: 0.4rem;
+}
+
+.wrapCompact .stage {
+  justify-content: flex-start;
+  padding: 0 4.2rem 0 0;
+}
+
+.wrapCompact .frame {
+  width: min(100%, 168px);
+}
+
+.wrapCompact .tierName {
+  font-size: 11px;
+}
+
+.wrapCompact .calloutDot {
+  width: 9px;
+  height: 9px;
+}
+
+.wrapCompact .calloutLine {
+  width: 20px;
+}
+
+.wrapCompact .calloutValue {
+  margin-left: 0.28rem;
+  font-size: 1.05rem;
+}
+
+.frame {
+  position: relative;
+  width: min(100%, 200px);
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.tier {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.2s var(--fc-ease-perfume);
+}
+
+.tier:focus-visible {
+  outline: 2px solid var(--fc-accent-soft);
+  outline-offset: 2px;
+}
+
+.tierName {
+  fill: var(--fc-accent-contrast);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-family: var(--fc-font-body);
+  pointer-events: none;
+}
+
+/* Same composition as vessel .levelCallout: left edge of the row = silhouette edge. */
+.callout {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  transform: translate(-2px, -50%);
+  pointer-events: none;
+  transition: opacity 0.2s var(--fc-ease-perfume);
+}
+
+.calloutDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--fc-warn-soft);
+  border: 2px solid var(--fc-bg-elevated);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fc-warn) 50%, transparent);
+  flex-shrink: 0;
+}
+
+.calloutLine {
+  width: 28px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--fc-warn-soft),
+    color-mix(in srgb, var(--fc-warn) 40%, transparent)
+  );
+  flex-shrink: 0;
+}
+
+.calloutValue {
+  margin-left: 0.4rem;
+  font-family: var(--fc-font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--fc-warn-soft);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.notes {
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--fc-radius-md);
+  background: color-mix(in srgb, var(--fc-surface) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fc-warn-soft) 16%, transparent);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--fc-text);
+}
+
+.notes strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--fc-warn-soft);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.notes p {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .stage {
+    padding: 0.1rem 3.6rem 0.1rem 0.15rem;
+  }
+
+  .frame {
+    width: min(100%, 168px);
+  }
+
+  .tierName {
+    font-size: 11px;
+  }
+
+  .calloutDot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .calloutLine {
+    width: 18px;
+  }
+
+  .calloutValue {
+    margin-left: 0.28rem;
+    font-size: 1.05rem;
+  }
+
+  .wrapCompact .stage {
+    padding: 0 3.1rem 0 0;
+  }
+
+  .wrapCompact .frame {
+    width: min(100%, 128px);
+  }
+
+  .wrapCompact .calloutLine {
+    width: 16px;
+  }
+
+  .wrapCompact .calloutValue {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 720px) {
+  .layoutBeside {
+    grid-template-columns: minmax(200px, 1.1fr) minmax(120px, 0.75fr);
+    align-items: center;
+    gap: 0.5rem 0.65rem;
+  }
+
+  .layoutBeside .stage {
+    justify-content: flex-start;
+    padding-left: 0;
+  }
+}

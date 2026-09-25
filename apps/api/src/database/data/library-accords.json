@@ -1,0 +1,176 @@
+[
+  {
+    "slug": "stone-fruit-sketch",
+    "name": "Stone fruit sketch",
+    "description": "Fragrance Chemistry library sketch — lactone-forward stone fruit for nested accords. Original composition; not copied from third-party formula cards.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Peach Accord"],
+    "lines": [
+      { "materialName": "Gamma Decalactone", "percent": 28, "pyramidNote": "middle" },
+      { "materialName": "Gamma Undecalactone", "percent": 22, "pyramidNote": "middle" },
+      { "materialName": "Linalool", "percent": 18, "pyramidNote": "top" },
+      { "materialName": "Hedione", "percent": 16, "pyramidNote": "middle" },
+      { "materialName": "Ionone Beta", "percent": 8, "pyramidNote": "middle" },
+      { "materialName": "Allyl Caproate", "percent": 4, "pyramidNote": "top" },
+      { "materialName": "Cis-3-Hexenol", "percent": 2, "pyramidNote": "top" },
+      { "materialName": "DPG", "percent": 2, "pyramidNote": "modifier" }
+    ]
+  },
+  {
+    "slug": "rose-sketch",
+    "name": "Rose sketch",
+    "description": "Fragrance Chemistry library sketch — PEA / citronellol / geraniol rose core. Original ratios for nested accords.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Rose Accord"],
+    "lines": [
+      { "materialName": "Phenylethyl Alcohol", "percent": 50, "pyramidNote": "middle" },
+      { "materialName": "Citronellol", "percent": 20, "pyramidNote": "middle" },
+      { "materialName": "Geraniol", "percent": 18, "pyramidNote": "middle" },
+      { "materialName": "Nerol", "percent": 6, "pyramidNote": "middle" },
+      { "materialName": "Geranyl Acetate", "percent": 4, "pyramidNote": "top" },
+      { "materialName": "Damascone Beta", "percent": 2, "pyramidNote": "middle" }
+    ]
+  },
+  {
+    "slug": "white-musk-sketch",
+    "name": "White musk sketch",
+    "description": "Fragrance Chemistry library sketch — polycyclic + macrocyclic musk blend for clean base. Original composition.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["White Musk Accord"],
+    "lines": [
+      { "materialName": "Galaxolide", "percent": 35, "pyramidNote": "base" },
+      { "materialName": "Ethylene Brassylate", "percent": 25, "pyramidNote": "base" },
+      { "materialName": "Habanolide", "percent": 20, "pyramidNote": "base" },
+      { "materialName": "Ambrettolide", "percent": 12, "pyramidNote": "base" },
+      { "materialName": "Hedione", "percent": 8, "pyramidNote": "middle" }
+    ]
+  },
+  {
+    "slug": "fougere-sketch",
+    "name": "Fougère sketch",
+    "description": "Fragrance Chemistry library sketch — lavender / coumarin / bergamot fougère skeleton. Original composition for nested accords.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Fougère Base"],
+    "lines": [
+      { "materialName": "Linalool", "percent": 22, "pyramidNote": "top" },
+      { "materialName": "Lavender EO", "percent": 20, "pyramidNote": "top" },
+      { "materialName": "Coumarin", "percent": 18, "pyramidNote": "base" },
+      { "materialName": "Bergamot EO", "percent": 16, "pyramidNote": "top" },
+      { "materialName": "Oakmoss Absolute", "percent": 8, "pyramidNote": "base" },
+      { "materialName": "Patchouli EO", "percent": 8, "pyramidNote": "base" },
+      { "materialName": "Geranium EO", "percent": 8, "pyramidNote": "middle" }
+    ]
+  },
+  {
+    "slug": "chypre-sketch",
+    "name": "Chypre sketch",
+    "description": "Fragrance Chemistry library sketch — bergamot / oakmoss / labdanum chypre frame. Original composition; not copied from third-party cards.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Chypre Base"],
+    "lines": [
+      { "materialName": "Bergamot EO", "percent": 32, "pyramidNote": "top" },
+      { "materialName": "Patchouli EO", "percent": 18, "pyramidNote": "base" },
+      { "materialName": "Oakmoss Absolute", "percent": 12, "pyramidNote": "base" },
+      { "materialName": "Labdanum Absolute", "percent": 12, "pyramidNote": "base" },
+      { "materialName": "Linalyl Acetate", "percent": 10, "pyramidNote": "top" },
+      { "materialName": "Coumarin", "percent": 8, "pyramidNote": "base" },
+      { "materialName": "Benzyl Benzoate", "percent": 8, "pyramidNote": "modifier" }
+    ]
+  },
+  {
+    "slug": "jasmine-sketch",
+    "name": "Jasmine sketch",
+    "description": "Fragrance Chemistry library sketch — hedione / jasmine / benzyl acetate white floral. Original composition; not copied from third-party formula cards.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Jasmine Accord"],
+    "lines": [
+      { "materialName": "Hedione", "percent": 28, "pyramidNote": "middle" },
+      { "materialName": "Jasmine Absolute", "percent": 18, "pyramidNote": "middle" },
+      { "materialName": "Benzyl Acetate", "percent": 18, "pyramidNote": "top" },
+      { "materialName": "Linalool", "percent": 12, "pyramidNote": "top" },
+      { "materialName": "Benzyl Benzoate", "percent": 8, "pyramidNote": "base" },
+      { "materialName": "Ylang Ylang EO", "percent": 6, "pyramidNote": "middle" },
+      { "materialName": "Methyl Anthranilate", "percent": 6, "pyramidNote": "middle" },
+      { "materialName": "Indole", "percent": 4, "pyramidNote": "middle" }
+    ]
+  },
+  {
+    "slug": "muguet-sketch",
+    "name": "Muguet sketch",
+    "description": "Fragrance Chemistry library sketch — hydroxycitronellal muguet core without banned lily aldehydes. Original ratios for nested accords.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Muguet Accord"],
+    "lines": [
+      { "materialName": "Hydroxycitronellal", "percent": 32, "pyramidNote": "middle" },
+      { "materialName": "Hedione", "percent": 22, "pyramidNote": "middle" },
+      { "materialName": "Phenylethyl Alcohol", "percent": 16, "pyramidNote": "middle" },
+      { "materialName": "Cyclamen Aldehyde", "percent": 10, "pyramidNote": "middle" },
+      { "materialName": "Linalool", "percent": 8, "pyramidNote": "top" },
+      { "materialName": "Geraniol", "percent": 8, "pyramidNote": "middle" },
+      { "materialName": "Cis-3-Hexenol", "percent": 4, "pyramidNote": "top" }
+    ]
+  },
+  {
+    "slug": "hug-me-inspired-sketch",
+    "name": "Hug-me inspired sketch",
+    "description": "Fragrance Chemistry library sketch inspired by the Grosjman white-floral / iso super structure. Original percents; not a copy of any commercial or third-party formula.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Hug Me (Grosjman Accord)"],
+    "lines": [
+      { "materialName": "Hedione", "percent": 35, "pyramidNote": "middle" },
+      { "materialName": "Iso E Super", "percent": 25, "pyramidNote": "base" },
+      { "materialName": "Methyl Ionone Gamma", "percent": 15, "pyramidNote": "middle" },
+      { "materialName": "Galaxolide", "percent": 15, "pyramidNote": "base" },
+      { "materialName": "Helional", "percent": 10, "pyramidNote": "middle" }
+    ]
+  },
+  {
+    "slug": "mellis-inspired-sketch",
+    "name": "Mellis inspired sketch",
+    "description": "Fragrance Chemistry library sketch — benzyl salicylate / eugenol mellis frame. Original composition inspired by the classic structure, not copied from a third-party card.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Mellis Accord"],
+    "lines": [
+      { "materialName": "Benzyl Salicylate", "percent": 40, "pyramidNote": "base" },
+      { "materialName": "Eugenol", "percent": 15, "pyramidNote": "middle" },
+      { "materialName": "Hydroxycitronellal", "percent": 15, "pyramidNote": "middle" },
+      { "materialName": "Isoeugenol", "percent": 8, "pyramidNote": "middle" },
+      { "materialName": "Cinnamyl Alcohol", "percent": 8, "pyramidNote": "middle" },
+      { "materialName": "Coumarin", "percent": 8, "pyramidNote": "base" },
+      { "materialName": "Hedione", "percent": 6, "pyramidNote": "middle" }
+    ]
+  },
+  {
+    "slug": "marine-sketch",
+    "name": "Marine sketch",
+    "description": "Fragrance Chemistry library sketch — calone / helional aquatic air over a clean musk-adjacent frame. Original composition.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Marine / Aquatic Base"],
+    "lines": [
+      { "materialName": "Dihydromyrcenol", "percent": 22, "pyramidNote": "top" },
+      { "materialName": "Hedione", "percent": 20, "pyramidNote": "middle" },
+      { "materialName": "Helional", "percent": 18, "pyramidNote": "middle" },
+      { "materialName": "Iso E Super", "percent": 12, "pyramidNote": "base" },
+      { "materialName": "Calone", "percent": 12, "pyramidNote": "top" },
+      { "materialName": "Linalool", "percent": 10, "pyramidNote": "top" },
+      { "materialName": "Cis-3-Hexenol", "percent": 6, "pyramidNote": "top" }
+    ]
+  },
+  {
+    "slug": "oriental-sketch",
+    "name": "Oriental sketch",
+    "description": "Fragrance Chemistry library sketch — vanillin / labdanum / patchouli oriental base. Original composition for nested accords.",
+    "source": "Fragrance Chemistry",
+    "coversPhqNames": ["Oriental Base"],
+    "lines": [
+      { "materialName": "Vanillin", "percent": 18, "pyramidNote": "base" },
+      { "materialName": "Labdanum Absolute", "percent": 16, "pyramidNote": "base" },
+      { "materialName": "Benzyl Salicylate", "percent": 16, "pyramidNote": "base" },
+      { "materialName": "Coumarin", "percent": 14, "pyramidNote": "base" },
+      { "materialName": "Patchouli EO", "percent": 14, "pyramidNote": "base" },
+      { "materialName": "Cinnamyl Alcohol", "percent": 8, "pyramidNote": "middle" },
+      { "materialName": "Ambroxan", "percent": 8, "pyramidNote": "base" },
+      { "materialName": "Iso E Super", "percent": 6, "pyramidNote": "base" }
+    ]
+  }
+]

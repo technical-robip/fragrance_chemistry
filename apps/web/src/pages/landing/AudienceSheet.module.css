@@ -1,0 +1,94 @@
+/* A two-page spread: the manual's "who this is for" opening. */
+
+.sheet {
+  --division-hue: var(--fc-accent);
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.spread {
+  grid-column: 2 / 6;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(1.5rem, 4vw, 4rem);
+}
+
+/* The gutter between the two pages is the only divider. */
+.column + .column {
+  padding-left: clamp(1.5rem, 4vw, 4rem);
+  border-left: 1px solid var(--hair);
+}
+
+.title {
+  font-size: clamp(1.25rem, 2.1vw, 1.75rem);
+  margin: 0 0 0.75rem;
+}
+
+.points {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.points li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  padding-block: 0.6rem;
+  border-top: 1px solid var(--hair);
+  font-size: 0.875rem;
+}
+
+.points svg {
+  color: var(--fc-accent);
+  margin-top: 0.15rem;
+}
+
+.secondary {
+  grid-column: 2 / 6;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hair-strong);
+  display: grid;
+  grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+  gap: 0 clamp(1rem, 3vw, 2.5rem);
+}
+
+.secondaryTitle {
+  margin: 0;
+  font-family: var(--fc-font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+}
+
+.secondaryBody {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--fc-text-muted);
+  max-width: 62ch;
+}
+
+@media (max-width: 60rem) {
+  .spread,
+  .secondary {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .spread {
+    gap: 2.5rem;
+  }
+  .column + .column {
+    padding-left: 0;
+    border-left: 0;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--hair);
+  }
+  .secondary {
+    gap: 0.5rem;
+  }
+}

@@ -15,10 +15,14 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "lint": "echo 'lint: scale-bridge'"
   },
   "devDependencies": {
     "@fc/tsconfig": "workspace:*",
-    "typescript": "^5.8.2"
+    "@vitest/coverage-v8": "^3.0.9",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
   }
 }

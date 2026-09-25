@@ -40,6 +40,8 @@ apps/web/.capacitor/
 
 # Test & IFRA import data (local only)
 data/ifra/
+apps/api/src/database/data/import/*
+!apps/api/src/database/data/import/.gitkeep
 *.xlsx
 !docs/**/*.md
 

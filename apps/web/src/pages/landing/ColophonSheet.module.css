@@ -1,0 +1,69 @@
+/* The imprint page: ruled label / figure / qualifier rows. */
+
+.sheet {
+  --division-hue: var(--fc-warn);
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.title {
+  grid-column: 2 / 5;
+  font-size: clamp(1.5rem, 2.9vw, 2.375rem);
+  margin: 0 0 2rem;
+}
+
+.rows {
+  grid-column: 2 / 6;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 9rem) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.25rem clamp(1rem, 2.5vw, 2rem);
+  padding-block: 0.85rem;
+  border-top: 1px solid var(--hair);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--hair);
+}
+
+.term {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+}
+
+/* The figure carries the weight, without becoming the hero-metric template. */
+.value {
+  margin: 0;
+  font-family: var(--fc-font-display);
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--fc-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--fc-text-muted);
+  max-width: 62ch;
+}
+
+@media (max-width: 60rem) {
+  .title,
+  .rows {
+    grid-column: 1;
+  }
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .note {
+    grid-column: 1 / -1;
+  }
+}

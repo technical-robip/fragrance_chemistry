@@ -1,0 +1,12 @@
+.host {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 20rem;
+  display: block;
+}
+
+.host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

@@ -1,0 +1,131 @@
+.page {
+  position: relative;
+}
+
+.header {
+  margin-bottom: 1.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.card {
+  padding: 1.1rem 1.2rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.quotaList {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.featureOn,
+.featureOff {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--fc-border-strong);
+}
+
+.featureOn {
+  background: color-mix(in srgb, var(--fc-accent) 16%, transparent);
+}
+
+.featureOff {
+  opacity: 0.45;
+}
+
+.stats {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.preset,
+.presetOn {
+  min-height: var(--fc-touch-min);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--fc-radius-sm);
+  border: 1px solid var(--fc-border-strong);
+  background: transparent;
+  color: var(--fc-text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.presetOn {
+  color: var(--fc-accent-soft);
+  border-color: var(--fc-accent);
+  background: color-mix(in srgb, var(--fc-accent) 14%, transparent);
+}
+
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.fieldset legend {
+  font-weight: 650;
+  font-size: 0.85rem;
+  margin-bottom: 0.15rem;
+}
+
+.localeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.ok {
+  margin: 0;
+  color: var(--fc-accent-soft);
+  font-size: 0.9rem;
+}
+
+.error {
+  color: var(--fc-warn-soft);
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Demo Fougère",
+    "house": "Fragrance Chemistry Atelier",
+    "perfumer": "Alice Demo",
+    "year": 2026,
+    "family": "Fougère",
+    "pyramid": {
+      "top": ["Bergamot", "Lemon"],
+      "heart": ["Lavender", "Linalool"],
+      "base": ["Ambroxan", "Coumarin"]
+    },
+    "attributes": { "fresh": 80, "floral": 40, "woody": 55, "sweet": 25, "spicy": 20 }
+  },
+  {
+    "name": "Classic Chypre",
+    "house": "Fragrance Chemistry Atelier",
+    "perfumer": "Alice Demo",
+    "year": 2026,
+    "family": "Chypre",
+    "pyramid": {
+      "top": ["Bergamot"],
+      "heart": ["Rose Absolute", "Jasmine Absolute"],
+      "base": ["Oakmoss", "Patchouli", "Labdanum"]
+    },
+    "attributes": { "fresh": 55, "floral": 70, "woody": 65, "sweet": 20, "spicy": 25 }
+  },
+  {
+    "name": "Amber Oriental",
+    "house": "Fragrance Chemistry Atelier",
+    "perfumer": "Alice Demo",
+    "year": 2026,
+    "family": "Oriental",
+    "pyramid": {
+      "top": ["Orange Sweet", "Cardamom"],
+      "heart": ["Cinnamon Bark", "Rose Absolute"],
+      "base": ["Vanilla Absolute", "Benzoin", "Labdanum"]
+    },
+    "attributes": { "fresh": 20, "floral": 45, "woody": 50, "sweet": 75, "spicy": 70 }
+  },
+  {
+    "name": "Citrus Cologne",
+    "house": "Fragrance Chemistry Atelier",
+    "perfumer": "Alice Demo",
+    "year": 2026,
+    "family": "Citrus",
+    "pyramid": {
+      "top": ["Bergamot", "Lemon", "Grapefruit"],
+      "heart": ["Hedione", "Geranium"],
+      "base": ["Galaxolide", "Ambroxan"]
+    },
+    "attributes": { "fresh": 95, "floral": 30, "woody": 15, "sweet": 15, "spicy": 10 }
+  },
+  {
+    "name": "Gourmand Sketch",
+    "house": "Fragrance Chemistry Atelier",
+    "perfumer": "Alice Demo",
+    "year": 2026,
+    "family": "Gourmand",
+    "pyramid": {
+      "top": ["Orange Sweet"],
+      "heart": ["Cinnamon Bark", "Tonka"],
+      "base": ["Vanilla Absolute", "Ethyl Maltol", "Coumarin"]
+    },
+    "attributes": { "fresh": 15, "floral": 20, "woody": 25, "sweet": 95, "spicy": 55 }
+  },
+  {
+    "name": "Woody Amber",
+    "house": "Fragrance Chemistry Atelier",
+    "perfumer": "Alice Demo",
+    "year": 2026,
+    "family": "Woody",
+    "pyramid": {
+      "top": ["Pink Pepper", "Bergamot"],
+      "heart": ["Iso E Super", "Hedione"],
+      "base": ["Ambroxan", "Cedarwood", "Cashmeran"]
+    },
+    "attributes": { "fresh": 35, "floral": 15, "woody": 90, "sweet": 30, "spicy": 40 }
+  }
+]

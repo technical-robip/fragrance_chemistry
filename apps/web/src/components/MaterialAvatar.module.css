@@ -1,0 +1,12 @@
+.img,
+.svg {
+  display: block;
+  border-radius: 28%;
+  flex-shrink: 0;
+  object-fit: cover;
+  background: var(--fc-chip-bg);
+}
+
+.img {
+  border: 1px solid color-mix(in srgb, var(--fc-text) 12%, transparent);
+}

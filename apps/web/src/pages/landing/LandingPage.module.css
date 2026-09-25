@@ -1,0 +1,533 @@
+/*
+ * Lab reference manual: coloured section boards, translucent acetate leaves
+ * hinged over them, a stepped tab rail down the fore edge. Every hue is a
+ * token from tokens.css; nothing new enters the palette here.
+ */
+
+.page {
+  --rail: 3.25rem;
+  --fore: 2.5rem;
+  --sheet: 78rem;
+  --measure: 66ch;
+  --hinge: 90ms steps(2, jump-none);
+  --leaf: color-mix(in srgb, var(--fc-paper) 7%, transparent);
+  --hair: color-mix(in srgb, var(--fc-text) 16%, transparent);
+  --hair-strong: color-mix(in srgb, var(--fc-text) 30%, transparent);
+  --division-hue: var(--fc-teal-400);
+
+  position: relative;
+  min-height: 100vh;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+  padding-right: calc(var(--fore) + clamp(1rem, 4vw, 2.5rem));
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--fc-accent);
+  scrollbar-color: var(--fc-accent-strong) var(--fc-bg-elevated);
+  scroll-padding-top: 5.5rem;
+}
+
+.page ::selection {
+  background: color-mix(in srgb, var(--fc-accent) 32%, transparent);
+  color: var(--fc-text);
+}
+
+.page :focus-visible {
+  outline: 2px solid var(--fc-accent-soft);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (max-width: 60rem) {
+  .page {
+    padding-right: clamp(1rem, 4vw, 2.5rem);
+  }
+}
+
+/* ---------- skip link ---------- */
+
+.skip {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 40;
+  padding: 0.55rem 0.9rem;
+  min-height: var(--fc-touch-min);
+  display: inline-flex;
+  align-items: center;
+  background: var(--fc-bg-elevated);
+  color: var(--fc-text);
+  border: 1px solid var(--hair-strong);
+  transform: translateY(-160%);
+}
+
+.skip:focus {
+  transform: translateY(0);
+}
+
+/* ---------- the bound edge: punch holes and spine ---------- */
+
+.margin {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 7.5rem 2rem;
+  border-right: 1px solid var(--hair);
+  background: var(--fc-bg-elevated);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.holes {
+  display: flex;
+  flex-direction: column;
+  gap: 40vh;
+}
+
+.hole {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  background: var(--fc-bg);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.spine {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 60rem) {
+  .margin {
+    display: none;
+  }
+}
+
+/* ---------- the fore edge: stepped tab rail ---------- */
+
+.foreEdge {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: var(--fore);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+  padding-block: 4rem;
+  z-index: 6;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: var(--fc-touch-min);
+  border: 0;
+  border-left: 1px solid rgba(0, 0, 0, 0.3);
+  padding: 0.75rem 0;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--tab-hue) 55%, var(--fc-bg-elevated));
+  color: var(--fc-ink-950);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  flex-basis: calc(var(--tab-extent) * 14%);
+  transition:
+    background var(--hinge),
+    width var(--hinge);
+}
+
+.tab:hover {
+  background: color-mix(in srgb, var(--tab-hue) 78%, var(--fc-bg-elevated));
+}
+
+/* The current tab extends until it is the board. */
+.tabCurrent {
+  background: var(--tab-hue);
+  margin-left: -0.5rem;
+  border-left-color: rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 60rem) {
+  .foreEdge {
+    display: none;
+  }
+}
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-left: var(--rail);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--hair);
+  /* Opaque: the sheets scroll underneath it, and translucency let their type
+     read through the masthead. */
+  background: var(--fc-bg);
+}
+
+@media (max-width: 60rem) {
+  .masthead {
+    margin-left: 0;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.brandName {
+  font-family: var(--fc-font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: var(--fc-text);
+}
+
+.brandTag {
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+  white-space: nowrap;
+}
+
+.mastheadNav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.mastheadLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fc-touch-min);
+  padding-inline: 0.6rem;
+  color: var(--fc-text-muted);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  border-bottom: 2px solid transparent;
+}
+
+.mastheadLink:hover {
+  color: var(--fc-text);
+  border-bottom-color: var(--division-hue);
+}
+
+.mastheadActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 78rem) {
+  .mastheadNav {
+    display: none;
+  }
+}
+
+/* At phone widths the brand and the controls cannot share one row without
+   colliding, so the masthead becomes two rows. */
+@media (max-width: 34rem) {
+  .masthead {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .brand {
+    flex: 1 0 100%;
+  }
+
+  .brandTag {
+    display: none;
+  }
+
+  .mastheadActions {
+    flex: 1 0 100%;
+    justify-content: flex-start;
+  }
+
+  .mastheadActions .action,
+  .mastheadActions .actionQuiet {
+    flex: 1 1 auto;
+    padding-inline: 0.75rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- sheet grid: four columns plus the fifth margin column ---------- */
+
+.sheet {
+  margin-left: var(--rail);
+  max-width: var(--sheet);
+  display: grid;
+  grid-template-columns: 8rem repeat(4, minmax(0, 1fr));
+  column-gap: clamp(1rem, 2.5vw, 2rem);
+  padding-block: clamp(3.5rem, 7vw, 6rem) clamp(2.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--hair);
+  scroll-margin-top: 5.5rem;
+}
+
+@media (max-width: 34rem) {
+  .page {
+    scroll-padding-top: 8rem;
+  }
+
+  .sheet {
+    scroll-margin-top: 8rem;
+  }
+}
+
+@media (max-width: 60rem) {
+  .sheet {
+    margin-left: 0;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1.5rem;
+  }
+}
+
+/* The label that hangs in the margin column, on the rule. */
+.hangingLabel {
+  grid-column: 1;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--division-hue);
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--division-hue);
+  align-self: start;
+}
+
+.heading {
+  font-family: var(--fc-font-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.body {
+  max-width: var(--measure);
+  color: var(--fc-text-muted);
+  margin: 0;
+}
+
+.measured {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+}
+
+/* ---------- boards and acetate leaves ---------- */
+
+.board {
+  position: relative;
+  background: color-mix(in srgb, var(--division-hue) 13%, var(--fc-bg-elevated));
+  border-top: 2px solid var(--division-hue);
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+/*
+ * The acetate leaf: a translucent sheet hinged at its punched edge, carrying
+ * computed values only. It owns the elevation; the board under it declares none.
+ */
+.leaf {
+  position: relative;
+  background: var(--leaf);
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--fc-paper) 22%, transparent);
+  padding: clamp(0.875rem, 2vw, 1.5rem) clamp(1rem, 2.2vw, 1.5rem);
+  padding-left: 2.25rem;
+  box-shadow:
+    2px 0 3px -1px rgba(0, 0, 0, 0.4),
+    10px 8px 24px rgba(0, 0, 0, 0.26);
+  backdrop-filter: saturate(1.15);
+}
+
+.leafHoles {
+  position: absolute;
+  left: 0.75rem;
+  top: 1.1rem;
+  bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.leafHole {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fc-ink-950) 70%, transparent);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+
+.leafLabel {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- ruled rows: the manual's data grammar ---------- */
+
+.rows {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.rowTerm {
+  color: var(--fc-text);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.rowValue {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--fc-text);
+  white-space: nowrap;
+}
+
+.rowMuted {
+  color: var(--fc-text-muted);
+}
+
+/* Absence is drawn as deliberately as presence. */
+.ghost {
+  color: color-mix(in srgb, var(--fc-text-muted) 45%, transparent);
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- errata slip ---------- */
+
+.slip {
+  position: relative;
+  background: color-mix(in srgb, var(--fc-danger) 16%, var(--fc-bg-elevated));
+  border-top: 2px solid var(--fc-danger);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  box-shadow: 6px 6px 22px rgba(0, 0, 0, 0.28);
+  transform: rotate(-0.35deg);
+}
+
+.slipLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fc-danger);
+}
+
+/* ---------- hinged reveal: the one authored motion ---------- */
+
+.hinge {
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hinge {
+    animation: hinge var(--hinge) both;
+  }
+}
+
+@keyframes hinge {
+  from {
+    transform: perspective(900px) rotateY(-9deg);
+    opacity: 0.55;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- controls in the manual's vocabulary ---------- */
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--fc-touch-min);
+  padding-inline: 1.1rem;
+  border: 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  background: var(--fc-accent);
+  color: var(--fc-accent-contrast);
+  box-shadow:
+    2px 2px 0 -1px rgba(0, 0, 0, 0.35),
+    4px 5px 14px rgba(0, 0, 0, 0.24);
+  transition: background var(--hinge);
+}
+
+.action:hover {
+  background: var(--fc-accent-soft);
+}
+
+.actionQuiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--fc-touch-min);
+  padding-inline: 1.1rem;
+  border: 1px solid var(--hair-strong);
+  background: transparent;
+  color: var(--fc-text);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: border-color var(--hinge);
+}
+
+.actionQuiet:hover {
+  border-color: var(--division-hue);
+  color: var(--fc-text);
+}

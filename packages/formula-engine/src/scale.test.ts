@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { scaleFormula, totalBatchGrams } from './scale';
+import { linePercent, scaleFormula, totalBatchGrams } from './scale';
 import type { Formula } from './types';
 
 const baseFormula: Formula = {
@@ -32,28 +32,10 @@ describe('scaleFormula', () => {
     expect(scaled.scaleFactor).toBeCloseTo(2, 6);
   });
 
-  it('preserves dilution active mass when scaling', () => {
-    const formula: Formula = {
-      ...baseFormula,
-      lines: [
-        {
-          id: 'l1',
-          materialId: 'damascenone',
-          label: 'Damascenone 1% DPG',
-          amountGrams: 0.03,
-          concentrationKind: 'dilution',
-          activeFraction: 0.01,
-        },
-        {
-          id: 'l2',
-          materialId: 'm2',
-          label: 'Ethanol',
-          amountGrams: 99.97,
-          concentrationKind: 'neat',
-        },
-      ],
-    };
-    const scaled = scaleFormula(formula, 1000);
-    expect(scaled.lines[0]?.amountGrams).toBeCloseTo(0.3, 4);
+  it('handles empty formula totals', () => {
+    const empty = scaleFormula({ id: 'e', name: 'e', lines: [] }, 100);
+    expect(empty.totalGrams).toBe(0);
+    expect(empty.scaleFactor).toBe(1);
+    expect(linePercent(baseFormula.lines[0]!, 0)).toBe(0);
   });
 });

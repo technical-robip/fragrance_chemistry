@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { randomUUID } from 'node:crypto';
@@ -8,7 +13,10 @@ import { getEnv } from '../../config/env';
 import { DatabaseService } from '../../database/database.service';
 import { users } from '../../database/schema';
 import { RedisService } from '../../redis/redis.service';
-import { AuthTokens, JwtPayload } from './auth.types';
+import { EntitlementsService } from '../entitlements/entitlements.service';
+import { AuthSession, AuthUserDto, JwtPayload } from './auth.types';
+
+type UserRow = typeof users.$inferSelect;
 
 @Injectable()
 export class AuthService {
@@ -16,9 +24,10 @@ export class AuthService {
     private readonly db: DatabaseService,
     private readonly jwt: JwtService,
     private readonly redis: RedisService,
+    private readonly entitlements: EntitlementsService,
   ) {}
 
-  async register(body: RegisterBody): Promise<AuthTokens> {
+  async register(body: RegisterBody): Promise<AuthSession> {
     const existing = await this.db.db
       .select()
       .from(users)
@@ -34,15 +43,20 @@ export class AuthService {
         email: body.email,
         displayName: body.displayName,
         passwordHash,
+        role: 'enthusiast',
+        plan: 'free',
+        status: 'active',
       })
       .returning();
     if (!created) {
       throw new ConflictException('Could not create user');
     }
-    return this.issueTokens({ sub: created.id, email: created.email });
+    await this.entitlements.provisionFreePlan(created.id);
+    const [fresh] = await this.db.db.select().from(users).where(eq(users.id, created.id)).limit(1);
+    return this.issueSession(fresh ?? created);
   }
 
-  async login(body: LoginBody): Promise<AuthTokens> {
+  async login(body: LoginBody): Promise<AuthSession> {
     const [user] = await this.db.db
       .select()
       .from(users)
@@ -51,14 +65,28 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    if (user.status === 'disabled') {
+      throw new UnauthorizedException('Account disabled');
+    }
     const ok = await argon2.verify(user.passwordHash, body.password);
     if (!ok) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.issueTokens({ sub: user.id, email: user.email });
+    return this.issueSession(user);
   }
 
-  async refresh(body: RefreshBody): Promise<AuthTokens> {
+  async me(payload: JwtPayload): Promise<AuthUserDto> {
+    const [user] = await this.db.db.select().from(users).where(eq(users.id, payload.sub)).limit(1);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.status === 'disabled') {
+      throw new UnauthorizedException('Account disabled');
+    }
+    return this.toUserDto(user);
+  }
+
+  async refresh(body: RefreshBody): Promise<AuthSession> {
     let payload: JwtPayload & { jti?: string; typ?: string };
     try {
       payload = this.jwt.verify(body.refreshToken, { secret: getEnv().JWT_SECRET });
@@ -74,7 +102,11 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token revoked or expired');
     }
     await this.redis.client.del(key);
-    return this.issueTokens({ sub: payload.sub, email: payload.email });
+    const [user] = await this.db.db.select().from(users).where(eq(users.id, payload.sub)).limit(1);
+    if (!user || user.status === 'disabled') {
+      throw new UnauthorizedException('User not found');
+    }
+    return this.issueSession(user);
   }
 
   async logout(user: JwtPayload, refreshToken?: string): Promise<void> {
@@ -94,8 +126,33 @@ export class AuthService {
     }
   }
 
-  private async issueTokens(payload: JwtPayload): Promise<AuthTokens> {
+  async logoutAll(userId: string) {
+    await this.redis.deleteRefreshTokensForUser(userId);
+  }
+
+  async toUserDto(user: UserRow): Promise<AuthUserDto> {
+    const entitlements = await this.entitlements.resolve(user.id);
+    return {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      role: user.role,
+      plan: entitlements.plan.slug,
+      status: user.status,
+      locale: user.locale,
+      theme: user.theme,
+      defaultBatchTargetGrams: Number(user.defaultBatchTargetGrams ?? 10),
+      defaultConcentrationPct: Number(user.defaultConcentrationPct ?? 20),
+      defaultIfraCategory: Number(user.defaultIfraCategory ?? 4),
+      createdAt:
+        user.createdAt instanceof Date ? user.createdAt.toISOString() : String(user.createdAt),
+      entitlements,
+    };
+  }
+
+  private async issueSession(user: UserRow): Promise<AuthSession> {
     const env = getEnv();
+    const payload: JwtPayload = { sub: user.id, email: user.email };
     const jti = randomUUID();
     const accessToken = await this.jwt.signAsync(
       { ...payload, typ: 'access' },
@@ -107,7 +164,11 @@ export class AuthService {
     );
     const ttlSeconds = parseRefreshTtlSeconds(env.JWT_REFRESH_TTL);
     await this.redis.client.set(this.redis.refreshKey(payload.sub, jti), '1', 'EX', ttlSeconds);
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+      user: await this.toUserDto(user),
+    };
   }
 }
 
@@ -126,3 +187,5 @@ function parseRefreshTtlSeconds(raw: string): number {
       return n * 86400;
   }
 }
+
+export { parseRefreshTtlSeconds };

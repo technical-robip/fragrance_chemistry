@@ -1,0 +1,191 @@
+.stage {
+  --mx: 0px;
+  --my: 0px;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 18% 12%,
+      color-mix(in srgb, var(--fc-note-base) 22%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      120% 100% at 85% 100%,
+      color-mix(in srgb, var(--fc-warn) 16%, transparent) 0%,
+      transparent 60%
+    ),
+    var(--fc-bg);
+}
+
+.auraLayer {
+  position: absolute;
+  inset: -10%;
+  filter: blur(2px);
+}
+
+.aura {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  will-change: transform;
+  transform: translate3d(calc(var(--mx) * var(--depth, 1)), calc(var(--my) * var(--depth, 1)), 0);
+}
+
+.auraTop {
+  --depth: 1.6;
+  width: min(52vw, 420px);
+  height: min(52vw, 420px);
+  left: 4%;
+  top: 6%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--fc-note-top) 55%, transparent) 0%,
+    transparent 68%
+  );
+  animation: driftA 28s ease-in-out infinite;
+}
+
+.auraHeart {
+  --depth: 1.1;
+  width: min(46vw, 380px);
+  height: min(46vw, 380px);
+  right: 6%;
+  top: 14%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--fc-note-heart) 45%, transparent) 0%,
+    transparent 68%
+  );
+  animation: driftB 34s ease-in-out infinite;
+}
+
+.auraBase {
+  --depth: 0.7;
+  width: min(60vw, 480px);
+  height: min(60vw, 480px);
+  left: 22%;
+  bottom: -14%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--fc-note-base) 42%, transparent) 0%,
+    transparent 70%
+  );
+  animation: driftC 42s ease-in-out infinite;
+}
+
+@keyframes driftA {
+  0%,
+  100% {
+    transform: translate3d(calc(var(--mx) * 1.6), calc(var(--my) * 1.6), 0) scale(1);
+  }
+  50% {
+    transform: translate3d(calc(var(--mx) * 1.6 + 4vw), calc(var(--my) * 1.6 + 3vw), 0) scale(1.08);
+  }
+}
+
+@keyframes driftB {
+  0%,
+  100% {
+    transform: translate3d(calc(var(--mx) * 1.1), calc(var(--my) * 1.1), 0) scale(1);
+  }
+  50% {
+    transform: translate3d(calc(var(--mx) * 1.1 - 5vw), calc(var(--my) * 1.1 + 4vw), 0) scale(0.95);
+  }
+}
+
+@keyframes driftC {
+  0%,
+  100% {
+    transform: translate3d(calc(var(--mx) * 0.7), calc(var(--my) * 0.7), 0) scale(1);
+  }
+  50% {
+    transform: translate3d(calc(var(--mx) * 0.7 + 3vw), calc(var(--my) * 0.7 - 3vw), 0) scale(1.06);
+  }
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 100% at 50% 60%,
+    transparent 40%,
+    color-mix(in srgb, var(--fc-bg-elevated) 70%, transparent) 100%
+  );
+}
+
+.stageCompact {
+  background:
+    radial-gradient(
+      120% 80% at 12% 8%,
+      color-mix(in srgb, var(--fc-note-base) 16%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      100% 90% at 90% 100%,
+      color-mix(in srgb, var(--fc-warn) 10%, transparent) 0%,
+      transparent 55%
+    ),
+    transparent;
+}
+
+.stageCompact .auraTop {
+  width: 240px;
+  height: 240px;
+  left: -36%;
+  top: -4%;
+}
+
+.stageCompact .auraHeart {
+  width: 210px;
+  height: 210px;
+  right: -40%;
+  top: 32%;
+}
+
+.stageCompact .auraBase {
+  width: 260px;
+  height: 260px;
+  left: -18%;
+  bottom: -16%;
+}
+
+.stageCompact .grain {
+  opacity: 0.03;
+}
+
+.stageCompact .vignette {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--fc-bg-elevated) 28%, transparent) 0%,
+    transparent 14%,
+    transparent 82%,
+    color-mix(in srgb, var(--fc-bg-elevated) 48%, transparent) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aura {
+    animation: none !important;
+    transform: none !important;
+  }
+}

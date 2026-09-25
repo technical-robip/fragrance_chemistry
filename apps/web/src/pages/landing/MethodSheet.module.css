@@ -1,0 +1,64 @@
+.sheet {
+  align-items: start;
+}
+
+.intro {
+  grid-column: 2 / span 2;
+}
+
+.title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+
+.steps {
+  grid-column: 2 / span 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  border-top: 2px solid var(--fc-accent);
+  padding-top: 1rem;
+}
+
+.link {
+  display: block;
+  color: inherit;
+  min-height: var(--fc-touch-min);
+}
+
+.link:hover .stepTitle {
+  color: var(--fc-accent-soft);
+}
+
+.stepTitle {
+  font-family: var(--fc-font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.stepBody {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--fc-text-muted);
+}
+
+@media (max-width: 60rem) {
+  .intro,
+  .steps {
+    grid-column: 1;
+  }
+
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 0.5rem;
+  }
+}

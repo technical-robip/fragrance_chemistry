@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Butylphenyl Methylpropional",
+    "inci": "Butylphenyl Methylpropional",
+    "cas": "80-54-6",
+    "casAliases": [],
+    "restriction": "ban",
+    "note": "Lilial / BMHCA — prohibited in cosmetic products (Commission Regulation (EU) 2021/1905)."
+  },
+  {
+    "name": "Hydroxyisohexyl 3-Cyclohexene Carboxaldehyde",
+    "inci": "Hydroxyisohexyl 3-Cyclohexene Carboxaldehyde",
+    "cas": "31906-04-4",
+    "casAliases": [],
+    "restriction": "ban",
+    "note": "Lyral / HICC — prohibited in cosmetic products."
+  },
+  {
+    "name": "Atranol",
+    "inci": "Atranol",
+    "cas": "526-37-4",
+    "casAliases": [],
+    "restriction": "ban",
+    "note": "Prohibited as such; historically present in oakmoss/treemoss extracts."
+  },
+  {
+    "name": "Chloroatranol",
+    "inci": "Chloroatranol",
+    "cas": "57074-21-2",
+    "casAliases": [],
+    "restriction": "ban",
+    "note": "Prohibited as such; historically present in oakmoss/treemoss extracts."
+  },
+  {
+    "name": "Safrole",
+    "inci": "Safrole",
+    "cas": "94-59-7",
+    "casAliases": [],
+    "restriction": "max_percent",
+    "maxPercent": 0.01,
+    "note": "Annex III — max 0.01% in the finished product except natural presence in essential oils."
+  },
+  {
+    "name": "Methyl Eugenol",
+    "inci": "Methyl Eugenol",
+    "cas": "93-15-2",
+    "casAliases": [],
+    "restriction": "max_percent",
+    "maxPercent": 0.01,
+    "note": "Annex III fragrance-relevant restriction; finished-product limits vary by product type — this curated row uses 0.01% as a conservative fine-fragrance flag, not a full annex dump."
+  },
+  {
+    "name": "Musk Xylene",
+    "inci": "Musk Xylene",
+    "cas": "81-15-2",
+    "casAliases": [],
+    "restriction": "ban",
+    "note": "Prohibited in cosmetic products."
+  },
+  {
+    "name": "Musk Ambrette",
+    "inci": "Musk Ambrette",
+    "cas": "83-66-9",
+    "casAliases": [],
+    "restriction": "ban",
+    "note": "Prohibited in cosmetic products."
+  }
+]

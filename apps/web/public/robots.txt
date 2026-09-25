@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /$
+Allow: /og-landing.png
+Allow: /favicon.svg
+
+# Everything behind the landing surface requires an account and holds a single
+# user's formulas, so there is nothing there for a crawler to index.
+Disallow: /auth
+Disallow: /catalog
+Disallow: /workbench
+Disallow: /weighing
+Disallow: /costing
+Disallow: /inventory
+Disallow: /evaluation
+Disallow: /encyclopedia
+Disallow: /suppliers
+Disallow: /account
+Disallow: /admin
+
+Sitemap: /sitemap.xml

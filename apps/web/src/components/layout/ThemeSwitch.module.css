@@ -1,0 +1,56 @@
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--fc-touch-min);
+  padding: 0.25rem 0.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--fc-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.track {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fc-text) 18%, transparent);
+  border: 1px solid var(--fc-border-strong);
+  transition: background 0.2s var(--fc-ease-perfume);
+  flex-shrink: 0;
+}
+
+.trackOn {
+  background: color-mix(in srgb, var(--fc-accent) 45%, transparent);
+  border-color: var(--fc-accent);
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fc-text);
+  transition: transform 0.2s var(--fc-ease-perfume);
+}
+
+.knobOn {
+  transform: translateX(18px);
+  background: var(--fc-accent-contrast);
+}
+
+.label {
+  white-space: nowrap;
+}
+
+@media (max-width: 479px) {
+  .label {
+    display: none;
+  }
+}

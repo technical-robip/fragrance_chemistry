@@ -1,0 +1,56 @@
+{
+  "title": "Priority materials for IFRA import matching and EU allergen fill",
+  "disclaimer": "Not IFRA limits. CAS here is for operator Excel matching. Do not invent max_percent from informal web pages.",
+  "items": [
+    { "name": "Linalool", "cas": "78-70-6", "reason": "EU label allergen + common IFRA standard" },
+    { "name": "Coumarin", "cas": "91-64-5", "reason": "EU label allergen + IFRA restricted" },
+    { "name": "Citral", "cas": "5392-40-5", "reason": "EU label allergen + IFRA restricted" },
+    { "name": "Limonene", "cas": "5989-27-5", "reason": "EU label allergen" },
+    { "name": "Eugenol", "cas": "97-53-0", "reason": "EU label allergen" },
+    { "name": "Isoeugenol", "cas": "97-54-1", "reason": "EU label allergen + IFRA restricted" },
+    { "name": "Geraniol", "cas": "106-24-1", "reason": "EU label allergen" },
+    { "name": "Citronellol", "cas": "106-22-9", "reason": "EU label allergen" },
+    { "name": "Farnesol", "cas": "4602-84-0", "reason": "EU label allergen" },
+    { "name": "Benzyl Salicylate", "cas": "118-58-1", "reason": "EU label allergen" },
+    { "name": "Benzyl Benzoate", "cas": "120-51-4", "reason": "EU label allergen" },
+    { "name": "Benzyl Alcohol", "cas": "100-51-6", "reason": "EU label allergen" },
+    { "name": "Cinnamic Aldehyde", "cas": "104-55-2", "reason": "EU label allergen (Cinnamal)" },
+    { "name": "Cinnamyl Alcohol", "cas": "104-54-1", "reason": "EU label allergen" },
+    {
+      "name": "Hydroxycitronellal",
+      "cas": "107-75-5",
+      "reason": "EU label allergen + IFRA restricted"
+    },
+    {
+      "name": "Hexyl Cinnamic Aldehyde",
+      "cas": "101-86-0",
+      "reason": "EU label allergen (Hexyl Cinnamal)"
+    },
+    {
+      "name": "Amyl Cinnamic Aldehyde",
+      "cas": "122-40-7",
+      "reason": "EU label allergen (Amyl Cinnamal)"
+    },
+    {
+      "name": "Methyl Heptine Carbonate",
+      "cas": "111-12-6",
+      "reason": "EU label allergen (Methyl 2-Octynoate)"
+    },
+    {
+      "name": "Oakmoss Absolute",
+      "cas": "9000-50-4",
+      "reason": "EU moss allergen / IFRA restricted"
+    },
+    {
+      "name": "Lilial",
+      "cas": "80-54-6",
+      "reason": "EU Annex III ban (BMHCA); PHQ checklist prohibited"
+    },
+    { "name": "Lyral", "cas": "31906-04-4", "reason": "EU Annex III ban (HICC)" },
+    {
+      "name": "Bergamot FCF",
+      "cas": "68683-18-1",
+      "reason": "Phototoxic citrus / IFRA citrus notes"
+    }
+  ]
+}

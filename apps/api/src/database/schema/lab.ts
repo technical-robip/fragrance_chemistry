@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   integer,
   jsonb,
@@ -6,6 +7,7 @@ import {
   pgSchema,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { materials } from './catalog';
@@ -16,6 +18,7 @@ export const formulas = labSchema.table('formulas', {
   id: uuid('id').primaryKey().defaultRandom(),
   ownerId: uuid('owner_id').notNull(),
   name: text('name').notNull(),
+  slug: text('slug'),
   description: text('description'),
   version: integer('version').notNull().default(1),
   batchTargetGrams: numeric('batch_target_grams', { precision: 14, scale: 4 })
@@ -25,6 +28,7 @@ export const formulas = labSchema.table('formulas', {
     .notNull()
     .default('20'),
   status: text('status').notNull().default('draft'),
+  isLibraryAccord: boolean('is_library_accord').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -57,6 +61,7 @@ export const formulaLines = labSchema.table('formula_lines', {
   ),
   solvent: text('solvent'),
   pyramidNote: text('pyramid_note'),
+  childFormulaId: uuid('child_formula_id').references(() => formulas.id, { onDelete: 'set null' }),
   sortOrder: integer('sort_order').notNull().default(0),
 });
 
@@ -72,19 +77,28 @@ export const weighingSessions = labSchema.table('weighing_sessions', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const inventoryItems = labSchema.table('inventory_items', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  ownerId: uuid('owner_id').notNull(),
-  materialId: uuid('material_id')
-    .notNull()
-    .references(() => materials.id),
-  quantityGrams: numeric('quantity_grams', { precision: 14, scale: 4 }).notNull(),
-  location: text('location'),
-  kind: text('kind').notNull().default('material'),
-  expiresAt: date('expires_at'),
-  minQuantityGrams: numeric('min_quantity_grams', { precision: 14, scale: 4 }).default('0'),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+export const inventoryItems = labSchema.table(
+  'inventory_items',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerId: uuid('owner_id').notNull(),
+    materialId: uuid('material_id')
+      .notNull()
+      .references(() => materials.id),
+    quantityGrams: numeric('quantity_grams', { precision: 14, scale: 4 }).notNull(),
+    location: text('location'),
+    kind: text('kind').notNull().default('material'),
+    expiresAt: date('expires_at'),
+    minQuantityGrams: numeric('min_quantity_grams', { precision: 14, scale: 4 }).default('0'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    ownerMaterialUidx: uniqueIndex('inventory_items_owner_material_uidx').on(
+      table.ownerId,
+      table.materialId,
+    ),
+  }),
+);
 
 export const evaluations = labSchema.table('evaluations', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -102,5 +116,13 @@ export const evaluations = labSchema.table('evaluations', {
   clarity: text('clarity'),
   opalescence: text('opalescence'),
   solubility: text('solubility'),
+  lineMarks: jsonb('line_marks').$type<
+    Array<{
+      lineId?: string;
+      materialId: string;
+      mark: 'ok' | 'weak' | 'strong' | 'harsh';
+      timepoint?: 't0Notes' | 't30mNotes' | 't4hNotes' | 't24hNotes';
+    }>
+  >(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

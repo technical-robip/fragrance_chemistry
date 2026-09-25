@@ -1,8 +1,12 @@
 import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { costingEstimateQuerySchema, CostingEstimateQuery } from '@fc/shared';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { JwtPayload } from '../auth/auth.types';
+import { RequiresFeature } from '../auth/roles.decorator';
 import { CostingService } from './costing.service';
 
 @Controller('costing')
+@RequiresFeature('costing')
 export class CostingController {
   constructor(private readonly costing: CostingService) {}
 
@@ -10,9 +14,8 @@ export class CostingController {
   estimate(
     @Req() req: { user: JwtPayload },
     @Param('id') id: string,
-    @Query('batchGrams') batchGrams?: string,
+    @Query(new ZodValidationPipe(costingEstimateQuerySchema)) query: CostingEstimateQuery,
   ) {
-    const grams = batchGrams ? Number(batchGrams) : 100;
-    return this.costing.estimateFormulaCost(req.user, id, grams);
+    return this.costing.estimateFormulaCost(req.user, id, query);
   }
 }

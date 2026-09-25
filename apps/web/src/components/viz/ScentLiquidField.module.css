@@ -1,0 +1,172 @@
+.wrap {
+  position: absolute;
+  top: -1.5rem;
+  left: -1.5rem;
+  right: -1.5rem;
+  height: min(42vh, 380px);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  isolation: isolate;
+}
+
+.orb,
+.ring {
+  --shift-x: 0px;
+  --shift-y: 0px;
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  transform: translate3d(var(--shift-x), var(--shift-y), 0);
+}
+
+.orb {
+  filter: blur(1px);
+  mix-blend-mode: screen;
+}
+
+.orbTop {
+  width: min(38vw, 340px);
+  height: min(38vw, 340px);
+  top: -42%;
+  right: -8%;
+  background: radial-gradient(
+    circle at 42% 42%,
+    color-mix(in srgb, var(--fc-note-top) 42%, white 8%) 0%,
+    color-mix(in srgb, var(--fc-accent) 16%, transparent) 36%,
+    transparent 70%
+  );
+  animation: driftTop 32s ease-in-out infinite;
+}
+
+.orbHeart {
+  width: min(28vw, 240px);
+  height: min(28vw, 240px);
+  top: -18%;
+  left: 38%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--fc-note-heart) 22%, transparent) 0%,
+    transparent 68%
+  );
+  animation: driftHeart 40s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.orbBase {
+  width: min(44vw, 400px);
+  height: min(44vw, 400px);
+  top: 18%;
+  left: -16%;
+  background: radial-gradient(
+    circle at 55% 40%,
+    color-mix(in srgb, var(--fc-note-base) 28%, transparent) 0%,
+    color-mix(in srgb, var(--fc-warn) 8%, transparent) 40%,
+    transparent 72%
+  );
+  animation: driftBase 48s ease-in-out infinite;
+}
+
+.ring {
+  border: 1px solid color-mix(in srgb, var(--fc-warn-soft) 28%, transparent);
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--fc-accent) 10%, transparent),
+    0 0 32px color-mix(in srgb, var(--fc-note-top) 12%, transparent);
+  background: radial-gradient(
+    circle,
+    transparent 62%,
+    color-mix(in srgb, var(--fc-accent) 6%, transparent) 72%,
+    transparent 78%
+  );
+}
+
+.ringOuter {
+  width: min(34vw, 300px);
+  height: min(34vw, 300px);
+  top: -36%;
+  right: -4%;
+  animation: spinSlow 80s linear infinite;
+}
+
+.ringInner {
+  width: min(22vw, 190px);
+  height: min(22vw, 190px);
+  top: -22%;
+  right: 4%;
+  border-color: color-mix(in srgb, var(--fc-note-top) 32%, transparent);
+  animation: spinSlow 110s linear infinite reverse;
+  opacity: 0.85;
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--fc-bg) 8%, transparent) 0%,
+      transparent 40%,
+      var(--fc-bg) 100%
+    ),
+    radial-gradient(
+      70% 80% at 8% 18%,
+      transparent 40%,
+      color-mix(in srgb, var(--fc-bg) 35%, transparent) 100%
+    );
+}
+
+@keyframes driftTop {
+  0%,
+  100% {
+    transform: translate3d(var(--shift-x), var(--shift-y), 0) scale(1);
+  }
+  50% {
+    transform: translate3d(calc(var(--shift-x) - 2%), calc(var(--shift-y) + 3%), 0) scale(1.06);
+  }
+}
+
+@keyframes driftHeart {
+  0%,
+  100% {
+    transform: translate3d(var(--shift-x), var(--shift-y), 0) scale(1);
+  }
+  50% {
+    transform: translate3d(calc(var(--shift-x) + 3%), calc(var(--shift-y) - 2%), 0) scale(0.96);
+  }
+}
+
+@keyframes driftBase {
+  0%,
+  100% {
+    transform: translate3d(var(--shift-x), var(--shift-y), 0) scale(1);
+  }
+  50% {
+    transform: translate3d(calc(var(--shift-x) + 2%), calc(var(--shift-y) + 2%), 0) scale(1.04);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: translate3d(var(--shift-x), var(--shift-y), 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--shift-x), var(--shift-y), 0) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb,
+  .ring {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+:global(:root[data-theme='light']) .orb {
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+}
+
+:global(:root[data-theme='light']) .ring {
+  opacity: 0.4;
+}

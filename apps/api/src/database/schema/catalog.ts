@@ -4,10 +4,12 @@ export const catalogSchema = pgSchema('catalog');
 
 export const materials = catalogSchema.table('materials', {
   id: uuid('id').primaryKey().defaultRandom(),
+  ownerId: uuid('owner_id'),
   name: text('name').notNull(),
   casNumber: text('cas_number'),
   iupac: text('iupac'),
   category: text('category'),
+  origin: text('origin'),
   description: text('description'),
   stockConcentrationPct: numeric('stock_concentration_pct', { precision: 8, scale: 4 }).default(
     '100',
@@ -15,10 +17,13 @@ export const materials = catalogSchema.table('materials', {
   solvent: text('solvent'),
   olfactoryFamily: text('olfactory_family'),
   pyramidNote: text('pyramid_note'),
+  manufacturer: text('manufacturer'),
   tenacityHours: numeric('tenacity_hours', { precision: 8, scale: 2 }),
   costPerGram: numeric('cost_per_gram', { precision: 12, scale: 6 }),
   allergenProfile: jsonb('allergen_profile').default({}),
   searchText: text('search_text'),
+  slug: text('slug'),
+  imageUrl: text('image_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

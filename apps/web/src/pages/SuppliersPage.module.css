@@ -1,17 +1,20 @@
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   margin: 1rem 0;
 }
 
-.tab {
+.tab,
+.tabActive {
   padding: 0.45rem 0.9rem;
   border-radius: var(--fc-radius-sm);
   border: 1px solid rgba(61, 175, 163, 0.25);
   background: transparent;
-  color: var(--fc-paper-muted);
+  color: var(--fc-paper-muted, #9aa8b2);
   cursor: pointer;
   font-weight: 600;
+  font: inherit;
 }
 
 .tabActive {
@@ -20,6 +23,17 @@
   border-color: var(--fc-teal-400);
 }
 
-.table {
-  margin-top: 0.5rem;
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.card {
+  padding: 1rem 1.25rem;
+}
+
+.card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
 }

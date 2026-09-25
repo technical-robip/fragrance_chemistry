@@ -1,0 +1,90 @@
+[
+  {
+    "name": "Fraterworks",
+    "aliases": [],
+    "region": "Global",
+    "country": "NZ",
+    "website": "https://fraterworks.com",
+    "notes": "Independent aroma chemicals, naturals, and restored bases."
+  },
+  {
+    "name": "Perfumer Supply House",
+    "aliases": [],
+    "region": "USA",
+    "country": "USA",
+    "website": "https://perfumersupplyhouse.com",
+    "notes": "Premium ingredients for fragrance and aromatherapy."
+  },
+  {
+    "name": "The Perfumer's Apprentice",
+    "aliases": ["Perfumer's Apprentice"],
+    "region": "USA",
+    "country": "USA",
+    "website": "https://shop.perfumersapprentice.com",
+    "notes": "Hobbyist and indie aroma chemicals and naturals."
+  },
+  {
+    "name": "Harrison Joseph",
+    "aliases": [],
+    "region": "UK",
+    "country": "UK",
+    "website": "https://www.harrisonjoseph.co.uk",
+    "notes": "Unusual raw perfumery materials."
+  },
+  {
+    "name": "Perfumers World",
+    "aliases": ["PerfumersWorld"],
+    "region": "ASIA",
+    "country": "TH",
+    "website": "https://www.perfumersworld.com",
+    "notes": "Training and materials; Thailand."
+  },
+  {
+    "name": "The Fragrance Foundry",
+    "aliases": [],
+    "region": "UK",
+    "country": "UK",
+    "website": "https://thefragrancefoundry.com",
+    "notes": "Perfumery supplies, raw materials, and equipment."
+  },
+  {
+    "name": "Eden Botanicals",
+    "aliases": [],
+    "region": "USA",
+    "country": "USA",
+    "website": "https://www.edenbotanicals.com",
+    "notes": "Essential oils and natural extracts."
+  },
+  {
+    "name": "Liberty Natural",
+    "aliases": ["Liberty Natural Products"],
+    "region": "USA",
+    "country": "USA",
+    "website": "https://www.libertynatural.com",
+    "notes": "Natural essential oils and aromatics."
+  },
+  {
+    "name": "The Perfumery",
+    "aliases": [],
+    "region": "Global",
+    "country": "USA",
+    "website": "https://theperfumery.com",
+    "notes": "Aroma chemicals and naturals for independent perfumers."
+  },
+  {
+    "name": "Packamor",
+    "aliases": [],
+    "region": "Global",
+    "country": "USA",
+    "website": "https://www.packamor.com",
+    "notes": "Packaging specialty — bottles, caps, and boxes. Not an aroma raw-material supplier."
+  },
+  {
+    "name": "DirectPCW",
+    "aliases": ["CreatingPerfume", "Creating Perfume"],
+    "region": "UK-EU",
+    "country": "NL",
+    "website": "https://www.creatingperfume.com",
+    "notes": "EU-adjacent aroma chemicals and naturals."
+  }
+]

@@ -1,0 +1,67 @@
+.root {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--fc-touch-min);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--fc-radius-sm);
+  border: 1px solid var(--fc-border-strong);
+  background: var(--fc-chip-bg);
+  color: var(--fc-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.list {
+  position: absolute;
+  bottom: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  min-width: 11rem;
+  border-radius: var(--fc-radius-md);
+  border: 1px solid var(--fc-border-strong);
+  background: var(--fc-bg-elevated);
+  box-shadow: var(--fc-shadow-soft);
+}
+
+.listDown {
+  bottom: auto;
+  top: calc(100% + 0.35rem);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: var(--fc-touch-min);
+  padding: 0.4rem 0.55rem;
+  border: 0;
+  border-radius: var(--fc-radius-sm);
+  background: transparent;
+  color: var(--fc-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: var(--fc-chip-bg);
+  outline: none;
+}
+
+.optionActive {
+  color: var(--fc-accent-soft);
+}

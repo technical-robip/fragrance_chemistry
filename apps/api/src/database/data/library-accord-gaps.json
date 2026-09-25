@@ -1,0 +1,98 @@
+{
+  "source": "PerfumerHQ public formula names used as a coverage checklist only",
+  "licenseNote": "PerfumerHQ formula cards are © PerfumerHQ. Names here are gap labels. Do not ingest their compositions.",
+  "placeholderCatalogAccords": "Catalog rows named Accord … Lab Grade are SKU placeholders without recipes. Prefer lab.formulas with is_library_accord.",
+  "items": [
+    {
+      "phqName": "Peach Accord",
+      "kind": "accord",
+      "status": "authored",
+      "ourSlug": "stone-fruit-sketch"
+    },
+    { "phqName": "Pear Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Plum Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Green Apple Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Cherry Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Strawberry Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Raspberry Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Lychee Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Coconut Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Pineapple Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Mango Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Fig Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Watermelon Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Rose Accord", "kind": "accord", "status": "authored", "ourSlug": "rose-sketch" },
+    {
+      "phqName": "Jasmine Accord",
+      "kind": "accord",
+      "status": "authored",
+      "ourSlug": "jasmine-sketch"
+    },
+    { "phqName": "Orange Blossom / Neroli Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Iris Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Violet Accord", "kind": "accord", "status": "missing" },
+    {
+      "phqName": "Muguet Accord",
+      "kind": "accord",
+      "status": "authored",
+      "ourSlug": "muguet-sketch"
+    },
+    { "phqName": "Tuberose Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Gardenia Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Ylang-Ylang Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Carnation Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Hyacinth Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Peony Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Sandalwood Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Oud Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Driftwood Base", "kind": "base", "status": "missing" },
+    { "phqName": "Sandalwood Base", "kind": "base", "status": "missing" },
+    {
+      "phqName": "Hug Me (Grosjman Accord)",
+      "kind": "accord",
+      "status": "authored",
+      "ourSlug": "hug-me-inspired-sketch"
+    },
+    { "phqName": "Rougère Accord", "kind": "accord", "status": "missing" },
+    {
+      "phqName": "Mellis Accord",
+      "kind": "accord",
+      "status": "authored",
+      "ourSlug": "mellis-inspired-sketch"
+    },
+    { "phqName": "Bergamot Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Eau de Cologne", "kind": "accord", "status": "missing" },
+    { "phqName": "Amber Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Vanilla Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Tobacco Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Leather Accord", "kind": "accord", "status": "missing" },
+    { "phqName": "Incense Accord", "kind": "accord", "status": "missing" },
+    {
+      "phqName": "White Musk Accord",
+      "kind": "accord",
+      "status": "authored",
+      "ourSlug": "white-musk-sketch"
+    },
+    { "phqName": "Chypre Base", "kind": "base", "status": "authored", "ourSlug": "chypre-sketch" },
+    {
+      "phqName": "Fougère Base",
+      "kind": "base",
+      "status": "authored",
+      "ourSlug": "fougere-sketch"
+    },
+    { "phqName": "Mimosa / Powdery Floral Base", "kind": "base", "status": "missing" },
+    {
+      "phqName": "Marine / Aquatic Base",
+      "kind": "base",
+      "status": "authored",
+      "ourSlug": "marine-sketch"
+    },
+    { "phqName": "Green / Fresh Foliage Base", "kind": "base", "status": "missing" },
+    {
+      "phqName": "Oriental Base",
+      "kind": "base",
+      "status": "authored",
+      "ourSlug": "oriental-sketch"
+    }
+  ]
+}

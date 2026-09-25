@@ -1,0 +1,77 @@
+/* The appendix: hinged entries, no card shells. */
+
+.sheet {
+  --division-hue: var(--fc-note-base);
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.title {
+  grid-column: 2 / 5;
+  font-size: clamp(1.5rem, 2.9vw, 2.375rem);
+  margin: 0 0 1.75rem;
+}
+
+.list {
+  grid-column: 2 / 6;
+}
+
+.entry {
+  border-top: 1px solid var(--hair);
+}
+
+.entry:last-child {
+  border-bottom: 1px solid var(--hair);
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: var(--fc-touch-min);
+  padding-block: 0.85rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--fc-font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fc-text);
+}
+
+.question::-webkit-details-marker {
+  display: none;
+}
+
+.question:hover {
+  color: var(--fc-accent-soft);
+}
+
+.marker {
+  flex: none;
+  color: var(--division-hue);
+}
+
+/* The cross closes to a dash when the leaf is open: a two-frame step, no ease. */
+.markerCross {
+  transform-origin: center;
+  transition: transform var(--hinge);
+}
+
+.entry[open] .markerCross {
+  transform: rotate(45deg);
+}
+
+.answer {
+  margin: 0 0 1.25rem;
+  padding-right: 2rem;
+  max-width: 68ch;
+  color: var(--fc-text-muted);
+}
+
+@media (max-width: 60rem) {
+  .title,
+  .list {
+    grid-column: 1;
+  }
+}

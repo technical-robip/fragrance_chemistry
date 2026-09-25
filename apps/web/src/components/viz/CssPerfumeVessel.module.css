@@ -1,0 +1,482 @@
+@property --fc-slosh {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 6.5deg;
+}
+
+@property --fc-slosh-splash {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 10deg;
+}
+
+@property --fc-wave-amp {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+.wrap {
+  width: calc(132px + 5.25rem);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 0.35rem 0 0.25rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.wrapCompact {
+  width: calc(96px + 4.85rem);
+  gap: 0.4rem;
+  padding: 0.15rem 0 0;
+}
+
+.wrapCompact .stage {
+  width: 96px;
+  padding-right: 4.85rem;
+}
+
+.wrapCompact .cap {
+  width: 34px;
+  height: 16px;
+}
+
+.wrapCompact .neck {
+  width: 20px;
+  height: 12px;
+}
+
+.wrapCompact .bottle {
+  --fc-slosh: 5deg;
+  --fc-slosh-splash: 8deg;
+  width: 72px;
+  height: 110px;
+  border-radius: 9px 9px 16px 16px;
+}
+
+.wrapCompact .label {
+  padding: 0.28rem 0.18rem;
+}
+
+.wrapCompact .label span {
+  font-size: 0.42rem;
+  letter-spacing: 0.1em;
+}
+
+.wrapCompact .levelLine {
+  width: 20px;
+}
+
+.wrapCompact .levelValue {
+  margin-left: 0.25rem;
+  font-size: 1rem;
+}
+
+.wrapCompact .shadow {
+  width: 64px;
+  height: 8px;
+  margin: 6px auto 0;
+}
+
+.wrapCompact .productMeta {
+  max-width: none;
+  font-size: 0.78rem;
+}
+
+.stage {
+  position: relative;
+  width: 132px;
+  padding-right: 5.25rem;
+  box-sizing: content-box;
+}
+
+.cap {
+  width: 48px;
+  height: 22px;
+  margin: 0 auto;
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, #2a2a2a, #111);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.capOpen {
+  transform: translateY(-0.7rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cap {
+    transition: none;
+  }
+}
+
+.neck {
+  width: 28px;
+  height: 16px;
+  margin: 0 auto;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(0, 0, 0, 0.15)
+  );
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.bottle {
+  --fc-slosh: 6.5deg;
+  --fc-slosh-splash: 10deg;
+  --fc-liquid-overhang: 14px;
+  position: relative;
+  width: 100px;
+  height: 156px;
+  margin: 0 auto;
+  border-radius: 12px 12px 20px 20px;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.05) 28%,
+    rgba(0, 0, 0, 0.08)
+  );
+  border: 1px solid color-mix(in srgb, var(--fc-text) 18%, transparent);
+  overflow: visible;
+  box-shadow:
+    inset 8px 0 16px rgba(255, 255, 255, 0.18),
+    inset -10px 0 18px rgba(0, 0, 0, 0.12);
+  touch-action: none;
+}
+
+.bottleEditable {
+  cursor: ns-resize;
+}
+
+/* Clips liquid to glass; callout stays outside (bottle overflow visible). */
+.bottleClip {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/*
+ * Full note gradient (green → yellow → purple).
+ * Still by default. On hover/drag, rotate around the floor so the surface
+ * climbs one wall — like a bottle that was nudged.
+ */
+.liquid {
+  position: absolute;
+  left: -22%;
+  width: 144%;
+  bottom: calc(var(--fc-liquid-overhang) * -1);
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--fc-note-top) 70%, transparent) 0%,
+    var(--fc-note-top) 16%,
+    var(--fc-note-heart) 48%,
+    var(--fc-note-base) 100%
+  );
+  --fc-wave-amp: 0px;
+  transform: rotate(0deg);
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  transition:
+    height 0.35s var(--fc-ease-perfume),
+    transform 0.7s var(--fc-ease-perfume),
+    --fc-wave-amp 0.85s var(--fc-ease-perfume);
+  pointer-events: none;
+  /* Crest height is --fc-wave-amp: 0 at rest (flat), 7px while stirring. */
+  -webkit-mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 7' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 3.5c12-3.1 2-3.1 14 0s12 3.1 14 0V7H0z'/%3E%3C/svg%3E"),
+    linear-gradient(#fff, #fff);
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 7' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 3.5c12-3.1 2-3.1 14 0s12 3.1 14 0V7H0z'/%3E%3C/svg%3E"),
+    linear-gradient(#fff, #fff);
+  -webkit-mask-size:
+    28px var(--fc-wave-amp),
+    100% calc(100% - var(--fc-wave-amp) * 0.5);
+  mask-size:
+    28px var(--fc-wave-amp),
+    100% calc(100% - var(--fc-wave-amp) * 0.5);
+  -webkit-mask-position:
+    0 0,
+    0 calc(var(--fc-wave-amp) * 0.5);
+  mask-position:
+    0 0,
+    0 calc(var(--fc-wave-amp) * 0.5);
+  -webkit-mask-repeat: repeat-x, no-repeat;
+  mask-repeat: repeat-x, no-repeat;
+}
+
+.waveYellow {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 200%;
+  height: 4.5px;
+  background-color: color-mix(in srgb, var(--fc-note-heart) 88%, white 12%);
+  opacity: 0;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 6' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M0 3.2c18-1.3 8-1.3 26 0s18 1.3 26 0V6H0z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 6' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M0 3.2c18-1.3 8-1.3 26 0s18 1.3 26 0V6H0z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 52px 100%;
+  mask-size: 52px 100%;
+  backface-visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s var(--fc-ease-perfume);
+}
+
+.bottleStirring .liquid {
+  --fc-wave-amp: 7px;
+  animation:
+    liquidSloshGentle 1.55s ease-in-out infinite,
+    liquidSurfaceDrift 2.4s linear infinite;
+}
+
+.bottleStirring .waveYellow {
+  opacity: 0.7;
+  animation: liquidWaveDrift 2.8s linear infinite reverse;
+}
+
+.bottle .liquidSplash,
+.bottleStirring .liquidSplash {
+  --fc-wave-amp: 7px;
+  animation:
+    liquidSloshSplash 1.85s cubic-bezier(0.22, 0.72, 0.28, 1) 1,
+    liquidSurfaceDrift 1.15s linear infinite;
+}
+
+@keyframes liquidSloshGentle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(var(--fc-slosh));
+  }
+  75% {
+    transform: rotate(calc(var(--fc-slosh) * -1));
+  }
+}
+
+@keyframes liquidSloshSplash {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(var(--fc-slosh-splash));
+  }
+  24% {
+    transform: rotate(calc(var(--fc-slosh-splash) * -0.84));
+  }
+  38% {
+    transform: rotate(calc(var(--fc-slosh-splash) * 0.58));
+  }
+  52% {
+    transform: rotate(calc(var(--fc-slosh-splash) * -0.36));
+  }
+  66% {
+    transform: rotate(calc(var(--fc-slosh-splash) * 0.2));
+  }
+  80% {
+    transform: rotate(calc(var(--fc-slosh-splash) * -0.09));
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes liquidSurfaceDrift {
+  from {
+    -webkit-mask-position:
+      0 0,
+      0 calc(var(--fc-wave-amp) * 0.5);
+    mask-position:
+      0 0,
+      0 calc(var(--fc-wave-amp) * 0.5);
+  }
+  to {
+    -webkit-mask-position:
+      -28px 0,
+      0 calc(var(--fc-wave-amp) * 0.5);
+    mask-position:
+      -28px 0,
+      0 calc(var(--fc-wave-amp) * 0.5);
+  }
+}
+
+@keyframes liquidWaveDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.shine {
+  position: absolute;
+  inset: 8% auto 12% 10%;
+  width: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 22%;
+  z-index: 2;
+  padding: 0.5rem 0.35rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--fc-bg-elevated) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fc-text) 10%, transparent);
+  text-align: center;
+  color: var(--fc-text);
+  pointer-events: none;
+}
+
+.label span {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--fc-text);
+  line-height: 1.35;
+}
+
+.levelCallout {
+  position: absolute;
+  left: calc(100% - 2px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  transform: translateY(50%);
+  pointer-events: none;
+}
+
+.levelCalloutEditable {
+  pointer-events: auto;
+  cursor: ns-resize;
+  outline: none;
+}
+
+.levelCalloutEditable:focus-visible .levelDot {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--fc-warn) 50%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--fc-accent) 35%, transparent);
+}
+
+.levelDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--fc-warn-soft);
+  border: 2px solid var(--fc-bg-elevated);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fc-warn) 50%, transparent);
+  flex-shrink: 0;
+}
+
+.levelLine {
+  width: 28px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--fc-warn-soft),
+    color-mix(in srgb, var(--fc-warn) 40%, transparent)
+  );
+  flex-shrink: 0;
+}
+
+.levelValue {
+  margin-left: 0.4rem;
+  font-family: var(--fc-font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--fc-warn-soft);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.shadow {
+  width: 90px;
+  height: 10px;
+  margin: 10px auto 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.25), transparent 70%);
+}
+
+.productMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  justify-content: center;
+  align-items: start;
+  align-content: start;
+  width: 100%;
+  min-height: 2.7em;
+  font-size: 0.85rem;
+  color: var(--fc-text-muted);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.metaText {
+  line-height: 1.35;
+}
+
+.costChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fc-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fc-accent) 35%, transparent);
+  color: var(--fc-accent-soft);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.costChip:hover,
+.costChip:focus-visible {
+  background: color-mix(in srgb, var(--fc-accent) 24%, transparent);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid,
+  .bottleStirring .liquid,
+  .bottle .liquidSplash,
+  .bottleStirring .liquidSplash {
+    --fc-wave-amp: 0px;
+    animation: none;
+    transform: none;
+    transition: none;
+    -webkit-mask-position:
+      0 0,
+      0 0;
+    mask-position:
+      0 0,
+      0 0;
+  }
+
+  .waveYellow,
+  .bottleStirring .waveYellow {
+    animation: none;
+    opacity: 0;
+  }
+}

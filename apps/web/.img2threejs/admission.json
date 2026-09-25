@@ -1,0 +1,14 @@
+{
+  "admitted": true,
+  "reasons": [],
+  "provenance": {
+    "viewpoint": "reference",
+    "sourcePath": "/Users/radunie/Projects/fragrance_chemistry/apps/web/.img2threejs/reference.png",
+    "width": 1024,
+    "height": 1024,
+    "foregroundCoverage": 0.9337,
+    "largestComponentFraction": 0.9997,
+    "pHash": 12952338946165713408,
+    "duplicateOfHash": null
+  }
+}

@@ -1,0 +1,84 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--fc-overlay);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.panel {
+  width: min(480px, 100%);
+  max-height: min(86vh, 640px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: var(--fc-radius-lg);
+  background: var(--fc-surface);
+  border: var(--fc-border);
+  box-shadow: var(--fc-shadow-soft);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--fc-warn-soft);
+}
+
+.modes {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mode {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.mode input {
+  margin-top: 0.2rem;
+  accent-color: var(--fc-accent);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0.15rem;
+  display: grid;
+  gap: 0.35rem;
+  overflow: auto;
+  max-height: 14rem;
+}
+
+.hint,
+.error {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.error {
+  color: var(--fc-warn-soft);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}

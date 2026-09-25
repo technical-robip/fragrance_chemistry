@@ -1,0 +1,138 @@
+.wrap {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.banner {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--fc-radius-md);
+  border: 1px solid color-mix(in srgb, var(--fc-text) 10%, transparent);
+}
+
+.banner strong {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+}
+
+.banner p {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fc-text);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  margin-top: 0.2rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.green {
+  background: color-mix(in srgb, #3d9a6a 14%, var(--fc-surface));
+  border-color: color-mix(in srgb, #3d9a6a 35%, transparent);
+}
+
+.green .dot {
+  background: #3d9a6a;
+}
+
+.yellow {
+  background: color-mix(in srgb, var(--fc-warn) 14%, var(--fc-surface));
+  border-color: color-mix(in srgb, var(--fc-warn) 40%, transparent);
+}
+
+.yellow .dot {
+  background: var(--fc-warn-soft);
+}
+
+.red {
+  background: color-mix(in srgb, #c45c5c 14%, var(--fc-surface));
+  border-color: color-mix(in srgb, #c45c5c 40%, transparent);
+}
+
+.red .dot {
+  background: #c45c5c;
+}
+
+.block h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+}
+
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chips li {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--fc-radius-sm);
+  background: color-mix(in srgb, var(--fc-chip-bg) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fc-text) 10%, transparent);
+  font-size: 0.78rem;
+  color: var(--fc-text);
+}
+
+.limits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.limits li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: var(--fc-radius-sm);
+}
+
+.limits em {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  color: var(--fc-text-muted);
+}
+
+.row_green {
+  background: color-mix(in srgb, #3d9a6a 8%, transparent);
+}
+
+.row_yellow {
+  background: color-mix(in srgb, var(--fc-warn) 10%, transparent);
+}
+
+.row_red {
+  background: color-mix(in srgb, #c45c5c 12%, transparent);
+}
+
+.muted,
+.empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--fc-text-muted);
+}
+
+.link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fc-accent-soft);
+}

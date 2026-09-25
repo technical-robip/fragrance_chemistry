@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import {
   loginBodySchema,
   refreshBodySchema,
@@ -36,11 +36,14 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: { user: JwtPayload }) {
+    return this.auth.me(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  logout(
-    @Req() req: { user: JwtPayload; body?: { refreshToken?: string } },
-    @Body() body: { refreshToken?: string },
-  ) {
+  logout(@Req() req: { user: JwtPayload }, @Body() body: { refreshToken?: string }) {
     return this.auth.logout(req.user, body.refreshToken);
   }
 }

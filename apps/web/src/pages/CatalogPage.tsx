@@ -1,107 +1,170 @@
-import { useMemo, useRef } from 'react';
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { motion, AnimatePresence } from 'motion/react';
+import { useTranslation } from 'react-i18next';
+import { filterCatalogIndex } from '@fc/shared';
+import { EmptyPyramid } from '@/components/viz/EmptyPyramid';
+import { MaterialAvatar } from '@/components/MaterialAvatar';
+import {
+  CATALOG_FAMILIES,
+  CATALOG_MANUFACTURERS,
+  CATALOG_NOTE_FILTERS,
+  catalogNoteLabel,
+  toggleCatalogFilter,
+} from '@/lib/catalog-filters';
+import { useCatalogIndex } from '@/lib/catalog-index';
+import { familyHue } from '@/lib/formula-viz';
 import styles from './CatalogPage.module.css';
 
-type MaterialRow = {
-  code: string;
-  name: string;
-  family: string;
-  cas?: string;
-  stockG: number;
-};
-
-const demoMaterials: MaterialRow[] = Array.from({ length: 120 }, (_, i) => ({
-  code: `MAT-${String(i + 1).padStart(4, '0')}`,
-  name: `Material ${i + 1}`,
-  family: ['Citrus', 'Woody', 'Floral', 'Balsamic'][i % 4]!,
-  cas: i % 3 === 0 ? `${100 + i}-${20 + (i % 10)}-${i}` : undefined,
-  stockG: Math.round(((i * 17) % 5000) + 120) / 10,
-}));
-
-const columnHelper = createColumnHelper<MaterialRow>();
-
 export function CatalogPage() {
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor('code', { header: 'Code', size: 120 }),
-      columnHelper.accessor('name', { header: 'Name', size: 220 }),
-      columnHelper.accessor('family', { header: 'Family', size: 100 }),
-      columnHelper.accessor('cas', {
-        header: 'CAS',
-        size: 140,
-        cell: (info) => info.getValue() ?? '—',
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [q, setQ] = useState('');
+  const [notes, setNotes] = useState<string[]>([]);
+  const [families, setFamilies] = useState<string[]>([]);
+  const [manufacturers, setManufacturers] = useState<string[]>([]);
+
+  const { data, isLoading, isError } = useCatalogIndex(false);
+  const rows = useMemo(
+    () =>
+      filterCatalogIndex(data ?? [], {
+        q: q || undefined,
+        notes,
+        families,
+        manufacturers,
       }),
-      columnHelper.accessor('stockG', {
-        header: 'Stock (g)',
-        size: 100,
-        cell: (info) => info.getValue().toFixed(1),
-      }),
-    ],
-    [],
+    [data, q, notes, families, manufacturers],
   );
-
-  const table = useReactTable({
-    data: demoMaterials,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const parentRef = useRef<HTMLDivElement>(null);
-  const rows = table.getRowModel().rows;
-  const headers = table.getHeaderGroups()[0]?.headers ?? [];
-
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 40,
-    overscan: 10,
+    estimateSize: () => 52,
+    overscan: 12,
   });
-
-  const template = headers.map((h) => `${h.column.getSize()}px`).join(' ');
 
   return (
     <div>
-      <h1 className="fc-page-title">Catalog</h1>
+      <h1 className="fc-page-title">{t('catalog.title')}</h1>
       <p className="fc-muted" style={{ marginBottom: '1rem' }}>
-        Virtualized material index — swap demo rows for <code>/materials</code> when the API is
-        live.
+        {t('catalog.subtitle')}
+        {isLoading ? ` — ${t('catalog.loading')}` : null}
+        {isError ? ` — ${t('catalog.failed')}` : null}
+        {!isLoading && !isError
+          ? ` — ${t('catalog.materialsCount', { count: rows.length })}`
+          : null}
       </p>
-      <div ref={parentRef} className={`fc-table-wrap ${styles.virtual}`}>
-        <div className={styles.headerRow} style={{ gridTemplateColumns: template }}>
-          {headers.map((header) => (
-            <span key={header.id} className={styles.headerCell}>
-              {flexRender(header.column.columnDef.header, header.getContext())}
-            </span>
-          ))}
-        </div>
-        <div className={styles.body} style={{ height: `${virtualizer.getTotalSize()}px` }}>
-          {virtualizer.getVirtualItems().map((vRow) => {
-            const row = rows[vRow.index]!;
-            return (
-              <div
-                key={row.id}
-                className={styles.row}
-                style={{
-                  height: `${vRow.size}px`,
-                  transform: `translateY(${vRow.start}px)`,
-                  gridTemplateColumns: template,
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <span key={cell.id} className={styles.cell}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </span>
-                ))}
-              </div>
-            );
-          })}
-        </div>
+
+      <label className="fc-label" htmlFor="catalog-search">
+        {t('catalog.search')}
+      </label>
+      <input
+        id="catalog-search"
+        className={`fc-input ${styles.search}`}
+        placeholder={t('catalog.searchPlaceholder')}
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+      />
+
+      <p className={styles.filtersLabel}>{t('catalog.filters')}</p>
+      <div className={styles.chipRow} role="group" aria-label={t('catalog.note')}>
+        {CATALOG_NOTE_FILTERS.map((n) => (
+          <button
+            key={n.id}
+            type="button"
+            className={`fc-chip ${notes.includes(n.id) ? 'fc-chip--active' : ''}`}
+            onClick={() => setNotes((prev) => toggleCatalogFilter(prev, n.id))}
+          >
+            {t(n.labelKey)}
+          </button>
+        ))}
+      </div>
+      <div className={styles.chipRow} role="group" aria-label={t('catalog.family')}>
+        {CATALOG_FAMILIES.map((f) => (
+          <button
+            key={f}
+            type="button"
+            className={`fc-chip ${families.includes(f) ? 'fc-chip--active' : ''}`}
+            onClick={() => setFamilies((prev) => toggleCatalogFilter(prev, f))}
+          >
+            {t(`families.${f}`, { defaultValue: f })}
+          </button>
+        ))}
+      </div>
+      <p className={styles.filtersLabel}>{t('catalog.manufacturer')}</p>
+      <div
+        className={`${styles.chipRow} ${styles.chipRowScroll}`}
+        role="group"
+        aria-label={t('catalog.manufacturer')}
+      >
+        {CATALOG_MANUFACTURERS.map((m) => (
+          <button
+            key={m}
+            type="button"
+            className={`fc-chip ${manufacturers.includes(m) ? 'fc-chip--active' : ''}`}
+            onClick={() => setManufacturers((prev) => toggleCatalogFilter(prev, m))}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      <div ref={parentRef} className={styles.list}>
+        {rows.length === 0 && !isLoading ? (
+          <div className={styles.empty}>
+            <EmptyPyramid />
+            <p>{t('catalog.empty')}</p>
+          </div>
+        ) : (
+          <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
+            <AnimatePresence initial={false}>
+              {virtualizer.getVirtualItems().map((vRow) => {
+                const m = rows[vRow.index]!;
+                const accent = familyHue(m.olfactoryFamily);
+                return (
+                  <div
+                    key={m.id}
+                    className={styles.row}
+                    style={{
+                      height: `${vRow.size}px`,
+                      transform: `translateY(${vRow.start}px)`,
+                      ['--accent' as string]: accent,
+                    }}
+                  >
+                    <motion.button
+                      type="button"
+                      className={styles.rowInner}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.18, delay: Math.min(vRow.index, 8) * 0.015 }}
+                      onClick={() =>
+                        navigate(`/catalog/${m.slug ?? m.id}`, {
+                          state: { from: '/catalog', fromLabel: t('catalog.title') },
+                        })
+                      }
+                    >
+                      <span className={styles.accent} />
+                      <MaterialAvatar
+                        name={m.name}
+                        family={m.olfactoryFamily}
+                        imageUrl={m.imageUrl}
+                        size={36}
+                      />
+                      <span className={styles.rowText}>
+                        <strong>{m.name.toUpperCase()}</strong>
+                        {m.manufacturer ? ` (${m.manufacturer})` : ''}
+                        {m.pyramidNote
+                          ? ` (${catalogNoteLabel(m.pyramidNote, t).toLowerCase()})`
+                          : ''}
+                      </span>
+                    </motion.button>
+                  </div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

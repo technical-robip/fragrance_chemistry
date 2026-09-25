@@ -1,0 +1,65 @@
+/* A division: prose on the board, computed values on the leaf beside it. */
+
+.sheet {
+  align-items: start;
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.tabMark {
+  display: block;
+  color: var(--division-hue);
+  margin-bottom: 0.5rem;
+}
+
+/* The computed leaf is much taller than the prose beside it. Letting the prose
+   ride with the scroll keeps the two halves reading as one spread instead of
+   leaving a page-high void under the text. */
+.prose {
+  grid-column: 2 / 4;
+  position: sticky;
+  top: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose {
+    position: static;
+  }
+}
+
+.title {
+  font-size: clamp(1.5rem, 2.9vw, 2.375rem);
+  margin: 0 0 1rem;
+  max-width: 24ch;
+}
+
+.plate {
+  grid-column: 4 / 6;
+}
+
+/* Alternating hinge side, so the scroll reads as a book and not a stack. */
+.flip .prose {
+  grid-column: 4 / 6;
+}
+
+.flip .plate {
+  grid-column: 2 / 4;
+}
+
+.flip .plate :global(.leafFlip) {
+  transform-origin: right center;
+}
+
+@media (max-width: 60rem) {
+  .prose,
+  .plate,
+  .flip .prose,
+  .flip .plate {
+    grid-column: 1;
+  }
+  .prose {
+    position: static;
+  }
+  .title {
+    max-width: none;
+  }
+}
