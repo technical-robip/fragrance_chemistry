@@ -27,30 +27,33 @@ describe('IfraService.limitsForMaterial', () => {
           }),
         };
       }
-      calls.push('limits');
-      return {
-        from: () => ({
-          innerJoin: () => ({
-            innerJoin: () => ({
-              where: async () => [
-                {
-                  id: 'lim-1',
-                  maxPercent: '4.0000',
-                  categoryCode: '4',
-                  categoryLabel: 'Fine fragrance',
-                  materialName: 'Galaxolide',
-                },
-              ],
-            }),
-          }),
-        }),
+      calls.push(calls.includes('limits') ? 'standards' : 'limits');
+      const rows =
+        calls.at(-1) === 'limits'
+          ? [
+              {
+                id: 'lim-1',
+                maxPercent: '4.0000',
+                categoryCode: '4',
+                categoryLabel: 'Fine fragrance',
+                materialName: 'Galaxolide',
+              },
+            ]
+          : [];
+      const chain = {
+        from: () => chain,
+        innerJoin: () => chain,
+        where: async () => rows,
       };
+      return chain;
     });
 
-    const rows = await svc.limitsForMaterial('galaxolide-synarome');
-    expect(calls).toEqual(['resolve', 'limits']);
-    expect(rows).toHaveLength(1);
-    expect(rows[0]?.materialName).toBe('Galaxolide');
+    const payload = await svc.limitsForMaterial('galaxolide-synarome');
+    expect(calls[0]).toBe('resolve');
+    expect(calls[1]).toBe('limits');
+    expect(payload.limits).toHaveLength(1);
+    expect(payload.limits[0]?.materialName).toBe('Galaxolide');
+    expect(payload.standards).toEqual([]);
   });
 
   it('returns 404 when the slug is unknown', async () => {

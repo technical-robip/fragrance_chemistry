@@ -164,6 +164,78 @@
   opacity: 1;
 }
 
+.ifraPanel {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.ifraStandard {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ifraBanner {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--fc-warning, #b45309) 55%, transparent);
+  background: color-mix(in srgb, var(--fc-warning, #b45309) 12%, transparent);
+}
+
+.ifraHead h3,
+.ifraHead p {
+  margin: 0;
+}
+
+.ifraHead h3 {
+  font-family: var(--fc-display, inherit);
+  font-size: 1.15rem;
+}
+
+.ifraMeta {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.ifraMeta div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.ifraMeta dt {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ifraMeta dd {
+  margin: 0;
+}
+
+.ifraGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  gap: 0.4rem;
+}
+
+.ifraGrid li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.4rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--fc-text) 10%, transparent);
+}
+
+.ifraGrid span {
+  font-size: 0.75rem;
+}
+
+.ifraNotes p {
+  margin: 0 0 0.45rem;
+}
+
 .ifraList {
   list-style: none;
   margin: 0;

@@ -4,8 +4,8 @@ IFRA Standards are not redistributable. This repository ships a **demo** categor
 
 ## Import
 
-1. Obtain the IFRA 51st Amendment **Standards Overview** Excel from IFRA (operator licence).
-2. Place it at repo-root `data/ifra/standards.xlsx` (gitignored) or set `IFRA_IMPORT_PATH`.
+1. Obtain the IFRA 51st Amendment **Standards Overview** (PDF or Excel) from IFRA (operator licence).
+2. Place it at repo-root `data/ifra/standards.pdf` or `data/ifra/standards.xlsx` (gitignored) or set `IFRA_IMPORT_PATH`.
 3. Run:
 
 ```bash
@@ -14,7 +14,7 @@ pnpm --filter @fc/api data:import-ifra
 pnpm --filter @fc/api data:import-ifra -- --dry-run
 ```
 
-Limits match existing catalog rows by **CAS** and never insert duplicate materials.
+The import stores the standard (type, risk, notes, synonyms, 18 category limits) and links every catalog row that shares a CAS or an exact normalized name. Standards with no catalog row, including prohibitions, are inserted as reference materials. Re-running the import updates those rows in place.
 
 Optional null-CAS fill (merge, never insert):
 

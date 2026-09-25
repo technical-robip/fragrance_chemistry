@@ -93,4 +93,12 @@ describe('evaluateIfraCompliance', () => {
     const report = evaluateIfraCompliance(mild, 1, limits);
     expect(report.overallStatus).toBe('green');
   });
+
+  it('treats a zero limit as prohibited when the allergen is used', () => {
+    const banned = evaluateIfraCompliance(lines, 1, {
+      ...limits,
+      1: { Linalool: 0 },
+    });
+    expect(banned.allergens.find((row) => row.name === 'Linalool')?.status).toBe('red');
+  });
 });

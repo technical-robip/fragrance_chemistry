@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ifraLineStatus,
   columnsVisibleForTier,
   exportFormulasBodySchema,
   formulaWorkbookChecksum,
@@ -29,6 +30,14 @@ const line = toWorkbookLineRow(
   10,
   20,
 );
+
+describe('ifra line status', () => {
+  it('marks a used prohibited material as exceeded', () => {
+    expect(ifraLineStatus(1.2, 0)).toBe('exceeded');
+    expect(ifraLineStatus(0, 0)).toBe('n/a');
+    expect(ifraLineStatus(1, null)).toBe('n/a');
+  });
+});
 
 describe('formula workbook schema', () => {
   it('hides pro+ and enterprise columns on free', () => {

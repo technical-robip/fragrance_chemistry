@@ -1,4 +1,14 @@
-import { boolean, jsonb, numeric, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  integer,
+  jsonb,
+  numeric,
+  pgSchema,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 
 export const catalogSchema = pgSchema('catalog');
 
@@ -66,5 +76,73 @@ export const ifraLimits = catalogSchema.table('ifra_limits', {
   categoryId: uuid('category_id')
     .notNull()
     .references(() => ifraCategories.id, { onDelete: 'cascade' }),
-  maxPercent: numeric('max_percent', { precision: 8, scale: 4 }).notNull(),
+  maxPercent: numeric('max_percent', { precision: 14, scale: 8 }).notNull(),
 });
+
+export const ifraStandards = catalogSchema.table(
+  'ifra_standards',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    code: text('code').notNull(),
+    name: text('name').notNull(),
+    amendment: integer('amendment'),
+    publicationYears: text('publication_years'),
+    lastPublicationYear: integer('last_publication_year'),
+    deadlineExisting: text('deadline_existing'),
+    deadlineNew: text('deadline_new'),
+    standardType: text('standard_type').notNull(),
+    riskDrivers: text('risk_drivers'),
+    flavorNote: text('flavor_note'),
+    phototoxicityNote: text('phototoxicity_note'),
+    restrictionNote: text('restriction_note'),
+    specificationNote: text('specification_note'),
+    otherSources: text('other_sources'),
+    otherSourcesNote: text('other_sources_note'),
+    casComment: text('cas_comment'),
+    synonyms: jsonb('synonyms').notNull().default([]),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique('ifra_standards_code_unique').on(table.code)],
+);
+
+export const ifraStandardCas = catalogSchema.table(
+  'ifra_standard_cas',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    standardId: uuid('standard_id')
+      .notNull()
+      .references(() => ifraStandards.id, { onDelete: 'cascade' }),
+    casNumber: text('cas_number').notNull(),
+    isPrimary: boolean('is_primary').notNull().default(false),
+  },
+  (table) => [unique('ifra_standard_cas_unique').on(table.standardId, table.casNumber)],
+);
+
+export const ifraStandardLimits = catalogSchema.table(
+  'ifra_standard_limits',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    standardId: uuid('standard_id')
+      .notNull()
+      .references(() => ifraStandards.id, { onDelete: 'cascade' }),
+    categoryCode: text('category_code').notNull(),
+    maxPercent: numeric('max_percent', { precision: 14, scale: 8 }),
+    unrestricted: boolean('unrestricted').notNull().default(false),
+  },
+  (table) => [unique('ifra_standard_limits_unique').on(table.standardId, table.categoryCode)],
+);
+
+export const materialIfraStandards = catalogSchema.table(
+  'material_ifra_standards',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    materialId: uuid('material_id')
+      .notNull()
+      .references(() => materials.id, { onDelete: 'cascade' }),
+    standardId: uuid('standard_id')
+      .notNull()
+      .references(() => ifraStandards.id, { onDelete: 'cascade' }),
+    matchKind: text('match_kind').notNull(),
+  },
+  (table) => [unique('material_ifra_standards_unique').on(table.materialId, table.standardId)],
+);

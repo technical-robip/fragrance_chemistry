@@ -16,6 +16,30 @@ export const IFRA_PRODUCT_CATEGORIES = [
 
 export type IfraProductCategoryCode = (typeof IFRA_PRODUCT_CATEGORIES)[number]['code'];
 
+/** Overview columns, including subcategory codes the product engine collapses. */
+export const IFRA_LIMIT_CATEGORY_CODES = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5A',
+  '5B',
+  '5C',
+  '5D',
+  '6',
+  '7A',
+  '7B',
+  '8',
+  '9',
+  '10A',
+  '10B',
+  '11A',
+  '11B',
+  '12',
+] as const;
+
+export type IfraLimitCategoryCode = (typeof IFRA_LIMIT_CATEGORY_CODES)[number];
+
 const EXCEL_TO_PRODUCT: Record<string, IfraProductCategoryCode> = {
   '1': '1',
   '2': '2',
@@ -66,9 +90,26 @@ export function parseIfraLimitCell(value: unknown): number | null {
   const upper = text.toUpperCase();
   if (/^(NS|N\/S|NA|N\/A|-|—|–)$/.test(upper)) return null;
   if (/(PROHIBIT|BANNED|NOT PERMITTED|NOT TO BE USED)/.test(upper)) return 0;
-  const numeric = Number(text.replace(/%/g, '').replace(/,/g, '').trim());
-  if (!Number.isFinite(numeric)) return null;
+  if (/NO\s+RESTRICTION/.test(upper)) return null;
+  const numeric = parseIfraDecimal(text);
+  if (numeric == null) return null;
   return numeric < 0 ? 0 : numeric;
+}
+
+/** European comma decimals (`0,00016`) and dotted decimals (`0.0050`). */
+export function parseIfraDecimal(raw: string): number | null {
+  let text = raw.replace(/%/g, '').trim();
+  if (!text) return null;
+  const lastComma = text.lastIndexOf(',');
+  const lastDot = text.lastIndexOf('.');
+  if (lastComma >= 0 && lastDot >= 0) {
+    if (lastComma > lastDot) text = text.replace(/\./g, '').replace(',', '.');
+    else text = text.replace(/,/g, '');
+  } else if (lastComma >= 0) {
+    text = text.replace(',', '.');
+  }
+  const numeric = Number(text);
+  return Number.isFinite(numeric) ? numeric : null;
 }
 
 /** Most restrictive (lowest) limit among subcategory columns that map to one product code. */

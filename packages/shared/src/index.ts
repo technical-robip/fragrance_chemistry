@@ -13,4 +13,5 @@ export * from './slug';
 export * from './lab-units';
 export * from './formula-workbook';
 export * from './ifra-categories';
+export * from './ifra-standard';
 export * from './material-identity';

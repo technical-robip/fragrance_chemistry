@@ -38,7 +38,8 @@ export function complianceStatus(
   limitPercent: number | undefined,
   options: IfraEvaluationOptions = {},
 ): ComplianceStatus {
-  if (limitPercent == null || limitPercent <= 0) return 'green';
+  if (limitPercent == null) return 'green';
+  if (limitPercent <= 0) return percentOfBatch > 0 ? 'red' : 'green';
   const yellowRatio = options.yellowThresholdRatio ?? DEFAULT_YELLOW_RATIO;
   if (percentOfBatch > limitPercent) return 'red';
   if (percentOfBatch >= limitPercent * yellowRatio) return 'yellow';

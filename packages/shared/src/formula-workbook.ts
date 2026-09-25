@@ -419,7 +419,8 @@ export function ifraLineStatus(
   usagePct: number,
   limitPct: number | null | undefined,
 ): IfraLineStatus {
-  if (limitPct == null || !Number.isFinite(limitPct) || limitPct <= 0) return 'n/a';
+  if (limitPct == null || !Number.isFinite(limitPct)) return 'n/a';
+  if (limitPct <= 0) return usagePct > 0 ? 'exceeded' : 'n/a';
   if (usagePct > limitPct) return 'exceeded';
   if (usagePct >= limitPct * IFRA_WARNING_RATIO) return 'warning';
   return 'ok';

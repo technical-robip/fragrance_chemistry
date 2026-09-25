@@ -35,7 +35,47 @@ type IfraLimit = {
   categoryLabel: string;
 };
 
+type IfraStandardLimit = {
+  categoryCode: string;
+  maxPercent: string | null;
+  unrestricted: boolean;
+};
+
+type IfraStandardView = {
+  id: string;
+  code: string;
+  name: string;
+  amendment: number | null;
+  standardType: string;
+  riskDrivers: string | null;
+  deadlineExisting: string | null;
+  deadlineNew: string | null;
+  synonyms: string[];
+  flavorNote: string | null;
+  phototoxicityNote: string | null;
+  restrictionNote: string | null;
+  specificationNote: string | null;
+  otherSources: string | null;
+  otherSourcesNote: string | null;
+  casNumbers: string[];
+  limits: IfraStandardLimit[];
+};
+
+type IfraMaterialPayload = {
+  limits: IfraLimit[];
+  standards: IfraStandardView[];
+};
+
 type TabId = 'overview' | 'ifra' | 'stock';
+
+function formatIfraPercent(value: string | null, unrestricted: boolean, unrestrictedLabel: string) {
+  if (unrestricted) return unrestrictedLabel;
+  if (value == null || value === '') return '—';
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '—';
+  if (numeric !== 0 && Math.abs(numeric) < 0.01) return `${numeric}%`;
+  return `${numeric.toFixed(2)}%`;
+}
 
 function noteLabel(note: string | null, t: (k: string) => string) {
   if (note === 'middle') return t('catalog.heart');
@@ -81,9 +121,9 @@ export function MaterialDetailPage() {
     enabled: !!materialId,
   });
 
-  const { data: ifraLimits } = useQuery({
+  const { data: ifra } = useQuery({
     queryKey: ['ifra', 'limits', data?.id],
-    queryFn: () => api.get<IfraLimit[]>(`/ifra/materials/${data!.id}/limits`),
+    queryFn: () => api.get<IfraMaterialPayload>(`/ifra/materials/${data!.id}/limits`),
     enabled: !!data?.id && tab === 'ifra',
   });
 
@@ -285,21 +325,103 @@ export function MaterialDetailPage() {
           </div>
         ) : null}
         {tab === 'ifra' ? (
-          <div>
-            {(ifraLimits ?? []).length === 0 ? (
+          <div className={styles.ifraPanel}>
+            {(ifra?.standards ?? []).length === 0 && (ifra?.limits ?? []).length === 0 ? (
               <p className="fc-muted">{t('material.noIfra')}</p>
-            ) : (
+            ) : null}
+            {(ifra?.standards ?? []).map((standard) => (
+              <article key={standard.id} className={styles.ifraStandard}>
+                {standard.standardType === 'PROHIBITION' ? (
+                  <p className={styles.ifraBanner}>{t('material.ifraProhibited')}</p>
+                ) : null}
+                <header className={styles.ifraHead}>
+                  <h3>{standard.code}</h3>
+                  <p>
+                    {t(`material.ifraType.${standard.standardType}`, {
+                      defaultValue: standard.standardType,
+                    })}
+                    {standard.amendment != null
+                      ? ` · ${t('material.ifraAmendment', { amendment: standard.amendment })}`
+                      : ''}
+                  </p>
+                  {standard.riskDrivers ? (
+                    <p>
+                      {t('material.ifraRisk')}: {standard.riskDrivers}
+                    </p>
+                  ) : null}
+                </header>
+                <dl className={styles.ifraMeta}>
+                  {standard.casNumbers.length > 0 ? (
+                    <div>
+                      <dt>{t('material.ifraCas')}</dt>
+                      <dd>{standard.casNumbers.join(', ')}</dd>
+                    </div>
+                  ) : null}
+                  {standard.synonyms.length > 0 ? (
+                    <div>
+                      <dt>{t('material.ifraSynonyms')}</dt>
+                      <dd>{standard.synonyms.join(' · ')}</dd>
+                    </div>
+                  ) : null}
+                  {standard.deadlineNew || standard.deadlineExisting ? (
+                    <div>
+                      <dt>{t('material.ifraDeadlines')}</dt>
+                      <dd>
+                        {[standard.deadlineNew, standard.deadlineExisting]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+                {standard.standardType !== 'PROHIBITION' && standard.limits.length > 0 ? (
+                  <ul className={styles.ifraGrid}>
+                    {standard.limits.map((row) => (
+                      <li key={row.categoryCode}>
+                        <span>{row.categoryCode}</span>
+                        <strong>
+                          {formatIfraPercent(
+                            row.maxPercent,
+                            row.unrestricted,
+                            t('material.ifraNoRestriction'),
+                          )}
+                        </strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                <div className={styles.ifraNotes}>
+                  {(
+                    [
+                      ['material.ifraFlavor', standard.flavorNote],
+                      ['material.ifraPhototoxicity', standard.phototoxicityNote],
+                      ['material.ifraRestrictionNote', standard.restrictionNote],
+                      ['material.ifraSpecification', standard.specificationNote],
+                      ['material.ifraOtherSources', standard.otherSources],
+                    ] as const
+                  )
+                    .filter(([, note]) => note && note.trim())
+                    .map(([key, note]) => (
+                      <p key={key}>
+                        <strong>{t(key)}. </strong>
+                        {note}
+                      </p>
+                    ))}
+                </div>
+              </article>
+            ))}
+            {(ifra?.standards ?? []).length === 0 && (ifra?.limits ?? []).length > 0 ? (
               <ul className={styles.ifraList}>
-                {(ifraLimits ?? []).map((row) => (
+                {(ifra?.limits ?? []).map((row) => (
                   <li key={row.id}>
                     <strong>
                       {row.categoryCode} — {row.categoryLabel}
                     </strong>
-                    <span>{Number(row.maxPercent).toFixed(2)}%</span>
+                    <span>{formatIfraPercent(row.maxPercent, false, '')}</span>
                   </li>
                 ))}
               </ul>
-            )}
+            ) : null}
           </div>
         ) : null}
         {tab === 'stock' ? (
