@@ -296,3 +296,71 @@ export function applyCostView(model: FlaconModel, packaged: number): void {
   model.tiers.juice.position.y = 0;
   model.tiers.packaged.position.y = CAP_LIFT * (1 - t);
 }
+
+/**
+ * Weigh-leaf pour: open bottle, juice height tracks pan mass.
+ * `fill01` is panGrams / targetGrams (1 = on target; >1 shows overshoot).
+ *
+ * Critical: do NOT use MeshPhysical transmission here. On the dark leaf the
+ * transmission pass loses depth fights with the opaque pan disc, so the pan
+ * reads as slicing through the bottle even when the AABB clears. Opacity-only
+ * glass + opaque-ish amber juice keeps layering correct.
+ *
+ * Collar (neck ring) stays on the bottle. Cap is reparented onto the bench by
+ * WeighScaleFigure — leave it alone if already moved.
+ */
+export function applyWeighFill(model: FlaconModel, fill01: number): void {
+  const fill = Math.max(0, fill01);
+  const juice = model.tiers.concentrate.getObjectByName('juice');
+  if (juice) {
+    juice.scale.y = Math.min(0.65, Math.max(0.05, fill * 0.45));
+    juice.scale.x = 1.04;
+    juice.scale.z = 1.04;
+    juice.position.y = 0.12;
+    juice.visible = fill > 0.001;
+    juice.renderOrder = 1;
+    const material = (juice as Mesh).material;
+    if (material instanceof MeshPhysicalMaterial) {
+      material.color.set(0xe8b45a);
+      material.transmission = 0;
+      material.opacity = 0.92;
+      material.transparent = true;
+      material.roughness = 0.22;
+      material.metalness = 0;
+      material.thickness = 0;
+      material.depthWrite = true;
+      material.depthTest = true;
+    }
+  }
+  model.tiers.juice.position.y = 0;
+  model.tiers.juice.traverse((obj) => {
+    const mesh = obj as Mesh;
+    if (!mesh.isMesh) return;
+    mesh.renderOrder = 2;
+    const material = mesh.material;
+    if (material instanceof MeshPhysicalMaterial) {
+      material.color.set(0xd5e6e6);
+      material.transmission = 0;
+      material.opacity = 0.38;
+      material.transparent = true;
+      material.roughness = 0.12;
+      material.metalness = 0;
+      material.thickness = 0;
+      material.ior = 1.5;
+      material.depthWrite = true;
+      material.depthTest = true;
+    }
+  });
+  // Open bottle: gold collar stays on the original shoulder; cap lives on the bench.
+  model.tiers.packaged.visible = true;
+  model.tiers.packaged.position.y = 0;
+  const collar = model.tiers.packaged.getObjectByName('collar');
+  if (collar) {
+    collar.visible = true;
+    collar.position.y = COLLAR_BOTTOM;
+  }
+  const shoulder = model.tiers.juice.getObjectByName('shoulderAssembly');
+  if (shoulder) shoulder.visible = true;
+  const cap = model.tiers.packaged.getObjectByName('cap');
+  if (cap) cap.visible = false;
+}

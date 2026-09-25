@@ -243,17 +243,35 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.mastheadActions .action,
+.mastheadActions .actionQuiet {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 @media (max-width: 78rem) {
   .mastheadNav {
     display: none;
   }
+
+  /* Nav carried margin-left: auto; pin the controls once it is gone. */
+  .mastheadActions {
+    margin-left: auto;
+  }
 }
 
-/* At phone widths the brand and the controls cannot share one row without
-   colliding, so the masthead becomes two rows. */
-@media (max-width: 34rem) {
+/* Tagline collides with the theme switch before the two-row wrap. */
+@media (max-width: 52rem) {
+  .brandTag {
+    display: none;
+  }
+}
+
+/* Brand plus the four controls cannot share one row without colliding. */
+@media (max-width: 42rem) {
   .masthead {
     flex-wrap: wrap;
     row-gap: 0.5rem;
@@ -263,13 +281,10 @@
     flex: 1 0 100%;
   }
 
-  .brandTag {
-    display: none;
-  }
-
   .mastheadActions {
     flex: 1 0 100%;
     justify-content: flex-start;
+    margin-left: 0;
   }
 
   .mastheadActions .action,
@@ -277,7 +292,6 @@
     flex: 1 1 auto;
     padding-inline: 0.75rem;
     font-size: 0.875rem;
-    white-space: nowrap;
   }
 }
 

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { evaluateIfraCompliance, formulaCost } from '@fc/formula-engine';
 import { CompliancePanel } from '@/components/viz/CompliancePanel';
@@ -12,6 +12,7 @@ import {
   ILLUSTRATIVE_LIMITS,
 } from './demo-formula';
 import { grams, percent } from './manual';
+import { usePourGrams, WEIGH_ACTUAL_GRAMS, WEIGH_TARGET_GRAMS } from './use-pour-grams';
 import styles from './LandingPage.module.css';
 import leaves from './DivisionLeaves.module.css';
 
@@ -28,46 +29,99 @@ function Leaf({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
+const WeighScaleFigure = lazy(() =>
+  import('@/components/viz/three/WeighScaleFigure').then((m) => ({ default: m.WeighScaleFigure })),
+);
+
+/** Map fill ratio so CSS vessel shows a readable slug (~22% at target). */
+const CONCENTRATE_AS_PCT = 22;
+
 /** Weighing: the reading, the deviation, and what the engine did with the rest. */
 export function WeighLeaf() {
   const { t } = useTranslation();
-  const target = 0.62;
-  const actual = 0.684;
+  const target = WEIGH_TARGET_GRAMS;
+  const actual = WEIGH_ACTUAL_GRAMS;
   const deviation = actual - target;
+  const leafRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [webglFailed, setWebglFailed] = useState(false);
+  // Wait for WebGL first frame (or CSS fallback) so juice and grams rise together.
+  const pourActive = inView && (sceneReady || webglFailed);
+  const panGrams = usePourGrams(pourActive, actual);
+
+  useEffect(() => {
+    const node = leafRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Toggle so leaving and returning to Weigh replays the pour.
+        setInView(entries.some((e) => e.isIntersecting));
+      },
+      { rootMargin: '40px', threshold: 0.2 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const fillPct = Math.min(100, (panGrams / target) * CONCENTRATE_AS_PCT);
 
   return (
-    <Leaf label={t('landing.divisions.weigh.leafLabel')}>
-      <ScalePulseReadout grams={actual} connected label={t('landing.divisions.weigh.actual')} />
+    <div ref={leafRef}>
+      <Leaf label={t('landing.divisions.weigh.leafLabel')}>
+        <ScalePulseReadout
+          grams={panGrams}
+          connected
+          label={t('landing.divisions.weigh.actual')}
+          stage={
+            webglFailed ? (
+              <div className={leaves.figure}>
+                <CssPerfumeVessel levelPct={fillPct} compact open label={t('common.appName')} />
+              </div>
+            ) : (
+              <Suspense fallback={null}>
+                <WeighScaleFigure
+                  panGrams={panGrams}
+                  targetGrams={target}
+                  label={t('landing.divisions.weigh.leafLabel')}
+                  onReady={() => setSceneReady(true)}
+                  onUnavailable={() => setWebglFailed(true)}
+                />
+              </Suspense>
+            )
+          }
+        />
 
-      <dl className={styles.rows}>
-        <div className={styles.row}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.weigh.target')}</dt>
-          <dd className={styles.rowValue}>{grams(target)} g</dd>
-          <dd className={styles.rowMuted}>Bergamot EO</dd>
-        </div>
-        <div className={styles.row}>
-          <dt className={styles.rowTerm}>{t('landing.divisions.weigh.deviation')}</dt>
-          <dd className={`${styles.rowValue} ${leaves.over}`}>+{grams(deviation)} g</dd>
-          <dd className={styles.rowMuted}>+{percent((deviation / target) * 100)} %</dd>
-        </div>
-      </dl>
-
-      <p className={leaves.consequence}>{t('landing.divisions.weigh.rebalanced')}</p>
-
-      <dl className={styles.rows}>
-        {[
-          { label: 'Petitgrain Bigarade EO', before: 0.28, after: 0.2673 },
-          { label: 'Hedione', before: 0.42, after: 0.4009 },
-          { label: 'Iso E Super', before: 0.22, after: 0.21 },
-        ].map((row) => (
-          <div key={row.label} className={styles.row}>
-            <dt className={styles.rowTerm}>{row.label}</dt>
-            <dd className={styles.ghost}>{grams(row.before)}</dd>
-            <dd className={styles.rowValue}>{grams(row.after)}</dd>
+        <dl className={styles.rows}>
+          <div className={styles.row}>
+            <dt className={styles.rowTerm}>{t('landing.divisions.weigh.target')}</dt>
+            <dd className={styles.rowValue}>{grams(target)} g</dd>
+            <dd className={styles.rowMuted}>Bergamot EO</dd>
           </div>
-        ))}
-      </dl>
-    </Leaf>
+          <div className={styles.row}>
+            <dt className={styles.rowTerm}>{t('landing.divisions.weigh.deviation')}</dt>
+            <dd className={`${styles.rowValue} ${leaves.over}`}>+{grams(deviation)} g</dd>
+            <dd className={styles.rowMuted}>+{percent((deviation / target) * 100)} %</dd>
+          </div>
+        </dl>
+
+        <p className={leaves.consequence}>{t('landing.divisions.weigh.rebalanced')}</p>
+
+        <dl className={styles.rows}>
+          {[
+            { label: 'Petitgrain Bigarade EO', before: 0.28, after: 0.2673 },
+            { label: 'Hedione', before: 0.42, after: 0.4009 },
+            { label: 'Iso E Super', before: 0.22, after: 0.21 },
+          ].map((row) => (
+            <div key={row.label} className={styles.row}>
+              <dt className={styles.rowTerm}>{row.label}</dt>
+              <dd className={styles.ghost}>{grams(row.before)}</dd>
+              <dd className={styles.rowValue}>{grams(row.after)}</dd>
+            </div>
+          ))}
+        </dl>
+      </Leaf>
+    </div>
   );
 }
 

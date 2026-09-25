@@ -11,13 +11,65 @@
   overflow: hidden;
 }
 
-.live::after {
+.withStage {
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  grid-template-rows: auto minmax(11rem, 1fr);
+  place-items: stretch;
+  gap: 0;
+}
+
+.stage {
+  min-height: 11rem;
+  pointer-events: none;
+}
+
+.readout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 0.1rem;
+  padding: 0.85rem 1rem 1rem;
+  pointer-events: none;
+}
+
+.withStage .readout {
+  padding: 0.7rem 1rem 0.55rem;
+  background: color-mix(in srgb, var(--fc-surface) 96%, transparent);
+}
+
+/*
+ * Live trail is a real grid row between the value and the unit so the
+ * blinking line sits flush under the grams (not at the panel bottom).
+ */
+.live .readout {
+  grid-template-rows: auto auto auto auto;
+}
+
+.live .readout::after {
   content: '';
-  position: absolute;
-  inset: auto 20% 18% 20%;
+  grid-row: 3;
+  width: min(9.5rem, 52%);
   height: 2px;
+  margin: 0.06rem 0 0.1rem;
   background: linear-gradient(90deg, transparent, var(--fc-accent), transparent);
   animation: trail 1.4s var(--fc-ease-perfume) infinite;
+}
+
+.live .status {
+  grid-row: 1;
+}
+
+.live .value {
+  grid-row: 2;
+}
+
+.live .unit {
+  grid-row: 4;
 }
 
 .status {
@@ -31,6 +83,7 @@
   font-family: var(--fc-font-display);
   font-size: clamp(2rem, 6vw, 3rem);
   color: var(--fc-text);
+  line-height: 1;
   transition:
     transform 0.2s var(--fc-ease-perfume),
     color 0.2s var(--fc-ease-perfume);
@@ -44,6 +97,7 @@
 .unit {
   color: var(--fc-accent);
   font-weight: 700;
+  line-height: 1;
 }
 
 @keyframes pulse {
@@ -75,7 +129,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .live .value,
-  .live::after {
+  .live .readout::after {
     animation: none;
   }
 }
