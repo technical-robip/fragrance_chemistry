@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { CreateEvaluationBody, UpdateEvaluationBody, joinEvaluationNotes } from '@fc/shared';
 import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
@@ -6,6 +6,7 @@ import { evaluations, formulas } from '../../database/schema';
 import { RedisService } from '../../redis/redis.service';
 import { JwtPayload } from '../auth/auth.types';
 import { EntitlementsService } from '../entitlements/entitlements.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const evaluationSelect = {
   id: evaluations.id,
@@ -32,6 +33,7 @@ export class EvaluationsService {
     private readonly db: DatabaseService,
     private readonly entitlements: EntitlementsService,
     private readonly redis: RedisService,
+    @Optional() private readonly notifications?: NotificationsService,
   ) {}
 
   list(user: JwtPayload, formulaId?: string) {
@@ -79,6 +81,7 @@ export class EvaluationsService {
       .returning();
 
     await this.redis.cacheDel(this.redis.dashboardBriefingKey(user.sub, body.formulaId));
+    await this.notifications?.onEvaluationSaved(user.sub, body.formulaId, body.macerationDay);
 
     return {
       ...row,
@@ -126,6 +129,7 @@ export class EvaluationsService {
       .returning();
 
     await this.redis.cacheDel(this.redis.dashboardBriefingKey(user.sub, existing.formulaId));
+    await this.notifications?.onEvaluationSaved(user.sub, existing.formulaId, day);
 
     return {
       ...row,

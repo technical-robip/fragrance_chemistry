@@ -3,14 +3,43 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem 1.25rem;
+}
+
+.headerCopy {
+  min-width: 0;
+  flex: 1 1 18rem;
+}
+
+.pageKicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fc-text-muted);
+}
+
+:global(.fc-page-title).formulaTitle {
+  margin: 0.12rem 0 0;
+  font-size: clamp(1.9rem, 3.6vw, 2.55rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.formulaMeta {
+  margin: 0.28rem 0 0;
+  font-size: 0.9rem;
+  color: var(--fc-text-muted);
 }
 
 .headerActions {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.65rem;
+  align-self: flex-start;
+  gap: 0.5rem;
+  flex: 0 1 auto;
 }
 
 .headerCta {
@@ -20,14 +49,9 @@
 
 .headerSelector {
   margin-bottom: 0;
-  flex: 1 1 14rem;
-  min-width: 12rem;
-}
-
-.formulaMeta {
-  margin: 0.35rem 0 0;
-  font-size: 0.88rem;
-  color: var(--fc-warn-soft);
+  flex: 1 1 12rem;
+  min-width: 11rem;
+  max-width: 22rem;
 }
 
 .empty {
@@ -496,6 +520,7 @@
 }
 
 .lede {
+  margin: 0.4rem 0 0;
   max-width: 66ch;
 }
 

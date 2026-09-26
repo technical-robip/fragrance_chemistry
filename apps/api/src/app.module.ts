@@ -24,6 +24,7 @@ import { EntitlementsModule } from './modules/entitlements/entitlements.module';
 import { AccountModule } from './modules/account/account.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { WeighingModule } from './modules/weighing/weighing.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { WeighingModule } from './modules/weighing/weighing.module';
     CommunityModule,
     SuppliersModule,
     EvaluationsModule,
+    NotificationsModule,
     WeighingModule,
     JobsModule,
     BillingModule,

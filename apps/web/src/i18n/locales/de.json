@@ -377,12 +377,16 @@
   "evaluation": {
     "title": "Bewertung",
     "subtitle": "Riech die Formel, markiere die Linien und setze dieselbe Sitzung fort.",
+    "formulaReminders": "Erinnerungen für diese Formel",
+    "formulaRemindersHint": "Optional. Ein Hinweis, wenn ein Prüfpunkt noch leer ist, vom ersten Durchgang bis Tag 30.",
+    "formulaRemindersOn": "Erinnerungen sind an für {{name}}.",
+    "formulaRemindersOff": "Erinnerungen sind aus für {{name}}.",
     "saveDay": "Tag {{day}} speichern",
     "saving": "Wird gespeichert…",
     "saved": "Gespeichert.",
     "empty": "Wähle eine Formel zum Bewerten.",
     "openWorkbench": "Im Workbench öffnen",
-    "formulaMeta": "{{name}} · {{pct}}% Konzentrat · {{juiceClass}}",
+    "formulaMeta": "{{pct}}% Konzentrat · {{juiceClass}}",
     "day": "Tag {{day}}",
     "rating": "Bewertung",
     "appearance": "Erscheinung",
@@ -568,6 +572,21 @@
     "confirmAction": "Löschen",
     "cancel": "Abbrechen"
   },
+  "notifications": {
+    "bell": "Bewertungs-Erinnerungen",
+    "empty": "Keine offenen Erinnerungen.",
+    "dismiss": "Diese Erinnerung schließen",
+    "muteFormula": "Für diese Formel stoppen",
+    "checkpoint": {
+      "t0": "{{formula}} · Tag 1, T+0 ist noch offen",
+      "t30m": "{{formula}} · Tag 1, T+30 min ist noch offen",
+      "t4h": "{{formula}} · Tag 1, T+4 h ist noch offen",
+      "t24h": "{{formula}} · Tag 1, T+24 h ist noch offen",
+      "d7": "{{formula}} · Tag 7 ist noch offen",
+      "d14": "{{formula}} · Tag 14 ist noch offen",
+      "d30": "{{formula}} · Tag 30 ist noch offen"
+    }
+  },
   "account": {
     "title": "Konto",
     "subtitle": "Identität, Laborvorgaben, Abo und Sicherheit.",
@@ -603,6 +622,8 @@
     "saveLab": "Vorgaben speichern",
     "preferences": "Einstellungen",
     "preferencesHint": "Thema und Sprache gelten sofort und bleiben auf diesem Konto.",
+    "evaluationReminders": "Bewertungs-Erinnerungen",
+    "evaluationRemindersHint": "Standardmäßig an. Ausschalten, wenn keine Checkpoint-Erinnerungen gewünscht sind.",
     "savePrefs": "Einstellungen speichern",
     "subscriptionManaged": "Dein Plan wird von einem Administrator zugewiesen. Hier kannst du ihn nicht ändern.",
     "subscription": "Abo",

@@ -37,6 +37,7 @@ import { BatchBlotter } from '@/components/viz/BatchBlotter';
 import { EvolutionPlayhead } from '@/components/viz/EvolutionPlayhead';
 import { api } from '@/lib/api-client';
 import { withLabQuery } from '@/lib/lab-query';
+import { FormulaReminder } from './FormulaReminder';
 import {
   filterEvaluations,
   groupByFormula,
@@ -145,6 +146,8 @@ export function EvaluationPage() {
   const formulaRouteKey = useSelectedFormulaRouteKey();
   const qc = useQueryClient();
   const [params, setParams] = useSearchParams();
+  const dayParam = params.get('day');
+  const slotParam = params.get('slot');
   const evalParam = params.get('eval');
 
   const [day, setDay] = useState(1);
@@ -258,6 +261,18 @@ export function EvaluationPage() {
   useEffect(() => {
     const data = library.data;
     if (!data) return;
+    const requestedDay = Number(dayParam);
+    const dayFocus = (MACERATION_DAYS as readonly number[]).includes(requestedDay)
+      ? requestedDay
+      : null;
+    const requestedSlot = EVALUATION_TIMEPOINTS.find((tp) => tp.key === slotParam)?.key;
+    if (dayFocus && formulaId) {
+      const focusSig = `focus|${formulaId}|${dayFocus}|${requestedSlot ?? ''}`;
+      if (appliedRef.current === focusSig) return;
+      appliedRef.current = focusSig;
+      selectDay(dayFocus, requestedSlot);
+      return;
+    }
     const sig = `${formulaId ?? ''}|${evalParam ?? ''}`;
     if (evalParam) {
       const found = data.find((e) => e.id === evalParam);
@@ -289,7 +304,7 @@ export function EvaluationPage() {
     }
     resetForm();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formulaId, evalParam, library.data]);
+  }, [formulaId, evalParam, library.data, dayParam, slotParam]);
 
   useEffect(() => {
     setLineQuery('');
@@ -588,18 +603,25 @@ export function EvaluationPage() {
   return (
     <div>
       <header className={styles.header}>
-        <div>
-          <h1 className="fc-page-title">{t('evaluation.title')}</h1>
-          <p className={`fc-muted ${styles.lede}`}>{t('evaluation.subtitle')}</p>
+        <div className={styles.headerCopy}>
           {formula.data ? (
-            <p className={styles.formulaMeta}>
-              {t('evaluation.formulaMeta', {
-                name: formula.data.name,
-                pct: Number.isFinite(concentrationPct) ? concentrationPct.toFixed(0) : '—',
-                juiceClass: juiceLabel,
-              })}
-            </p>
-          ) : null}
+            <>
+              <p className={styles.pageKicker}>{t('evaluation.title')}</p>
+              <h1 className={`fc-page-title ${styles.formulaTitle}`}>{formula.data.name}</h1>
+              <p className={styles.formulaMeta}>
+                {t('evaluation.formulaMeta', {
+                  pct: Number.isFinite(concentrationPct) ? concentrationPct.toFixed(0) : '—',
+                  juiceClass: juiceLabel,
+                })}
+              </p>
+              <p className={`fc-muted ${styles.lede}`}>{t('evaluation.subtitle')}</p>
+            </>
+          ) : (
+            <>
+              <h1 className="fc-page-title">{t('evaluation.title')}</h1>
+              <p className={`fc-muted ${styles.lede}`}>{t('evaluation.subtitle')}</p>
+            </>
+          )}
         </div>
         <div className={styles.headerActions}>
           {formulaId ? (
@@ -635,6 +657,9 @@ export function EvaluationPage() {
               </div>
             </div>
           </div>
+          {formulaId ? (
+            <FormulaReminder formulaId={formulaId} formulaName={formula.data?.name ?? ''} />
+          ) : null}
 
           {formulaId ? (
             <BatchBlotter

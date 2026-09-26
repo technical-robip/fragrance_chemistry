@@ -7,6 +7,7 @@ import { AuthAtmosphere } from '@/components/viz/AuthAtmosphere';
 import { useSelectedFormulaUrlKey } from '@/components/FormulaSelector';
 import { withLabQuery } from '@/lib/lab-query';
 import { LanguageMenu } from './LanguageMenu';
+import { NotificationBell } from './NotificationBell';
 import { ThemeSwitch } from './ThemeSwitch';
 import styles from './AppShell.module.css';
 
@@ -125,6 +126,7 @@ export function AppShell() {
           <BrandMark />
           <strong>{t('common.appName')}</strong>
         </div>
+        {userHasFeature(user, 'evaluation') ? <NotificationBell placement="down" /> : null}
         <NavLink to="/account" className={styles.topAvatar} aria-label={t('nav.account')}>
           {initials(user?.displayName, user?.email)}
         </NavLink>
@@ -178,13 +180,16 @@ export function AppShell() {
         </nav>
         <div className={styles.user}>
           <Controls />
-          <NavLink to="/account" className={styles.userChip}>
-            <span className={styles.avatar}>{initials(user?.displayName, user?.email)}</span>
-            <span>
-              <strong>{user?.displayName ?? user?.email}</strong>
-              <em>{user?.plan ?? 'free'}</em>
-            </span>
-          </NavLink>
+          <div className={styles.identity}>
+            <NavLink to="/account" className={styles.userChip}>
+              <span className={styles.avatar}>{initials(user?.displayName, user?.email)}</span>
+              <span className={styles.userMeta}>
+                <strong>{user?.displayName ?? user?.email}</strong>
+                <em>{user?.plan ?? 'free'}</em>
+              </span>
+            </NavLink>
+            {userHasFeature(user, 'evaluation') ? <NotificationBell placement="up" /> : null}
+          </div>
           {user?.role === 'admin' ? (
             <NavLink to="/admin" className={styles.adminLink}>
               {t('nav.admin')}

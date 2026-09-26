@@ -1,13 +1,19 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { juiceClassFromConcentration, type FeatureKey, type QuotaKey } from '@fc/shared';
+import {
+  juiceClassFromConcentration,
+  type FeatureKey,
+  type NotificationPreferences,
+  type QuotaKey,
+} from '@fc/shared';
 import { FEATURE_KEYS, QUOTA_KEYS } from '@fc/shared';
 import { ApiError, api } from '@/lib/api-client';
 import { useAuthStore, userHasFeature } from '@/stores/auth-store';
 import { APP_LOCALES, useUiStore, type AppLocale, type ThemeMode } from '@/stores/ui-store';
 import { LocaleFlag } from '@/components/icons/flags';
+import { FcCheckbox } from '@/components/FcCheckbox';
 import { FcSelect } from '@/components/FcSelect';
 import styles from './AccountPage.module.css';
 
@@ -86,10 +92,17 @@ export function AccountPage() {
   const uiLocale = useUiStore((s) => s.locale);
   const setTheme = useUiStore((s) => s.setTheme);
   const setLocale = useUiStore((s) => s.setLocale);
+  const qc = useQueryClient();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['account'],
     queryFn: () => api.get<AccountPayload>('/account'),
+  });
+
+  const reminders = useQuery({
+    queryKey: ['notification-preferences'],
+    queryFn: () => api.get<NotificationPreferences>('/notification-preferences'),
+    enabled: userHasFeature(storeUser, 'evaluation'),
   });
 
   const user = data?.user;
@@ -185,6 +198,22 @@ export function AccountPage() {
       }
       await updateAccount(patch);
       await refetch();
+      setPrefsMsg(t('account.saved'));
+    } catch (err) {
+      setError(err instanceof ApiError ? t('account.saveFailed') : t('auth.unreachable'));
+    } finally {
+      setPrefsBusy(false);
+    }
+  }
+
+  async function toggleReminders(enabled: boolean) {
+    setPrefsBusy(true);
+    setError(null);
+    setPrefsMsg(null);
+    try {
+      await api.patch('/notification-preferences', { evaluationEnabled: enabled });
+      await qc.invalidateQueries({ queryKey: ['notification-preferences'] });
+      await qc.invalidateQueries({ queryKey: ['notifications'] });
       setPrefsMsg(t('account.saved'));
     } catch (err) {
       setError(err instanceof ApiError ? t('account.saveFailed') : t('auth.unreachable'));
@@ -411,6 +440,18 @@ export function AccountPage() {
                 platform="web"
               />
             </div>
+            {userHasFeature(storeUser, 'evaluation') ? (
+              <div className={styles.reminders}>
+                <FcCheckbox
+                  data-testid="evaluation-reminders-toggle"
+                  checked={reminders.data?.evaluationEnabled ?? true}
+                  disabled={prefsBusy || reminders.isLoading}
+                  label={t('account.evaluationReminders')}
+                  onChange={(event) => void toggleReminders(event.target.checked)}
+                />
+                <p className="fc-muted">{t('account.evaluationRemindersHint')}</p>
+              </div>
+            ) : null}
             {prefsMsg ? <p className={styles.ok}>{prefsMsg}</p> : null}
           </section>
 

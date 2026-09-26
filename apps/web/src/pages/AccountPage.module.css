@@ -25,6 +25,12 @@
   gap: 0.75rem;
 }
 
+.reminders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .card h2 {
   margin: 0;
   font-size: 1.15rem;

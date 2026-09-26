@@ -10,6 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import type { NotificationPayload } from '@fc/shared';
 import { materials } from './catalog';
 
 export const labSchema = pgSchema('lab');
@@ -137,3 +138,64 @@ export const evaluations = labSchema.table('evaluations', {
   >(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const macerationClocks = labSchema.table(
+  'maceration_clocks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerId: uuid('owner_id').notNull(),
+    formulaId: uuid('formula_id')
+      .notNull()
+      .references(() => formulas.id, { onDelete: 'cascade' }),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    ownerFormula: uniqueIndex('maceration_clocks_owner_formula_unique').on(
+      table.ownerId,
+      table.formulaId,
+    ),
+  }),
+);
+
+export const formulaNotificationMutes = labSchema.table(
+  'formula_notification_mutes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerId: uuid('owner_id').notNull(),
+    formulaId: uuid('formula_id')
+      .notNull()
+      .references(() => formulas.id, { onDelete: 'cascade' }),
+    mutedAt: timestamp('muted_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    ownerFormula: uniqueIndex('formula_notification_mutes_owner_formula_unique').on(
+      table.ownerId,
+      table.formulaId,
+    ),
+  }),
+);
+
+export const notifications = labSchema.table(
+  'notifications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerId: uuid('owner_id').notNull(),
+    formulaId: uuid('formula_id').references(() => formulas.id, { onDelete: 'cascade' }),
+    kind: text('kind').notNull(),
+    dedupeKey: text('dedupe_key').notNull(),
+    checkpointKey: text('checkpoint_key'),
+    status: text('status').notNull().default('open'),
+    payload: jsonb('payload').$type<NotificationPayload>().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    readAt: timestamp('read_at', { withTimezone: true }),
+    dismissedAt: timestamp('dismissed_at', { withTimezone: true }),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+  },
+  (table) => ({
+    ownerDedupe: uniqueIndex('notifications_owner_dedupe_unique').on(
+      table.ownerId,
+      table.dedupeKey,
+    ),
+  }),
+);

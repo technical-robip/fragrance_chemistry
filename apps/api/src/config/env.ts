@@ -5,6 +5,11 @@ import { z } from 'zod';
 loadDotenv({ path: path.resolve(process.cwd(), '../../.env') });
 
 const trim = (v: unknown) => (typeof v === 'string' ? v.trim() : v);
+const emptyToUndefined = (v: unknown) => {
+  if (typeof v !== 'string') return v;
+  const trimmed = v.trim();
+  return trimmed === '' ? undefined : trimmed;
+};
 
 const envSchema = z.object({
   NODE_ENV: z.preprocess(
@@ -24,6 +29,11 @@ const envSchema = z.object({
   JWT_SECRET: z.preprocess(trim, z.string().min(16)),
   JWT_ACCESS_TTL: z.preprocess(trim, z.string().default('15m')),
   JWT_REFRESH_TTL: z.preprocess(trim, z.string().default('7d')),
+  RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  RESEND_FROM: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  NOTIFICATIONS_EMAIL_ENABLED: z
+    .preprocess(trim, z.string().optional())
+    .transform((value) => value === 'true'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

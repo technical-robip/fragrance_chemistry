@@ -427,12 +427,16 @@
   "evaluation": {
     "title": "Evaluation",
     "subtitle": "Smell this formula, mark the lines, and continue the same sitting.",
+    "formulaReminders": "Reminders for this formula",
+    "formulaRemindersHint": "Optional. A nudge when a checkpoint is still empty, from the first sitting through day 30.",
+    "formulaRemindersOn": "Reminders are on for {{name}}.",
+    "formulaRemindersOff": "Reminders are off for {{name}}.",
     "saveDay": "Save Day {{day}}",
     "saving": "Saving…",
     "saved": "Saved.",
     "empty": "Select a formula to evaluate.",
     "openWorkbench": "Open in workbench",
-    "formulaMeta": "{{name}} · {{pct}}% concentrate · {{juiceClass}}",
+    "formulaMeta": "{{pct}}% concentrate · {{juiceClass}}",
     "day": "Day {{day}}",
     "rating": "Rating",
     "appearance": "Appearance",
@@ -579,6 +583,21 @@
     "confirmAction": "Delete",
     "cancel": "Cancel"
   },
+  "notifications": {
+    "bell": "Evaluation reminders",
+    "empty": "No open reminders.",
+    "dismiss": "Dismiss this reminder",
+    "muteFormula": "Stop for this formula",
+    "checkpoint": {
+      "t0": "{{formula}} · Day 1, T+0 is still open",
+      "t30m": "{{formula}} · Day 1, T+30 min is still open",
+      "t4h": "{{formula}} · Day 1, T+4 h is still open",
+      "t24h": "{{formula}} · Day 1, T+24 h is still open",
+      "d7": "{{formula}} · Day 7 is still open",
+      "d14": "{{formula}} · Day 14 is still open",
+      "d30": "{{formula}} · Day 30 is still open"
+    }
+  },
   "account": {
     "title": "Account",
     "subtitle": "Identity, lab defaults, subscription, and security for this workspace.",
@@ -614,6 +633,8 @@
     "saveLab": "Save lab defaults",
     "preferences": "Preferences",
     "preferencesHint": "Theme and language apply immediately and stay on this account.",
+    "evaluationReminders": "Evaluation reminders",
+    "evaluationRemindersHint": "On by default. Turn them off if you do not want checkpoint reminders.",
     "savePrefs": "Save preferences",
     "subscriptionManaged": "Your plan is assigned by an administrator. You cannot change it here.",
     "subscription": "Subscription",

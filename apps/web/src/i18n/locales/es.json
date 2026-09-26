@@ -377,12 +377,16 @@
   "evaluation": {
     "title": "Evaluación",
     "subtitle": "Huele la fórmula, marca las líneas y continúa la misma sesión.",
+    "formulaReminders": "Recordatorios para esta fórmula",
+    "formulaRemindersHint": "Opcional. Un aviso cuando un punto de evaluación sigue vacío, desde la primera sesión hasta el día 30.",
+    "formulaRemindersOn": "Los recordatorios están activados para {{name}}.",
+    "formulaRemindersOff": "Los recordatorios están desactivados para {{name}}.",
     "saveDay": "Guardar día {{day}}",
     "saving": "Guardando…",
     "saved": "Guardado.",
     "empty": "Elige una fórmula para evaluar.",
     "openWorkbench": "Abrir en workbench",
-    "formulaMeta": "{{name}} · {{pct}}% concentrado · {{juiceClass}}",
+    "formulaMeta": "{{pct}}% concentrado · {{juiceClass}}",
     "day": "Día {{day}}",
     "rating": "Nota",
     "appearance": "Apariencia",
@@ -568,6 +572,21 @@
     "confirmAction": "Eliminar",
     "cancel": "Cancelar"
   },
+  "notifications": {
+    "bell": "Recordatorios de evaluación",
+    "empty": "No hay recordatorios abiertos.",
+    "dismiss": "Cerrar este recordatorio",
+    "muteFormula": "Detener para esta fórmula",
+    "checkpoint": {
+      "t0": "{{formula}} · Día 1, T+0 sigue abierto",
+      "t30m": "{{formula}} · Día 1, T+30 min sigue abierto",
+      "t4h": "{{formula}} · Día 1, T+4 h sigue abierto",
+      "t24h": "{{formula}} · Día 1, T+24 h sigue abierto",
+      "d7": "{{formula}} · Día 7 sigue abierto",
+      "d14": "{{formula}} · Día 14 sigue abierto",
+      "d30": "{{formula}} · Día 30 sigue abierto"
+    }
+  },
   "account": {
     "title": "Cuenta",
     "subtitle": "Identidad, valores del laboratorio, suscripción y seguridad.",
@@ -603,6 +622,8 @@
     "saveLab": "Guardar valores",
     "preferences": "Preferencias",
     "preferencesHint": "Tema e idioma se aplican al momento y quedan en esta cuenta.",
+    "evaluationReminders": "Recordatorios de evaluación",
+    "evaluationRemindersHint": "Activos por defecto. Desactívalos si no quieres recordatorios.",
     "savePrefs": "Guardar preferencias",
     "subscriptionManaged": "Tu plan lo asigna un administrador. No puedes cambiarlo aquí.",
     "subscription": "Suscripción",

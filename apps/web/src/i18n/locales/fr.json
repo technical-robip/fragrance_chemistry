@@ -377,12 +377,16 @@
   "evaluation": {
     "title": "Évaluation",
     "subtitle": "Sentez la formule, marquez les lignes et continuez la même séance.",
+    "formulaReminders": "Rappels pour cette formule",
+    "formulaRemindersHint": "Facultatif. Un rappel quand un point d'évaluation est encore vide, de la première séance jusqu'au jour 30.",
+    "formulaRemindersOn": "Les rappels sont activés pour {{name}}.",
+    "formulaRemindersOff": "Les rappels sont désactivés pour {{name}}.",
     "saveDay": "Sauver jour {{day}}",
     "saving": "Enregistrement…",
     "saved": "Enregistré.",
     "empty": "Choisissez une formule à évaluer.",
     "openWorkbench": "Ouvrir dans le workbench",
-    "formulaMeta": "{{name}} · {{pct}}% concentré · {{juiceClass}}",
+    "formulaMeta": "{{pct}}% concentré · {{juiceClass}}",
     "day": "Jour {{day}}",
     "rating": "Note",
     "appearance": "Apparence",
@@ -568,6 +572,21 @@
     "confirmAction": "Supprimer",
     "cancel": "Annuler"
   },
+  "notifications": {
+    "bell": "Rappels d'évaluation",
+    "empty": "Aucun rappel ouvert.",
+    "dismiss": "Fermer ce rappel",
+    "muteFormula": "Arrêter pour cette formule",
+    "checkpoint": {
+      "t0": "{{formula}} · Jour 1, T+0 est encore ouvert",
+      "t30m": "{{formula}} · Jour 1, T+30 min est encore ouvert",
+      "t4h": "{{formula}} · Jour 1, T+4 h est encore ouvert",
+      "t24h": "{{formula}} · Jour 1, T+24 h est encore ouvert",
+      "d7": "{{formula}} · Jour 7 est encore ouvert",
+      "d14": "{{formula}} · Jour 14 est encore ouvert",
+      "d30": "{{formula}} · Jour 30 est encore ouvert"
+    }
+  },
   "account": {
     "title": "Compte",
     "subtitle": "Identité, défauts de laboratoire, abonnement et sécurité.",
@@ -603,6 +622,8 @@
     "saveLab": "Enregistrer les défauts",
     "preferences": "Préférences",
     "preferencesHint": "Thème et langue s’appliquent tout de suite et restent sur ce compte.",
+    "evaluationReminders": "Rappels d'évaluation",
+    "evaluationRemindersHint": "Activés par défaut. Désactivez-les si vous ne voulez pas de rappels.",
     "savePrefs": "Enregistrer les préférences",
     "subscriptionManaged": "Votre offre est attribuée par un administrateur. Vous ne pouvez pas la changer ici.",
     "subscription": "Abonnement",

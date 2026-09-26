@@ -377,12 +377,16 @@
   "evaluation": {
     "title": "Evaluare",
     "subtitle": "Miroase formula, marchează liniile și continuă aceeași ședință.",
+    "formulaReminders": "Remindere pentru formula asta",
+    "formulaRemindersHint": "Opțional. Un reminder când un punct de evaluare e încă gol, de la prima ședință până în ziua 30.",
+    "formulaRemindersOn": "Reminderele sunt pornite pentru {{name}}.",
+    "formulaRemindersOff": "Reminderele sunt oprite pentru {{name}}.",
     "saveDay": "Salvează ziua {{day}}",
     "saving": "Se salvează…",
     "saved": "Salvat.",
     "empty": "Alege o formulă de evaluat.",
     "openWorkbench": "Deschide în workbench",
-    "formulaMeta": "{{name}} · {{pct}}% concentrat · {{juiceClass}}",
+    "formulaMeta": "{{pct}}% concentrat · {{juiceClass}}",
     "day": "Ziua {{day}}",
     "rating": "Notă",
     "appearance": "Aspect",
@@ -568,6 +572,21 @@
     "confirmAction": "Șterge",
     "cancel": "Anulează"
   },
+  "notifications": {
+    "bell": "Remindere de evaluare",
+    "empty": "Niciun reminder deschis.",
+    "dismiss": "Închide acest reminder",
+    "muteFormula": "Oprește pentru formula asta",
+    "checkpoint": {
+      "t0": "{{formula}} · Ziua 1, T+0 e încă deschis",
+      "t30m": "{{formula}} · Ziua 1, T+30 min e încă deschis",
+      "t4h": "{{formula}} · Ziua 1, T+4 h e încă deschis",
+      "t24h": "{{formula}} · Ziua 1, T+24 h e încă deschis",
+      "d7": "{{formula}} · Ziua 7 e încă deschisă",
+      "d14": "{{formula}} · Ziua 14 e încă deschisă",
+      "d30": "{{formula}} · Ziua 30 e încă deschisă"
+    }
+  },
   "account": {
     "title": "Cont",
     "subtitle": "Identitate, implicituri de laborator, abonament și securitate.",
@@ -603,6 +622,8 @@
     "saveLab": "Salvează impliciturile",
     "preferences": "Preferințe",
     "preferencesHint": "Tema și limba se aplică imediat și rămân pe acest cont.",
+    "evaluationReminders": "Remindere de evaluare",
+    "evaluationRemindersHint": "Sunt pornite implicit. Oprește-le dacă nu vrei remindere la checkpoint-uri.",
     "savePrefs": "Salvează preferințele",
     "subscriptionManaged": "Planul este atribuit de un administrator. Nu îl poți schimba aici.",
     "subscription": "Abonament",

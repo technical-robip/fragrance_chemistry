@@ -34,6 +34,15 @@ export const users = coreSchema.table('users', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const userNotificationPreferences = coreSchema.table('user_notification_preferences', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  evaluationEnabled: boolean('evaluation_enabled').notNull().default(true),
+  emailEnabled: boolean('email_enabled').notNull().default(false),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const plans = coreSchema.table('plans', {
   id: uuid('id').primaryKey().defaultRandom(),
   slug: text('slug').notNull().unique(),

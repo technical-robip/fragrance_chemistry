@@ -203,4 +203,26 @@ describe('EvaluationsService', () => {
     expect(client.update).not.toHaveBeenCalled();
     expect(redis.cacheDel).not.toHaveBeenCalled();
   });
+
+  it('asks the notification engine to sync after a day-1 save', async () => {
+    const formula = { id: uuid, name: 'Rose study', ownerId: 'u1' };
+    const inserted = { id: 'e1', formulaId: uuid, rating: 4, macerationDay: 1 };
+    const client = {
+      select: vi
+        .fn()
+        .mockReturnValueOnce(chain([formula]))
+        .mockReturnValueOnce(chain([])),
+      insert: vi.fn().mockReturnValue(chain([inserted])),
+      update: vi.fn(),
+    };
+    const notifications = { onEvaluationSaved: vi.fn(async () => undefined) };
+    const svc = new EvaluationsService(
+      { client: () => client } as any,
+      { assertQuota: vi.fn(async () => undefined) } as any,
+      redisMock() as any,
+      notifications as any,
+    );
+    await svc.create(user, { formulaId: uuid, rating: 4, macerationDay: 1 });
+    expect(notifications.onEvaluationSaved).toHaveBeenCalledWith('u1', uuid, 1);
+  });
 });

@@ -7,6 +7,7 @@ export * from './formulas';
 export * from './inventory';
 export * from './costing';
 export * from './evaluations';
+export * from './notifications';
 export * from './community';
 export * from './dashboard';
 export * from './slug';

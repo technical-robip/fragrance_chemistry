@@ -377,12 +377,16 @@
   "evaluation": {
     "title": "Valutazione",
     "subtitle": "Annusa la formula, segna le linee e continua la stessa sessione.",
+    "formulaReminders": "Promemoria per questa formula",
+    "formulaRemindersHint": "Facoltativo. Un avviso quando un punto di valutazione è ancora vuoto, dalla prima seduta al giorno 30.",
+    "formulaRemindersOn": "I promemoria sono attivi per {{name}}.",
+    "formulaRemindersOff": "I promemoria sono disattivati per {{name}}.",
     "saveDay": "Salva giorno {{day}}",
     "saving": "Salvataggio…",
     "saved": "Salvato.",
     "empty": "Seleziona una formula da valutare.",
     "openWorkbench": "Apri nel workbench",
-    "formulaMeta": "{{name}} · {{pct}}% concentrato · {{juiceClass}}",
+    "formulaMeta": "{{pct}}% concentrato · {{juiceClass}}",
     "day": "Giorno {{day}}",
     "rating": "Voto",
     "appearance": "Aspetto",
@@ -568,6 +572,21 @@
     "confirmAction": "Elimina",
     "cancel": "Annulla"
   },
+  "notifications": {
+    "bell": "Promemoria di valutazione",
+    "empty": "Nessun promemoria aperto.",
+    "dismiss": "Chiudi questo promemoria",
+    "muteFormula": "Ferma per questa formula",
+    "checkpoint": {
+      "t0": "{{formula}} · Giorno 1, T+0 è ancora aperto",
+      "t30m": "{{formula}} · Giorno 1, T+30 min è ancora aperto",
+      "t4h": "{{formula}} · Giorno 1, T+4 h è ancora aperto",
+      "t24h": "{{formula}} · Giorno 1, T+24 h è ancora aperto",
+      "d7": "{{formula}} · Giorno 7 è ancora aperto",
+      "d14": "{{formula}} · Giorno 14 è ancora aperto",
+      "d30": "{{formula}} · Giorno 30 è ancora aperto"
+    }
+  },
   "account": {
     "title": "Account",
     "subtitle": "Identità, predefiniti di laboratorio, abbonamento e sicurezza.",
@@ -603,6 +622,8 @@
     "saveLab": "Salva predefiniti",
     "preferences": "Preferenze",
     "preferencesHint": "Tema e lingua si applicano subito e restano su questo account.",
+    "evaluationReminders": "Promemoria di valutazione",
+    "evaluationRemindersHint": "Attivi per impostazione predefinita. Disattivali se non vuoi promemoria.",
     "savePrefs": "Salva preferenze",
     "subscriptionManaged": "Il piano è assegnato da un amministratore. Non puoi cambiarlo qui.",
     "subscription": "Abbonamento",
