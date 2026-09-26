@@ -50,91 +50,46 @@ function floorToStep(value: number, step = SLIDER_STEP): number {
   return Math.floor((value + 1e-9) / step) * step;
 }
 
-export function sliderCeiling(id: keyof Amounts, amounts: Amounts): number {
-  const others = DEMO_ADJUSTABLE_IDS.filter((key) => key !== id).reduce(
-    (sum, key) => sum + amounts[key],
-    0,
-  );
-  const room = Math.max(0, CONCENTRATE_TARGET - others);
-  const independent = Math.max(BASELINE[id] * 2.5, 0.25);
-  return floorToStep(Math.min(independent, room));
+/**
+ * Each slider has its own fixed range. The thumb at the end is always the
+ * same dose, and moving one line never rewrites the others.
+ */
+const SPIKE_SHARE = 0.55;
+
+export function sliderCeiling(id: keyof Amounts): number {
+  return floorToStep(Math.max(BASELINE[id] * 2.5, CONCENTRATE_TARGET * SPIKE_SHARE));
 }
 
-/** Clamp a single slider so the three adjustable lines cannot exceed the concentrate. */
-export function clampAmount(id: keyof Amounts, value: number, amounts: Amounts): number {
+/** Clamp one slider to its own ceiling. */
+export function clampAmount(id: keyof Amounts, value: number): number {
   const finite = Number.isFinite(value) ? value : 0;
-  return Math.min(Math.max(0, finite), sliderCeiling(id, amounts));
+  return Math.min(Math.max(0, finite), sliderCeiling(id));
 }
 
-function clampAll(amounts: Amounts): Amounts {
+/** Sets one line. Every other adjustable line stays where the visitor left it. */
+export function applySlider(id: keyof Amounts, value: number, amounts: Amounts): Amounts {
+  return { ...amounts, [id]: clampAmount(id, value) };
+}
+
+function clampEach(amounts: Amounts): Amounts {
   const next = { ...amounts };
-  let sum = DEMO_ADJUSTABLE_IDS.reduce((total, id) => total + next[id], 0);
-  if (sum > CONCENTRATE_TARGET + EPS) {
-    const scale = CONCENTRATE_TARGET / sum;
-    for (const id of DEMO_ADJUSTABLE_IDS) next[id] = next[id] * scale;
-    sum = CONCENTRATE_TARGET;
-  }
+  for (const id of DEMO_ADJUSTABLE_IDS) next[id] = clampAmount(id, next[id]);
   return next;
 }
 
 /**
- * Applies the visitor's amounts, then lets every other concentrate line absorb
- * the difference so the concentrate still totals its target. Never throws: if
- * the three sliders fill the concentrate, the remaining lines sit at zero.
+ * Applies the visitor's amounts as set. Hidden example lines stay on their
+ * stock dose. The carrier gives or takes mass so the batch stays 10 g.
  */
 export function deriveComposeDemo(amounts: Amounts) {
-  const clamped = clampAll(amounts);
-  const withEdits: FormulaLine[] = CONCENTRATE_LINES.map((line) =>
+  const clamped = clampEach(amounts);
+  const concentrate: FormulaLine[] = CONCENTRATE_LINES.map((line) =>
     line.id in clamped ? { ...line, amountGrams: clamped[line.id as keyof Amounts] } : { ...line },
   );
-
-  const fixedGrams = DEMO_ADJUSTABLE_IDS.reduce((sum, id) => {
-    const line = withEdits.find((entry) => entry.id === id);
-    return sum + (line?.amountGrams ?? 0);
-  }, 0);
-  const remainder = CONCENTRATE_TARGET - fixedGrams;
-
-  let movableGrams = 0;
-  for (const line of withEdits) {
-    if (!DEMO_ADJUSTABLE_IDS.includes(line.id as (typeof DEMO_ADJUSTABLE_IDS)[number])) {
-      movableGrams += line.amountGrams;
-    }
-  }
-
-  const scaled = withEdits.map((line) => {
-    if (DEMO_ADJUSTABLE_IDS.includes(line.id as (typeof DEMO_ADJUSTABLE_IDS)[number])) {
-      return line;
-    }
-    if (remainder <= EPS || movableGrams <= EPS) {
-      return { ...line, amountGrams: 0 };
-    }
-    return {
-      ...line,
-      amountGrams: roundGrams(line.amountGrams * (remainder / movableGrams)),
-    };
-  });
-
-  const movableTotal = scaled
-    .filter(
-      (line) => !DEMO_ADJUSTABLE_IDS.includes(line.id as (typeof DEMO_ADJUSTABLE_IDS)[number]),
-    )
-    .reduce((sum, line) => sum + line.amountGrams, 0);
-  const leftover = remainder > EPS ? remainder - movableTotal : 0;
-  const lastMovable = [...scaled]
-    .reverse()
-    .find(
-      (line) =>
-        !DEMO_ADJUSTABLE_IDS.includes(line.id as (typeof DEMO_ADJUSTABLE_IDS)[number]) &&
-        line.amountGrams > EPS,
-    );
-  const concentrate = scaled.map((line) =>
-    lastMovable && line.id === lastMovable.id
-      ? { ...line, amountGrams: roundGrams(line.amountGrams + leftover) }
-      : line,
-  );
-
+  const concentrateGrams = concentrate.reduce((sum, line) => sum + line.amountGrams, 0);
+  const carrierGrams = Math.max(0, roundGrams(DEMO_BATCH_GRAMS - concentrateGrams));
   const carrier = DEMO_LINES.find((line) => line.id === DEMO_CARRIER_ID)!;
-  const lines = [...concentrate, { ...carrier }];
+  const lines = [...concentrate, { ...carrier, amountGrams: carrierGrams }];
   const allMin = DEMO_ADJUSTABLE_IDS.every((id) => clamped[id] <= EPS);
   const remainingIdle = concentrate.every(
     (line) =>
@@ -156,7 +111,7 @@ export function deriveComposeDemo(amounts: Amounts) {
     dominant: dominantPyramidNote(concentrate),
     cost: formulaCost({ id: 'demo', name: 'demo', lines, batchSizeGrams: DEMO_BATCH_GRAMS }),
     edge,
-    remainderGrams: Math.max(0, remainder),
+    remainderGrams: carrierGrams,
   };
 }
 

@@ -6,7 +6,7 @@ import { NotesRadar } from '@/components/viz/NotesRadar';
 import { DEMO_ADJUSTABLE_IDS, SCALE_RESOLUTION_GRAMS } from './demo-formula';
 import {
   BASELINE,
-  clampAmount,
+  applySlider,
   demoRadarAxes,
   deriveComposeDemo,
   sliderCeiling,
@@ -59,14 +59,7 @@ export function ComposeLeaf() {
   }, []);
 
   function set(id: keyof Amounts, value: number) {
-    setAmounts((prev) => {
-      const next = { ...prev, [id]: clampAmount(id, value, prev) };
-      for (const other of DEMO_ADJUSTABLE_IDS) {
-        if (other === id) continue;
-        next[other] = clampAmount(other, next[other], next);
-      }
-      return next;
-    });
+    setAmounts((prev) => applySlider(id, value, prev));
   }
 
   const tiers = [
@@ -94,6 +87,7 @@ export function ComposeLeaf() {
   const dominantLabel = t(dominantKey);
   const isBaseline = DEMO_ADJUSTABLE_IDS.every((id) => amounts[id] === BASELINE[id]);
   const radarAxes = demoRadarAxes(state.concentrate);
+  const radarPeak = Math.max(...radarAxes.map((axis) => axis.value), 0);
 
   return (
     <div className={compose.wrap}>
@@ -103,7 +97,7 @@ export function ComposeLeaf() {
         {DEMO_ADJUSTABLE_IDS.map((id) => {
           const line = state.concentrate.find((entry) => entry.id === id);
           if (!line) return null;
-          const ceiling = sliderCeiling(id, amounts);
+          const ceiling = sliderCeiling(id);
           const rangeMax = Math.max(ceiling, 0.01);
           const value = Math.min(amounts[id], ceiling);
           return (
@@ -180,7 +174,13 @@ export function ComposeLeaf() {
 
         <div className={compose.viz}>
           <FragrancePyramid tiers={tiers} compact showLegend={false} className={compose.pyramid} />
-          <NotesRadar axes={radarAxes} compact showLegend={false} animate={false} valueMax={100} />
+          <NotesRadar
+            axes={radarAxes}
+            compact
+            showLegend={false}
+            animate={false}
+            valueMax={Math.max(50, radarPeak)}
+          />
         </div>
 
         {state.edge === 'allMin' ? (

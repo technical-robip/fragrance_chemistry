@@ -129,7 +129,14 @@ export const DEMO_LINES: FormulaLine[] = [
 ];
 
 /** Lines the visitor can move in the interactive division. */
-export const DEMO_ADJUSTABLE_IDS = ['bergamot', 'linalool', 'ambroxan'] as const;
+export const DEMO_ADJUSTABLE_IDS = [
+  'bergamot',
+  'petitgrain',
+  'linalool',
+  'isoe',
+  'ambroxan',
+  'musk',
+] as const;
 
 /** Real catalog families, used only to drive the landing radar. */
 export const DEMO_FAMILIES: Record<string, string> = {
