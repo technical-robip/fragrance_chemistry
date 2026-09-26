@@ -6,6 +6,7 @@ import { useUiStore } from '@/stores/ui-store';
 import { AuthAtmosphere } from '@/components/viz/AuthAtmosphere';
 import { useSelectedFormulaUrlKey } from '@/components/FormulaSelector';
 import { withLabQuery } from '@/lib/lab-query';
+import { BrandMark } from './BrandMark';
 import { LanguageMenu } from './LanguageMenu';
 import { NotificationBell } from './NotificationBell';
 import { ThemeSwitch } from './ThemeSwitch';
@@ -43,19 +44,6 @@ function initials(name?: string, email?: string) {
   const parts = src.split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return `${parts[0]![0]}${parts[1]![0]}`.toUpperCase();
   return src.slice(0, 2).toUpperCase();
-}
-
-function BrandMark() {
-  const theme = useUiStore((s) => s.theme);
-  return (
-    <span
-      className={`${styles.brandMark} ${theme === 'light' ? styles.brandMarkLight : ''}`}
-      aria-hidden
-    >
-      <span className={styles.brandMarkCore} />
-      <span className={styles.brandMarkRing} />
-    </span>
-  );
 }
 
 function Controls() {

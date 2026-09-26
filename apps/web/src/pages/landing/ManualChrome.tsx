@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { BrandMark } from '@/components/layout/BrandMark';
 import { LanguageMenu } from '@/components/layout/LanguageMenu';
 import { ThemeSwitch } from '@/components/layout/ThemeSwitch';
 import { DIVISIONS, type DivisionId } from './manual';
@@ -55,6 +56,7 @@ export function Masthead() {
       {/* The brand is an identity mark, not a section heading: making it one put
           an h2 above the page's h1 and broke the heading order. */}
       <div className={styles.brand}>
+        <BrandMark compact />
         <span className={styles.brandName}>{t('common.appName')}</span>
         <span className={styles.brandTag}>{t('common.appTagline')}</span>
       </div>

@@ -131,40 +131,6 @@
   padding: 0.25rem 0.5rem;
 }
 
-.brandMark {
-  position: relative;
-  width: 2.4rem;
-  height: 2.4rem;
-  flex-shrink: 0;
-  border-radius: 0.55rem;
-  background: linear-gradient(145deg, var(--fc-accent), var(--fc-warn));
-  transform: rotate(0deg);
-  transition:
-    transform 0.35s var(--fc-ease-perfume),
-    filter 0.35s var(--fc-ease-perfume);
-  overflow: hidden;
-}
-
-.brandMarkLight {
-  transform: rotate(12deg);
-  filter: saturate(1.05);
-}
-
-.brandMarkCore {
-  position: absolute;
-  inset: 28%;
-  border-radius: 50%;
-  background: var(--fc-accent-contrast);
-  opacity: 0.9;
-}
-
-.brandMarkRing {
-  position: absolute;
-  inset: 12%;
-  border-radius: 50%;
-  border: 1.5px solid color-mix(in srgb, var(--fc-accent-contrast) 55%, transparent);
-}
-
 .brand strong {
   display: block;
   font-family: var(--fc-font-display);

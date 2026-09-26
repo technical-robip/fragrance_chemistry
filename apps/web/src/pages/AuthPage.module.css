@@ -88,18 +88,6 @@
   margin-bottom: 1rem;
 }
 
-.brandMark {
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--fc-radius-md);
-  color: var(--fc-warn-soft);
-  background: color-mix(in srgb, var(--fc-warn) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--fc-warn) 28%, transparent);
-  flex-shrink: 0;
-}
-
 .brandName {
   margin: 0;
   font-family: var(--fc-font-display);

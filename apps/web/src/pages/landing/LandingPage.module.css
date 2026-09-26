@@ -180,7 +180,10 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding-block: 0.75rem;
+  /* Inline padding only while the bound-edge rail offsets the bar; below
+     60rem the page already supplies clamp(1rem, 4vw, 2.5rem) and stacking
+     both would squeeze the action row on tablets/phones. */
+  padding: 0.75rem clamp(0.75rem, 2vw, 1.25rem);
   border-bottom: 1px solid var(--hair);
   /* Opaque: the sheets scroll underneath it, and translucency let their type
      read through the masthead. */
@@ -190,12 +193,13 @@
 @media (max-width: 60rem) {
   .masthead {
     margin-left: 0;
+    padding-inline: 0;
   }
 }
 
 .brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.6rem;
   min-width: 0;
 }

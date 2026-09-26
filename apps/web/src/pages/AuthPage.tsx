@@ -5,6 +5,7 @@ import { ApiError } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 import { LanguageMenu } from '@/components/layout/LanguageMenu';
 import { ThemeSwitch } from '@/components/layout/ThemeSwitch';
+import { BrandMark } from '@/components/layout/BrandMark';
 import { AuthAtmosphere } from '@/components/viz/AuthAtmosphere';
 import styles from './AuthPage.module.css';
 
@@ -99,16 +100,7 @@ export function AuthPage() {
       <main className={styles.main}>
         <form className={styles.card} onSubmit={onSubmit} noValidate>
           <div className={styles.brand}>
-            <span className={styles.brandMark} aria-hidden>
-              <svg viewBox="0 0 24 24" width="22" height="22">
-                <path
-                  d="M9 2h6v4l3 4v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10l3-4V2z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                />
-              </svg>
-            </span>
+            <BrandMark />
             <div>
               <h1 className={styles.brandName}>{t('common.appName')}</h1>
               <p className={styles.brandTag}>{t('common.appTagline')}</p>
