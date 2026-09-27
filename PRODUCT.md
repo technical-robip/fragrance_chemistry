@@ -35,7 +35,7 @@ Two mechanisms neighboring products do not have:
 ## Operating Context
 
 - Bench work with a connected scale: Web Serial and Web Bluetooth on desktop and Android, Capacitor BLE on iOS (`packages/scale-bridge`).
-- Sequential weighing, ingredient by ingredient, with automatic re-balancing when a pour overshoots: unpoured lines rescale proportionally.
+- Sequential weighing, ingredient by ingredient, with optional re-balancing when a pour overshoots: keep absolute percents and let the batch grow, or keep the batch and rescale unpoured lines.
 - Batch scaling from 5 g to 100 kg; final concentrations for EDT, EDP, and Extrait.
 - Maceration is measured in days, not minutes: timers at day 1, 7, 14, 30, with organoleptic sheets at T+0, T+30min, T+4h, T+24h.
 - IFRA work spans 12 product categories, with peroxide warnings on citrus and phototoxicity flags.

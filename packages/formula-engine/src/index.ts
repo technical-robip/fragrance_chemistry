@@ -6,6 +6,7 @@ export * from './volatility';
 export * from './cost';
 export * from './deviation';
 export * from './rebalance';
+export * from './pour';
 export * from './ifra';
 export * from './eu-data';
 export * from './eu-label';

@@ -21,6 +21,8 @@ export class MockScale implements ScaleAdapter {
   private readonly driftAmplitude: number;
   private readonly settleMs: number;
   private connectStartedAt = 0;
+  /** When set, the stream reports this net mass instead of the idle sine wave. */
+  private pinnedNet: number | null = null;
 
   constructor(options: MockScaleOptions = {}, meta: { id?: string; label?: string } = {}) {
     this.id = meta.id ?? 'mock-scale';
@@ -49,7 +51,22 @@ export class MockScale implements ScaleAdapter {
     this.setState('disconnected');
   }
 
+  /** Drive the mock from a pour pad or a real-feeling gesture. Replaces the idle 12 g drift. */
+  setNetGrams(grams: number): void {
+    const net = Math.max(0, Number(grams.toFixed(4)));
+    this.pinnedNet = net;
+    if (this.state !== 'connected') return;
+    this.emitReading(this.buildReading(net, true));
+  }
+
   async tare(): Promise<void> {
+    if (this.pinnedNet != null) {
+      this.pinnedNet = 0;
+      this.emitReading(this.buildReading(0, false));
+      await delay(200);
+      this.emitReading(this.buildReading(0, true));
+      return;
+    }
     const current = this.sampleRaw();
     this.tareOffset += current;
     this.emitReading(this.buildReading(current - this.tareOffset, false));
@@ -76,6 +93,10 @@ export class MockScale implements ScaleAdapter {
   private startStream(): void {
     this.stopStream();
     this.intervalId = setInterval(() => {
+      if (this.pinnedNet != null) {
+        this.emitReading(this.buildReading(this.pinnedNet, true));
+        return;
+      }
       const raw = this.sampleRaw();
       const net = raw - this.tareOffset;
       const stable =

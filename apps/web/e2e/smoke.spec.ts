@@ -663,6 +663,126 @@ test.describe('Fragrance Chemistry smoke', () => {
     await expect(page.locator('nav').first()).toBeVisible();
   });
 
+  test('live weighing shows the current material and doubles the batch', async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAlice(page);
+    const formula = await provisionSmokeFormula(page);
+    try {
+      await page.goto(`/weighing?formula=${formula.slug ?? formula.id}`);
+      await expect(page.getByTestId('weigh-current')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('weigh-target')).toHaveText('10.000 g');
+      await page.getByRole('button', { name: /mock scale|cântar mock/i }).click();
+      await expect(page.getByTestId('weigh-pour')).toBeVisible();
+      await expect(page.getByTestId('weigh-current')).toContainText(/hedione/i);
+
+      const batch = page.getByTestId('weigh-batch');
+      await batch.fill('20');
+      await batch.blur();
+      await expect(page.getByTestId('weigh-target')).toHaveText('20.000 g');
+      await expect(page.getByTestId('formula-selector')).toContainText(/__smoke sitting/i);
+    } finally {
+      await deleteSmokeFormula(page, formula.id);
+    }
+  });
+
+  test('a zero weighed cell still shows the target and an editable batch', async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAlice(page);
+    const headers = await authHeaders(page);
+    const catalogRes = await page.request.get(`${API}/catalog/materials?q=bergamot&limit=5`, {
+      headers,
+    });
+    expect(catalogRes.ok()).toBeTruthy();
+    const catalog = (await catalogRes.json()) as Array<{ id: string; name: string }>;
+    const bergamot = catalog.find((row) => /bergamot/i.test(row.name)) ?? catalog[0];
+    expect(bergamot).toBeTruthy();
+    const createdRes = await page.request.post(`${API}/formulas`, {
+      headers,
+      data: {
+        name: `__smoke zero weigh ${Date.now()}`,
+        status: 'draft',
+        concentrationPct: 17,
+        batchTargetGrams: 5,
+        lines: [
+          { materialId: bergamot!.id, percent: 40, weighedGrams: 0, pyramidNote: 'top' },
+          { materialId: bergamot!.id, percent: 60, weighedGrams: 0, pyramidNote: 'middle' },
+        ],
+      },
+    });
+    expect(createdRes.ok()).toBeTruthy();
+    const formula = (await createdRes.json()) as { id: string; slug?: string | null };
+    try {
+      await page.goto(`/weighing?formula=${formula.slug ?? formula.id}`);
+      await expect(page.getByTestId('weigh-current')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('weigh-current')).not.toHaveText(/batch poured|lot turnat/i);
+      await expect(page.getByTestId('weigh-target')).toHaveText('2.000 g');
+      await expect(page.getByTestId('weigh-batch')).toBeEnabled();
+      await page
+        .getByRole('button', { name: /bergamot/i })
+        .nth(1)
+        .click();
+      await expect(page.getByTestId('weigh-target')).toHaveText('3.000 g');
+      await page
+        .getByRole('button', { name: /about adjusting the rest|despre ajustarea restului/i })
+        .click();
+      await expect(page.getByRole('tooltip')).toBeVisible();
+    } finally {
+      await deleteSmokeFormula(page, formula.id);
+    }
+  });
+
+  test('live weighing stays usable on phone, tablet, and desktop', async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAlice(page);
+    const formula = await provisionSmokeFormula(page);
+    try {
+      await page.goto(`/weighing?formula=${formula.slug ?? formula.id}`);
+      await expect(page.getByTestId('weigh-accept')).toBeVisible({ timeout: 15_000 });
+      await page.getByRole('button', { name: /mock scale|cântar mock/i }).click();
+      await expect(page.getByTestId('weigh-pour')).toBeVisible();
+
+      for (const viewport of [
+        { width: 390, height: 844 },
+        { width: 768, height: 1024 },
+        { width: 1280, height: 800 },
+      ]) {
+        await page.setViewportSize(viewport);
+        const noOverflow = await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth + 2,
+        );
+        expect(noOverflow).toBe(true);
+
+        for (const testId of ['weigh-pour', 'weigh-accept']) {
+          const control = page.getByTestId(testId);
+          await control.scrollIntoViewIfNeeded();
+          const box = await control.boundingBox();
+          expect(box).toBeTruthy();
+          const hit = await page.evaluate(
+            ({ x, y }) =>
+              document
+                .elementFromPoint(x, y)
+                ?.closest('[data-testid]')
+                ?.getAttribute('data-testid'),
+            { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 },
+          );
+          expect(hit).toBe(testId);
+        }
+
+        const current = await page.getByTestId('weigh-current').boundingBox();
+        const steps = await page.getByTestId('weigh-steps').boundingBox();
+        expect(current && steps).toBeTruthy();
+        const overlaps =
+          current!.x < steps!.x + steps!.width &&
+          current!.x + current!.width > steps!.x &&
+          current!.y < steps!.y + steps!.height &&
+          current!.y + current!.height > steps!.y;
+        expect(overlaps).toBe(false);
+      }
+    } finally {
+      await deleteSmokeFormula(page, formula.id);
+    }
+  });
+
   test('mobile drawer at 390px', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await loginAlice(page);

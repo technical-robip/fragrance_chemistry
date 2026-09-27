@@ -41,6 +41,13 @@ import {
   scaleFamilyLinePercents,
 } from '@/lib/formula-viz';
 import {
+  displayToGrams,
+  formatAmount,
+  gramsToDisplay,
+  lineGrams,
+  type AmountUnit,
+} from '@/lib/batch-units';
+import {
   concentrationAfterServerSync,
   juiceClassPresetPct,
   shouldApplyServerLines,
@@ -149,11 +156,8 @@ type LocalLine = {
   ifraCat4MaxPercent: number | null;
 };
 
-type AmountUnit = 'grams' | 'drops' | 'ml';
 type PctMode = 'abs' | 'rel';
 
-const DROPS_PER_ML = 20;
-const ML_PER_GRAM = 1;
 const BOTTLE_ML = 50;
 const JUICE_DENSITY_G_PER_ML = 0.9;
 
@@ -187,29 +191,11 @@ function toLocal(lines: FormulaDetail['lines']): LocalLine[] {
   }));
 }
 
-function formatAmount(grams: number, unit: AmountUnit) {
-  if (unit === 'ml') return (grams * ML_PER_GRAM).toFixed(3);
-  if (unit === 'drops') return (grams * ML_PER_GRAM * DROPS_PER_ML).toFixed(1);
-  return grams.toFixed(3);
-}
-
-function gramsToDisplay(grams: number, unit: AmountUnit): string {
-  if (unit === 'ml') return String(grams * ML_PER_GRAM);
-  if (unit === 'drops') return String(grams * ML_PER_GRAM * DROPS_PER_ML);
-  return String(grams);
-}
-
 function parseDecimal(raw: string): number | null {
   const normalized = raw.trim().replace(',', '.');
   if (!normalized) return null;
   const n = Number(normalized);
   return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-function displayToGrams(value: number, unit: AmountUnit): number {
-  if (unit === 'ml') return value / ML_PER_GRAM;
-  if (unit === 'drops') return value / (ML_PER_GRAM * DROPS_PER_ML);
-  return value;
 }
 
 function KebabIcon() {
@@ -1227,7 +1213,7 @@ export function WorkbenchPage() {
             </thead>
             <tbody>
               {lines.map((line) => {
-                const grams = (line.percent / 100) * batchG;
+                const grams = lineGrams(line.percent, batchG);
                 const stock = stockByMaterial.get(line.materialId);
                 const low = stock !== undefined && stock < grams;
                 const actionProps = {

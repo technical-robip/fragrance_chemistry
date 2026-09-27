@@ -6,16 +6,19 @@ export function ScalePulseReadout({
   connected,
   label,
   stage,
+  compact,
 }: {
   grams: number | null;
   connected: boolean;
   label: string;
   /** Optional 3D / visual stage under the typography. */
   stage?: ReactNode;
+  /** Tighter panel when the readout sits beside a recipe, not as a plate. */
+  compact?: boolean;
 }) {
   return (
     <div
-      className={`${styles.panel} ${connected ? styles.live : ''} ${stage ? styles.withStage : ''}`}
+      className={`${styles.panel} ${connected ? styles.live : ''} ${stage ? styles.withStage : ''} ${compact ? styles.compact : ''}`}
     >
       <div className={styles.readout}>
         <span className={styles.status}>{label}</span>

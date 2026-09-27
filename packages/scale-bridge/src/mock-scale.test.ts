@@ -35,6 +35,30 @@ describe('MockScale', () => {
     expect(states).toContain('disconnected');
   });
 
+  it('setNetGrams replaces the idle sine with the poured mass', async () => {
+    vi.useFakeTimers();
+    const scale = new MockScale({ baseWeight: 12.345, driftAmplitude: 0.008 });
+    const readings: number[] = [];
+    scale.onReading((reading) => readings.push(reading.value));
+    const connectPromise = scale.connect();
+    await vi.advanceTimersByTimeAsync(400);
+    await connectPromise;
+
+    scale.setNetGrams(0.684);
+    expect(readings.at(-1)).toBeCloseTo(0.684, 3);
+
+    await vi.advanceTimersByTimeAsync(400);
+    expect(readings.at(-1)).toBeCloseTo(0.684, 3);
+    expect(readings.at(-1)).not.toBeCloseTo(12.345, 2);
+
+    const tarePromise = scale.tare();
+    await vi.advanceTimersByTimeAsync(200);
+    await tarePromise;
+    expect(readings.at(-1)).toBe(0);
+
+    await scale.disconnect();
+  });
+
   it('is idempotent on double connect', async () => {
     vi.useFakeTimers();
     const scale = new MockScale();
