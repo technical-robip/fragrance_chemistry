@@ -126,6 +126,12 @@
   margin-bottom: 1rem;
 }
 
+.unitHint {
+  margin: 0 0 0.65rem;
+  font-size: 0.75rem;
+  color: var(--fc-text-muted);
+}
+
 .viewOption {
   font-size: 0.75rem;
   padding-inline: 0.85rem;

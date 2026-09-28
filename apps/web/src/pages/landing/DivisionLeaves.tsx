@@ -7,6 +7,7 @@ import { CssPerfumeVessel } from '@/components/viz/CssPerfumeVessel';
 import {
   allergenSourceCount,
   DEMO_BATCH_GRAMS,
+  DEMO_CONCENTRATION_PCT,
   DEMO_IFRA_CATEGORY,
   DEMO_LINES,
   ILLUSTRATIVE_LIMITS,
@@ -227,12 +228,28 @@ function PackagedUnitFigure({ view }: { view: 'concentrate' | 'packaged' }) {
   );
 }
 
-/** Costing: the three levels, computed from the same lines. */
+/** Same defaults and unit math as the signed-in costing page. */
+const UNIT_WASTE_PCT = 3;
+const UNIT_MARGIN_PCT = 28;
+const UNIT_BOTTLE_ML = 50;
+const UNIT_PACKAGING = 1.2;
+
+function formatMoney(amount: number, currency = 'USD') {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
+/** Costing: concentrate cost, then the finished bottle the lab page shows. */
 export function CostLeaf() {
   const { t } = useTranslation();
   const [view, setView] = useState<'concentrate' | 'packaged'>('packaged');
-  const units = 250;
-  const bottleMl = 50;
 
   const cost = useMemo(
     () =>
@@ -245,13 +262,17 @@ export function CostLeaf() {
     [],
   );
 
-  // Illustrative packaging and dilution figures; the juice cost is computed.
-  const juicePerBottle = cost.costPerGramBatch * bottleMl * 0.87;
-  const packaging = 2.4;
-  const cogs = juicePerBottle + packaging;
-  const wholesale = cogs * 2.6;
-  const retail = wholesale * 2.4;
-  const margin = ((wholesale - cogs) / wholesale) * 100;
+  const concentrateJuice = cost.costPerGramBatch * UNIT_BOTTLE_ML * 0.87;
+  const materialCost = cost.totalCost;
+  const concentrateWithMargin =
+    (materialCost + materialCost * (UNIT_WASTE_PCT / 100)) * (1 + UNIT_MARGIN_PCT / 100);
+  const dilutedCostPerGram =
+    concentrateWithMargin / (DEMO_BATCH_GRAMS / (DEMO_CONCENTRATION_PCT / 100));
+  const juiceCost = dilutedCostPerGram * UNIT_BOTTLE_ML * 0.9;
+  const wholesale = juiceCost + UNIT_PACKAGING;
+  const rrp = wholesale * (1 + UNIT_MARGIN_PCT / 100);
+  const breakEvenUnits =
+    UNIT_PACKAGING > 0 ? Math.ceil(concentrateWithMargin / (rrp - UNIT_PACKAGING || 1)) : null;
 
   return (
     <Leaf label={t('landing.divisions.cost.leafLabel')}>
@@ -280,6 +301,10 @@ export function CostLeaf() {
         </button>
       </div>
 
+      {view === 'packaged' ? (
+        <p className={leaves.unitHint}>{t('costing.tierUnitHint', { ml: UNIT_BOTTLE_ML })}</p>
+      ) : null}
+
       <dl className={styles.rows}>
         {view === 'concentrate' ? (
           <>
@@ -300,51 +325,36 @@ export function CostLeaf() {
             </div>
             <div className={styles.row}>
               <dt className={styles.rowTerm}>{t('landing.divisions.cost.juice')}</dt>
-              <dd className={styles.rowValue}>{juicePerBottle.toFixed(2)}</dd>
-              <dd className={styles.rowMuted}>/ {bottleMl} ml</dd>
+              <dd className={styles.rowValue}>{concentrateJuice.toFixed(2)}</dd>
+              <dd className={styles.rowMuted}>/ {UNIT_BOTTLE_ML} ml</dd>
             </div>
           </>
         ) : (
           <>
             <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.bottle')}</dt>
-              <dd className={styles.rowValue}>{bottleMl}</dd>
-              <dd className={styles.rowMuted}>ml</dd>
-            </div>
-            <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.volume')}</dt>
-              <dd className={styles.rowValue}>{units}</dd>
+              <dt className={styles.rowTerm}>{t('costing.juice')}</dt>
+              <dd className={styles.rowValue}>{formatMoney(juiceCost)}</dd>
               <dd className={styles.rowMuted} />
             </div>
             <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.juice')}</dt>
-              <dd className={styles.rowValue}>{juicePerBottle.toFixed(2)}</dd>
-              <dd className={styles.rowMuted}>/ {bottleMl} ml</dd>
-            </div>
-            <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.packaging')}</dt>
-              <dd className={styles.rowValue}>{packaging.toFixed(2)}</dd>
+              <dt className={styles.rowTerm}>{t('costing.packaging')}</dt>
+              <dd className={styles.rowValue}>{formatMoney(UNIT_PACKAGING)}</dd>
               <dd className={styles.rowMuted} />
             </div>
             <div className={`${styles.row} ${leaves.rowLit}`}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.cogs')}</dt>
-              <dd className={styles.rowValue}>{cogs.toFixed(2)}</dd>
+              <dt className={styles.rowTerm}>{t('costing.wholesale')}</dt>
+              <dd className={styles.rowValue}>{formatMoney(wholesale)}</dd>
+              <dd className={styles.rowMuted} />
+            </div>
+            <div className={`${styles.row} ${leaves.rowLit}`}>
+              <dt className={styles.rowTerm}>{t('costing.rrp')}</dt>
+              <dd className={styles.rowValue}>{formatMoney(rrp)}</dd>
               <dd className={styles.rowMuted} />
             </div>
             <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.wholesale')}</dt>
-              <dd className={styles.rowValue}>{wholesale.toFixed(2)}</dd>
+              <dt className={styles.rowTerm}>{t('costing.breakEven')}</dt>
+              <dd className={styles.rowValue}>{breakEvenUnits ?? '—'}</dd>
               <dd className={styles.rowMuted} />
-            </div>
-            <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.retail')}</dt>
-              <dd className={styles.rowValue}>{retail.toFixed(2)}</dd>
-              <dd className={styles.rowMuted} />
-            </div>
-            <div className={styles.row}>
-              <dt className={styles.rowTerm}>{t('landing.divisions.cost.margin')}</dt>
-              <dd className={`${styles.rowValue} ${leaves.emphasis}`}>{percent(margin)}</dd>
-              <dd className={styles.rowMuted}>%</dd>
             </div>
           </>
         )}
