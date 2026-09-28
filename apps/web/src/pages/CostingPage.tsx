@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
   FormulaSelector,
@@ -8,6 +8,7 @@ import {
   type FormulaSummary,
 } from '@/components/FormulaSelector';
 import { api } from '@/lib/api-client';
+import { finalizeCostingDecimal, liveCostingDecimal } from '@/pages/costing-decimal';
 import styles from './CostingPage.module.css';
 
 type CostingResponse = {
@@ -109,9 +110,9 @@ function formatMoney(amount: number, currency: string) {
   }
 }
 
-function clamp(n: number, min: number, max: number) {
-  if (!Number.isFinite(n)) return min;
-  return Math.min(max, Math.max(min, n));
+function formatDraft(value: number): string {
+  if (!Number.isFinite(value)) return '0';
+  return String(value);
 }
 
 export function CostingPage() {
@@ -164,6 +165,7 @@ export function CostingPage() {
     queryKey: ['costing', formulaId, query],
     queryFn: () => api.get<CostingResponse>(`/costing/formulas/${formulaId}?${query}`),
     enabled: !!formulaId,
+    placeholderData: keepPreviousData,
   });
 
   function saveScenario() {
@@ -458,6 +460,28 @@ function SliderField({
   suffix?: string;
   prefix?: string;
 }) {
+  const [draft, setDraft] = useState(() => formatDraft(value));
+  const focused = useRef(false);
+
+  useEffect(() => {
+    if (!focused.current) setDraft(formatDraft(value));
+  }, [value]);
+
+  function applyLive(raw: string) {
+    const next = liveCostingDecimal(raw, min, max);
+    if (next != null && Math.abs(next - value) >= 1e-9) onChange(next);
+  }
+
+  function commit(raw: string) {
+    const next = finalizeCostingDecimal(raw, min, max);
+    if (next == null) {
+      setDraft(formatDraft(value));
+      return;
+    }
+    setDraft(formatDraft(next));
+    if (Math.abs(next - value) >= 1e-9) onChange(next);
+  }
+
   return (
     <div className={styles.control}>
       <label className="fc-label" htmlFor={id}>
@@ -482,14 +506,30 @@ function SliderField({
           className={styles.slider}
         />
         <input
-          type="number"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
+          type="text"
+          inputMode="decimal"
+          autoComplete="off"
+          value={draft}
           aria-label={label}
-          onChange={(e) => onChange(clamp(Number(e.target.value), min, max))}
           className={styles.numeric}
+          onFocus={() => {
+            focused.current = true;
+          }}
+          onChange={(e) => {
+            const raw = e.target.value;
+            setDraft(raw);
+            applyLive(raw);
+          }}
+          onBlur={(e) => {
+            focused.current = false;
+            commit(e.currentTarget.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              (e.currentTarget as HTMLInputElement).blur();
+            }
+          }}
         />
       </div>
     </div>
