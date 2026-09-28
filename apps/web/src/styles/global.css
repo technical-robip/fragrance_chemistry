@@ -101,7 +101,8 @@ textarea {
 }
 
 .fc-btn--primary:hover {
-  filter: brightness(1.06);
+  background: var(--fc-accent-strong);
+  color: var(--fc-accent-contrast);
 }
 
 .fc-btn--ghost {
@@ -112,6 +113,10 @@ textarea {
 
 .fc-btn--amber {
   background: linear-gradient(180deg, var(--fc-amber-400), var(--fc-amber-500));
+  color: var(--fc-accent-contrast);
+}
+
+.fc-btn--amber:hover {
   color: var(--fc-accent-contrast);
 }
 

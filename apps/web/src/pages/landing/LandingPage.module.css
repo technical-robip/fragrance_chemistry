@@ -530,7 +530,8 @@
 }
 
 .action:hover {
-  background: var(--fc-accent-soft);
+  background: var(--fc-accent-strong);
+  color: var(--fc-accent-contrast);
 }
 
 .actionQuiet {
