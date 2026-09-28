@@ -56,6 +56,12 @@
   min-width: 0;
 }
 
+.listTools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.35rem;
+}
+
 .recipeBar {
   display: grid;
   grid-template-columns: minmax(0, auto) minmax(10rem, 1fr);

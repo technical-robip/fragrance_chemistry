@@ -405,6 +405,9 @@ export function AccountPage() {
           <section className={`fc-card ${styles.card}`}>
             <h2>{t('account.preferences')}</h2>
             <p className="fc-muted">{t('account.preferencesHint')}</p>
+            <p className={styles.familyLink}>
+              <Link to="/catalog">{t('familyColors.configureLink')}</Link>
+            </p>
             <fieldset className={styles.fieldset}>
               <legend>{t('common.themeToggle')}</legend>
               <div className={styles.presets}>

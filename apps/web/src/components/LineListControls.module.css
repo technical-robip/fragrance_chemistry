@@ -1,0 +1,153 @@
+.controls {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.trigger,
+.family,
+.familyOn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--fc-touch-min);
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--fc-radius-sm);
+  border: 1px solid var(--fc-border-strong);
+  background: transparent;
+  color: var(--fc-text-muted);
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.trigger:focus-visible,
+.family:focus-visible,
+.familyOn:focus-visible,
+.item:focus-visible,
+.itemOn:focus-visible {
+  outline: 2px solid var(--fc-accent);
+  outline-offset: 2px;
+}
+
+.familyOn,
+.trigger[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--fc-accent) 16%, transparent);
+  color: var(--fc-warn-soft);
+}
+
+.compact .trigger,
+.compact .family,
+.compact .familyOn {
+  box-sizing: border-box;
+  height: 2rem;
+  min-height: 0;
+  padding: 0 0.5rem;
+  border-radius: var(--fc-radius-sm);
+  font-size: 0.72rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  gap: 0.28rem;
+}
+
+.compact .glyph {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.glyph,
+.dir {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.backdropDim {
+  background: color-mix(in srgb, #000 48%, transparent);
+}
+
+.menu {
+  position: fixed;
+  z-index: 71;
+  width: min(18rem, calc(100vw - 1rem));
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.45rem;
+  border-radius: var(--fc-radius-md);
+  border: 1px solid var(--fc-border-strong);
+  background: var(--fc-bg-elevated);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.menuSheet {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  max-height: min(78vh, 34rem);
+  overflow: auto;
+  border-radius: var(--fc-radius-md) var(--fc-radius-md) 0 0;
+  padding-bottom: calc(0.55rem + env(safe-area-inset-bottom));
+}
+
+.kicker {
+  margin: 0;
+  padding: 0.35rem 0.7rem 0.2rem;
+  color: var(--fc-text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.item,
+.itemOn {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.1rem 1.2rem;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: var(--fc-touch-min);
+  padding: 0.4rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fc-text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover,
+.itemOn:hover {
+  background: color-mix(in srgb, var(--fc-accent) 12%, transparent);
+}
+
+.itemOn {
+  background: color-mix(in srgb, var(--fc-accent) 16%, transparent);
+  color: var(--fc-warn-soft);
+}
+
+.item .glyph,
+.itemOn .glyph {
+  justify-self: end;
+  color: var(--fc-accent);
+}

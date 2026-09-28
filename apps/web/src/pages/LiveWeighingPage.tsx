@@ -23,10 +23,12 @@ import {
   useSelectedFormulaId,
   useSelectedFormulaRouteKey,
 } from '@/components/FormulaSelector';
+import { LineListControls } from '@/components/LineListControls';
 import { ScalePulseReadout } from '@/components/viz/ScalePulseReadout';
 import { api } from '@/lib/api-client';
 import { displayToGrams, gramsToDisplay, type AmountUnit } from '@/lib/batch-units';
 import { familyHue } from '@/lib/formula-viz';
+import { useLineListPrefs } from '@/lib/line-list-prefs';
 import {
   acceptedPourGrams,
   formatWeighAmount,
@@ -198,6 +200,7 @@ export function LiveWeighingPage() {
   const [blocked, setBlocked] = useState(false);
   const [tip, setTip] = useState<'adjust' | 'ratios' | 'batch' | null>(null);
   const [stepQuery, setStepQuery] = useState('');
+  const { sort, showFamily, chooseSort, toggleFamily } = useLineListPrefs();
   const [setupOpen, setSetupOpen] = useState(true);
   const [connectOpen, setConnectOpen] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
@@ -832,6 +835,15 @@ export function LiveWeighingPage() {
                   </div>
                 ) : null}
               </div>
+              <div className={styles.listTools}>
+                <LineListControls
+                  sort={sort}
+                  showFamily={showFamily}
+                  onSort={chooseSort}
+                  onToggleFamily={toggleFamily}
+                  showSort={false}
+                />
+              </div>
               <div className={styles.colHead} aria-hidden>
                 <span />
                 <span>{t('weighing.colMaterial')}</span>
@@ -844,74 +856,97 @@ export function LiveWeighingPage() {
                 data-testid="weigh-steps"
                 aria-label={t('weighing.stepList')}
               >
-                {groupWeighLines(session.lines, stepQuery).map((group) => (
-                  <li key={group.family} className={styles.familyBlock}>
-                    <p className={styles.family}>
-                      <span
-                        className={styles.swatch}
-                        style={{ background: familyHue(group.family) }}
-                      />
-                      <span>{group.family}</span>
-                      <em>{group.items.length}</em>
-                    </p>
-                    <ol className={styles.familyLines}>
-                      {group.items.map(({ line, index }) => {
-                        const poured = isPoured(line.actualGrams);
-                        const current = index === session.step;
-                        const status = poured ? 'done' : current ? 'current' : 'upcoming';
-                        const live = weighedCell(
-                          poured,
-                          current,
-                          line.actualGrams,
-                          reading,
-                          connected,
-                          batchUnit,
-                        );
-                        return (
-                          <li key={line.key}>
-                            <button
-                              type="button"
-                              className={
-                                status === 'current'
-                                  ? styles.stepCurrent
-                                  : status === 'done'
-                                    ? styles.stepDone
-                                    : styles.step
-                              }
-                              aria-current={status === 'current' ? 'step' : undefined}
-                              disabled={poured}
-                              onClick={() => selectStep(index)}
-                            >
-                              <AcceptedMark poured={poured} />
-                              <span>{line.materialName}</span>
-                              <span className={styles.colTarget}>
-                                {formatWeighAmount(line.targetGrams, batchUnit)}
-                              </span>
-                              <em
-                                className={`${styles.colActual} ${live.pending ? styles.liveFig : ''}`}
+                {(showFamily
+                  ? groupWeighLines(session.lines, stepQuery)
+                  : [
+                      {
+                        family: '',
+                        items: session.lines.flatMap((line, index) => {
+                          const needle = stepQuery.trim().toLowerCase();
+                          if (needle && !line.materialName.toLowerCase().includes(needle)) {
+                            return [];
+                          }
+                          return [{ line, index }];
+                        }),
+                      },
+                    ]
+                )
+                  .filter((group) => group.items.length > 0)
+                  .map((group) => (
+                    <li key={group.family || 'flat'} className={styles.familyBlock}>
+                      {showFamily ? (
+                        <p className={styles.family}>
+                          <span
+                            className={styles.swatch}
+                            style={{ background: familyHue(group.family) }}
+                          />
+                          <span>{group.family}</span>
+                          <em>{group.items.length}</em>
+                        </p>
+                      ) : null}
+                      <ol className={styles.familyLines}>
+                        {group.items.map(({ line, index }) => {
+                          const poured = isPoured(line.actualGrams);
+                          const current = index === session.step;
+                          const status = poured ? 'done' : current ? 'current' : 'upcoming';
+                          const live = weighedCell(
+                            poured,
+                            current,
+                            line.actualGrams,
+                            reading,
+                            connected,
+                            batchUnit,
+                          );
+                          return (
+                            <li key={line.key}>
+                              <button
+                                type="button"
+                                className={
+                                  status === 'current'
+                                    ? styles.stepCurrent
+                                    : status === 'done'
+                                      ? styles.stepDone
+                                      : styles.step
+                                }
+                                aria-current={status === 'current' ? 'step' : undefined}
+                                disabled={poured}
+                                onClick={() => selectStep(index)}
                               >
-                                {live.text}
-                              </em>
-                              <em
-                                className={`${styles.colMobile} ${live.pending ? styles.liveFig : ''}`}
-                              >
-                                {poured || live.pending
-                                  ? live.text
-                                  : formatWeighAmount(line.targetGrams, batchUnit)}
-                              </em>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                  </li>
-                ))}
+                                <AcceptedMark poured={poured} />
+                                <span>{line.materialName}</span>
+                                <span className={styles.colTarget}>
+                                  {formatWeighAmount(line.targetGrams, batchUnit)}
+                                </span>
+                                <em
+                                  className={`${styles.colActual} ${live.pending ? styles.liveFig : ''}`}
+                                >
+                                  {live.text}
+                                </em>
+                                <em
+                                  className={`${styles.colMobile} ${live.pending ? styles.liveFig : ''}`}
+                                >
+                                  {poured || live.pending
+                                    ? live.text
+                                    : formatWeighAmount(line.targetGrams, batchUnit)}
+                                </em>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    </li>
+                  ))}
                 {hasDiluent(session) && diluentMatches(t('weighing.diluent'), stepQuery) ? (
                   <li className={styles.familyBlock}>
-                    <p className={styles.family}>
-                      <span className={styles.swatch} style={{ background: 'var(--fc-accent)' }} />
-                      <span>{t('weighing.diluent')}</span>
-                    </p>
+                    {showFamily ? (
+                      <p className={styles.family}>
+                        <span
+                          className={styles.swatch}
+                          style={{ background: 'var(--fc-accent)' }}
+                        />
+                        <span>{t('weighing.diluent')}</span>
+                      </p>
+                    ) : null}
                     <ol className={styles.familyLines}>
                       <li>
                         <button

@@ -14,6 +14,7 @@ import {
   toggleCatalogFilter,
 } from '@/lib/catalog-filters';
 import { useCatalogIndex } from '@/lib/catalog-index';
+import { FamilyColorPanel } from '@/components/FamilyColorPanel';
 import { familyHue } from '@/lib/formula-viz';
 import styles from './CatalogPage.module.css';
 
@@ -46,7 +47,10 @@ export function CatalogPage() {
 
   return (
     <div>
-      <h1 className="fc-page-title">{t('catalog.title')}</h1>
+      <header className={styles.pageHead}>
+        <h1 className="fc-page-title">{t('catalog.title')}</h1>
+        <FamilyColorPanel />
+      </header>
       <p className="fc-muted" style={{ marginBottom: '1rem' }}>
         {t('catalog.subtitle')}
         {isLoading ? ` — ${t('catalog.loading')}` : null}

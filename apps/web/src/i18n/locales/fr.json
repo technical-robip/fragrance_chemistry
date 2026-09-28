@@ -33,6 +33,20 @@
     "account": "Compte",
     "admin": "Admin"
   },
+  "lineList": {
+    "sortBy": "Trier par",
+    "family": "Famille",
+    "sort": {
+      "alpha": "Alphabétique",
+      "pyramid": "Pyramide",
+      "cost": "Coût",
+      "percentage": "Pourcentage",
+      "category": "Catégorie",
+      "dateAdded": "Date d'ajout",
+      "weight": "Poids",
+      "dilution": "Dilution"
+    }
+  },
   "auth": {
     "secureAccess": "Accès labo sécurisé",
     "home": "Accueil",
@@ -224,6 +238,8 @@
     "pctMode": "Percent",
     "absPct": "Abs%",
     "relPct": "Rel%",
+    "pctModeHint": "Abs% est la part de chaque ligne dans la formule entière. Rel% montre chaque ligne comme part du total actuel — affichage seulement, sans réécrire la formule.",
+    "absTotalHint": "Abs {{pct}}%",
     "addMaterial": "Ajouter un matériau",
     "ifraCat4": "Cat. 4 {{usage}} % dans le jus / {{limit}} %",
     "normalize": "Normaliser à 100%",
@@ -540,6 +556,12 @@
     "subtitle": "Annuaire régional depuis l’API.",
     "website": "Site",
     "all": "Tout"
+  },
+  "familyColors": {
+    "edit": "Couleurs des familles",
+    "hint": "Ces couleurs marquent chaque famille olfactive dans le labo. Réinitialiser revient au jeu par défaut.",
+    "reset": "Réinitialiser",
+    "configureLink": "Régler les couleurs des familles dans le catalogue"
   },
   "families": {
     "Floral": "Floral",

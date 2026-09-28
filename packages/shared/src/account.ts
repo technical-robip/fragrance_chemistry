@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { appLocaleSchema, appThemeSchema, selfAssignableRoleSchema } from './entitlements';
+import { familyColorsSchema } from './family-colors';
 
 export const updateAccountBodySchema = z
   .object({
@@ -11,6 +12,7 @@ export const updateAccountBodySchema = z
     defaultBatchTargetGrams: z.coerce.number().min(0.001).max(1_000_000).optional(),
     defaultConcentrationPct: z.coerce.number().min(0.1).max(100).optional(),
     defaultIfraCategory: z.coerce.number().int().min(1).max(12).optional(),
+    familyColors: familyColorsSchema.nullable().optional(),
   })
   .refine((body) => Object.keys(body).length > 0, { message: 'No fields to update' });
 

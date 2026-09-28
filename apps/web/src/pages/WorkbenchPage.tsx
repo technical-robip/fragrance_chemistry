@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ import { FormulaExcelExportDialog } from '@/components/FormulaExcelExportDialog'
 import { MaterialPicker, type PickedMaterial } from '@/components/MaterialPicker';
 import { MaterialAvatar } from '@/components/MaterialAvatar';
 import { DecimalCell } from '@/components/DecimalCell';
+import { LineListControls } from '@/components/LineListControls';
 import { CssPerfumeVessel } from '@/components/viz/CssPerfumeVessel';
 import { NotesRadar } from '@/components/viz/NotesRadar';
 import { FragrancePyramid } from '@/components/viz/FragrancePyramid';
@@ -34,6 +35,7 @@ import { useFormulaStore } from '@/stores/formula-store';
 import { exportFormulaCsv } from '@/lib/formula-export';
 import { useCatalogIndex } from '@/lib/catalog-index';
 import {
+  familyHue,
   familyIdsForPyramidLayer,
   pyramidLayerBreakdown,
   pyramidPercents,
@@ -53,6 +55,10 @@ import {
   shouldApplyServerLines,
   shouldClearDirtyAfterSave,
 } from '@/lib/workbench-draft-sync';
+import { sortFormulaLines } from '@/lib/formula-line-sort';
+import { useLineListPrefs } from '@/lib/line-list-prefs';
+import { fromDisplayPct, roundPct, toDisplayPct, type PctMode } from '@/lib/workbench-pct';
+import { groupWeighLines, isPoured } from '@/lib/weigh-session';
 import styles from './WorkbenchPage.module.css';
 
 type FormulaDetail = {
@@ -74,6 +80,8 @@ type FormulaDetail = {
     olfactoryFamily: string | null;
     costPerGram: string | null;
     ifraCat4MaxPercent?: string | null;
+    stockConcentrationPct?: string | null;
+    solvent?: string | null;
     sortOrder: number;
   }>;
 };
@@ -154,9 +162,9 @@ type LocalLine = {
   weighedGrams: number;
   costPerGram: number;
   ifraCat4MaxPercent: number | null;
+  stockConcentrationPct: number;
+  solvent: string | null;
 };
-
-type PctMode = 'abs' | 'rel';
 
 const BOTTLE_ML = 50;
 const JUICE_DENSITY_G_PER_ML = 0.9;
@@ -184,6 +192,8 @@ function toLocal(lines: FormulaDetail['lines']): LocalLine[] {
     percent: Number(l.percent),
     weighedGrams: Number(l.weighedGrams ?? 0),
     costPerGram: Number(l.costPerGram ?? 0),
+    stockConcentrationPct: Number(l.stockConcentrationPct ?? 100) || 100,
+    solvent: l.solvent ?? null,
     ifraCat4MaxPercent:
       l.ifraCat4MaxPercent != null && l.ifraCat4MaxPercent !== ''
         ? Number(l.ifraCat4MaxPercent)
@@ -260,6 +270,7 @@ export function WorkbenchPage() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [lines, setLines] = useState<LocalLine[]>([]);
+  const { sort, showFamily, chooseSort, toggleFamily } = useLineListPrefs();
   const [name, setName] = useState('');
   const [batchG, setBatchG] = useState(10);
   const [batchDraft, setBatchDraft] = useState('10');
@@ -436,6 +447,8 @@ export function WorkbenchPage() {
           pyramidNote: l.pyramidNote ?? undefined,
           weighedGrams: l.weighedGrams,
           targetGrams: (l.percent / 100) * batchTargetGrams,
+          stockConcentrationPct: l.stockConcentrationPct,
+          solvent: l.solvent ?? undefined,
         })),
       });
       return {
@@ -528,6 +541,24 @@ export function WorkbenchPage() {
   }
 
   const totalPct = lines.reduce((s, l) => s + l.percent, 0);
+  const formulaHasPour = lines.some((l) => isPoured(l.weighedGrams));
+  const visibleLines = useMemo(
+    () =>
+      sortFormulaLines(lines, sort, (line, index) => {
+        const grams = lineGrams(line.percent, batchG);
+        return {
+          name: line.materialName,
+          percent: line.percent,
+          grams,
+          lineCost: grams * (line.costPerGram || 0),
+          pyramidNote: line.pyramidNote,
+          olfactoryFamily: line.olfactoryFamily,
+          order: index,
+          stockConcentrationPct: line.stockConcentrationPct,
+        };
+      }),
+    [batchG, lines, sort],
+  );
   const vizLines = lines.map((l) => ({
     key: l.key,
     name: l.materialName,
@@ -543,11 +574,6 @@ export function WorkbenchPage() {
   const radarHighlightIds = familyIdsForPyramidLayer(vizLines, pyramidHover ?? pyramidTier, {
     otherLabel: familyOther,
   });
-
-  function displayPct(abs: number) {
-    if (pctMode === 'rel' && totalPct > 0) return (abs / totalPct) * 100;
-    return abs;
-  }
 
   function addMaterial(m: PickedMaterial) {
     setLines((prev) => {
@@ -565,6 +591,8 @@ export function WorkbenchPage() {
           weighedGrams: 0,
           costPerGram: Number(m.costPerGram ?? 0),
           ifraCat4MaxPercent: null,
+          stockConcentrationPct: 100,
+          solvent: null,
         },
       ];
     });
@@ -643,12 +671,12 @@ export function WorkbenchPage() {
       name: name || formula?.name || 'Untitled',
       concentrationPct: concPct,
       batchGrams: batchG,
-      totalPercent: displayPct(totalPct),
+      totalPercent: totalPct,
       rows: lines.map((l) => {
         const grams = (l.percent / 100) * batchG;
         return {
           materialName: l.materialName,
-          percent: displayPct(l.percent),
+          percent: l.percent,
           amount: Number(formatAmount(grams, amountUnit)),
           unit: unitLabel,
         };
@@ -702,6 +730,8 @@ export function WorkbenchPage() {
         pyramidNote: l.pyramidNote ?? undefined,
         weighedGrams: l.weighedGrams,
         targetGrams: (l.percent / 100) * batchG,
+        stockConcentrationPct: l.stockConcentrationPct,
+        solvent: l.solvent ?? undefined,
       })),
     });
 
@@ -742,9 +772,9 @@ export function WorkbenchPage() {
       `${name || 'Untitled'} · ${concPct}% · batch ${batchG} g`,
       ...lines.map((l) => {
         const grams = (l.percent / 100) * batchG;
-        return `${l.materialName}\t${displayPct(l.percent).toFixed(2)}%\t${formatAmount(grams, amountUnit)} ${unitLabel}`;
+        return `${l.materialName}\t${l.percent.toFixed(2)}%\t${formatAmount(grams, amountUnit)} ${unitLabel}`;
       }),
-      `Total\t${displayPct(totalPct).toFixed(2)}%`,
+      `Total\t${totalPct.toFixed(2)}%`,
     ].join('\n');
     try {
       await navigator.clipboard.writeText(body);
@@ -1179,7 +1209,12 @@ export function WorkbenchPage() {
               </button>
             ))}
           </div>
-          <div className={styles.segmented} role="group" aria-label={t('workbench.pctMode')}>
+          <div
+            className={styles.segmented}
+            role="group"
+            aria-label={t('workbench.pctMode')}
+            title={t('workbench.pctModeHint')}
+          >
             {(
               [
                 ['abs', t('workbench.absPct')],
@@ -1196,6 +1231,12 @@ export function WorkbenchPage() {
               </button>
             ))}
           </div>
+          <LineListControls
+            sort={sort}
+            showFamily={showFamily}
+            onSort={chooseSort}
+            onToggleFamily={toggleFamily}
+          />
         </div>
 
         <div className={`fc-table-wrap ${styles.gridWrap}`}>
@@ -1212,174 +1253,206 @@ export function WorkbenchPage() {
               </tr>
             </thead>
             <tbody>
-              {lines.map((line) => {
-                const grams = lineGrams(line.percent, batchG);
-                const stock = stockByMaterial.get(line.materialId);
-                const low = stock !== undefined && stock < grams;
-                const actionProps = {
-                  onMoveUp: () => {
-                    moveLine(line.key, -1);
-                    setRowMenuKey(null);
-                  },
-                  onMoveDown: () => {
-                    moveLine(line.key, 1);
-                    setRowMenuKey(null);
-                  },
-                  onRemove: () => {
-                    removeLine(line.key);
-                    setRowMenuKey(null);
-                  },
-                  moveUpLabel: t('workbench.moveUp'),
-                  moveDownLabel: t('workbench.moveDown'),
-                  removeLabel: t('workbench.removeLine'),
-                };
-                const menuOpen = rowMenuKey === line.key;
-                const catalogItem = catalogById.get(line.materialId);
-                const sittingMark = latestProbeMark(
-                  evaluations ?? [],
-                  line.materialId,
-                  /^[0-9a-f-]{36}$/i.test(line.key) ? line.key : undefined,
-                  lastEval?.id,
-                );
-                const markLabel =
-                  sittingMark === 'ok'
-                    ? t('evaluation.markOk')
-                    : sittingMark === 'weak'
-                      ? t('evaluation.markWeak')
-                      : sittingMark === 'strong'
-                        ? t('evaluation.markStrong')
-                        : sittingMark === 'harsh'
-                          ? t('evaluation.markHarsh')
-                          : null;
-                return (
-                  <tr key={line.key}>
-                    <td className={styles.materialCell}>
-                      <div className={styles.materialMain}>
-                        <div className={styles.materialIdentity}>
-                          <MaterialAvatar
-                            name={line.materialName}
-                            family={line.olfactoryFamily}
-                            imageUrl={catalogItem?.imageUrl}
-                            size={32}
+              {(showFamily
+                ? groupWeighLines(visibleLines, '')
+                : [{ family: '', items: visibleLines.map((line, index) => ({ line, index })) }]
+              ).map((group) => (
+                <Fragment key={group.family || 'flat'}>
+                  {showFamily ? (
+                    <tr className={styles.familyRow}>
+                      <td colSpan={7}>
+                        <span className={styles.familyHead}>
+                          <span
+                            className={styles.swatch}
+                            style={{ background: familyHue(group.family) }}
                           />
-                          <div className={styles.materialCopy}>
-                            <strong>{line.materialName}</strong>
-                            {markLabel ? (
-                              <span className={styles.lineMark}>{markLabel}</span>
-                            ) : null}
-                            <div className={styles.sub}>
-                              {[line.manufacturer, line.olfactoryFamily]
-                                .filter(Boolean)
-                                .join(' · ')}
+                          <span>{group.family}</span>
+                          <em>{group.items.length}</em>
+                        </span>
+                      </td>
+                    </tr>
+                  ) : null}
+                  {group.items.map(({ line }) => {
+                    const grams = lineGrams(line.percent, batchG);
+                    const stock = stockByMaterial.get(line.materialId);
+                    const low = stock !== undefined && stock < grams;
+                    const actionProps = {
+                      onMoveUp: () => {
+                        moveLine(line.key, -1);
+                        setRowMenuKey(null);
+                      },
+                      onMoveDown: () => {
+                        moveLine(line.key, 1);
+                        setRowMenuKey(null);
+                      },
+                      onRemove: () => {
+                        removeLine(line.key);
+                        setRowMenuKey(null);
+                      },
+                      moveUpLabel: t('workbench.moveUp'),
+                      moveDownLabel: t('workbench.moveDown'),
+                      removeLabel: t('workbench.removeLine'),
+                    };
+                    const menuOpen = rowMenuKey === line.key;
+                    const catalogItem = catalogById.get(line.materialId);
+                    const sittingMark = latestProbeMark(
+                      evaluations ?? [],
+                      line.materialId,
+                      /^[0-9a-f-]{36}$/i.test(line.key) ? line.key : undefined,
+                      lastEval?.id,
+                    );
+                    const markLabel =
+                      sittingMark === 'ok'
+                        ? t('evaluation.markOk')
+                        : sittingMark === 'weak'
+                          ? t('evaluation.markWeak')
+                          : sittingMark === 'strong'
+                            ? t('evaluation.markStrong')
+                            : sittingMark === 'harsh'
+                              ? t('evaluation.markHarsh')
+                              : null;
+                    return (
+                      <tr key={line.key}>
+                        <td className={styles.materialCell}>
+                          <div className={styles.materialMain}>
+                            <div className={styles.materialIdentity}>
+                              <MaterialAvatar
+                                name={line.materialName}
+                                family={line.olfactoryFamily}
+                                imageUrl={catalogItem?.imageUrl}
+                                size={32}
+                              />
+                              <div className={styles.materialCopy}>
+                                <strong>{line.materialName}</strong>
+                                {markLabel ? (
+                                  <span className={styles.lineMark}>{markLabel}</span>
+                                ) : null}
+                                {line.manufacturer ? (
+                                  <div className={styles.sub}>{line.manufacturer}</div>
+                                ) : null}
+                                {line.ifraCat4MaxPercent != null ? (
+                                  <span
+                                    className={
+                                      ifraLineStatus(
+                                        ifraUsageInFinishedPct(line.percent, concPct, 100),
+                                        line.ifraCat4MaxPercent,
+                                      ) === 'exceeded'
+                                        ? styles.ifraExceeded
+                                        : styles.ifraOk
+                                    }
+                                  >
+                                    {t('workbench.ifraCat4', {
+                                      usage: ifraUsageInFinishedPct(
+                                        line.percent,
+                                        concPct,
+                                        100,
+                                      ).toFixed(2),
+                                      limit: line.ifraCat4MaxPercent.toFixed(2),
+                                    })}
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
-                            {line.ifraCat4MaxPercent != null ? (
-                              <span
-                                className={
-                                  ifraLineStatus(
-                                    ifraUsageInFinishedPct(line.percent, concPct, 100),
-                                    line.ifraCat4MaxPercent,
-                                  ) === 'exceeded'
-                                    ? styles.ifraExceeded
-                                    : styles.ifraOk
+                            <div
+                              className={styles.materialActions}
+                              ref={menuOpen ? rowMenuRef : undefined}
+                            >
+                              <button
+                                type="button"
+                                className={styles.iconBtn}
+                                aria-label={t('workbench.rowActions')}
+                                aria-expanded={menuOpen}
+                                aria-haspopup="menu"
+                                onClick={() =>
+                                  setRowMenuKey((key) => (key === line.key ? null : line.key))
                                 }
                               >
-                                {t('workbench.ifraCat4', {
-                                  usage: ifraUsageInFinishedPct(line.percent, concPct, 100).toFixed(
-                                    2,
-                                  ),
-                                  limit: line.ifraCat4MaxPercent.toFixed(2),
-                                })}
-                              </span>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div
-                          className={styles.materialActions}
-                          ref={menuOpen ? rowMenuRef : undefined}
-                        >
-                          <button
-                            type="button"
-                            className={styles.iconBtn}
-                            aria-label={t('workbench.rowActions')}
-                            aria-expanded={menuOpen}
-                            aria-haspopup="menu"
-                            onClick={() =>
-                              setRowMenuKey((key) => (key === line.key ? null : line.key))
-                            }
-                          >
-                            <KebabIcon />
-                          </button>
-                          {menuOpen ? (
-                            <div className={styles.rowMenu} role="menu">
-                              <button type="button" role="menuitem" onClick={actionProps.onMoveUp}>
-                                {actionProps.moveUpLabel}
+                                <KebabIcon />
                               </button>
-                              <button
-                                type="button"
-                                role="menuitem"
-                                onClick={actionProps.onMoveDown}
-                              >
-                                {actionProps.moveDownLabel}
-                              </button>
-                              <button
-                                type="button"
-                                role="menuitem"
-                                className={styles.rowMenuDanger}
-                                onClick={actionProps.onRemove}
-                              >
-                                {actionProps.removeLabel}
-                              </button>
+                              {menuOpen ? (
+                                <div className={styles.rowMenu} role="menu">
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={actionProps.onMoveUp}
+                                  >
+                                    {actionProps.moveUpLabel}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={actionProps.onMoveDown}
+                                  >
+                                    {actionProps.moveDownLabel}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={styles.rowMenuDanger}
+                                    onClick={actionProps.onRemove}
+                                  >
+                                    {actionProps.removeLabel}
+                                  </button>
+                                </div>
+                              ) : null}
                             </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    </td>
-                    <td className={styles.noteCell}>
-                      <FcSelect
-                        options={noteOptions}
-                        value={line.pyramidNote ?? ''}
-                        onChange={(v) =>
-                          updateLine(line.key, {
-                            pyramidNote: (v || null) as LocalLine['pyramidNote'],
-                          })
-                        }
-                        aria-label="Note"
-                      />
-                    </td>
-                    <td>
-                      <DecimalCell
-                        className={styles.cellInput}
-                        aria-label={
-                          pctMode === 'rel' ? t('workbench.relPct') : t('workbench.absPct')
-                        }
-                        value={displayPct(line.percent)}
-                        onCommit={(next) => {
-                          if (pctMode === 'rel' && totalPct > 0) {
-                            updateLine(line.key, { percent: (next / 100) * totalPct });
-                          } else {
-                            updateLine(line.key, { percent: next });
-                          }
-                        }}
-                      />
-                    </td>
-                    <td>{formatAmount(grams, amountUnit)}</td>
-                    <td>
-                      <DecimalCell
-                        className={styles.cellInput}
-                        aria-label={t('workbench.weighed')}
-                        value={line.weighedGrams}
-                        onCommit={(next) => updateLine(line.key, { weighedGrams: next })}
-                      />
-                    </td>
-                    <td className={low ? styles.low : undefined}>
-                      {stock === undefined ? '—' : `${stock.toFixed(1)} g`}
-                    </td>
-                    <td className={styles.stickyActions}>
-                      <LineRowActions className={styles.rowActions ?? ''} {...actionProps} />
-                    </td>
-                  </tr>
-                );
-              })}
+                          </div>
+                        </td>
+                        <td className={styles.noteCell}>
+                          <FcSelect
+                            options={noteOptions}
+                            value={line.pyramidNote ?? ''}
+                            onChange={(v) =>
+                              updateLine(line.key, {
+                                pyramidNote: (v || null) as LocalLine['pyramidNote'],
+                              })
+                            }
+                            aria-label="Note"
+                          />
+                        </td>
+                        <td>
+                          <DecimalCell
+                            className={styles.cellInput}
+                            aria-label={
+                              pctMode === 'rel' ? t('workbench.relPct') : t('workbench.absPct')
+                            }
+                            value={roundPct(toDisplayPct(line.percent, totalPct, pctMode), 2)}
+                            onCommit={(next) =>
+                              updateLine(line.key, {
+                                percent: roundPct(fromDisplayPct(next, totalPct, pctMode), 4),
+                              })
+                            }
+                          />
+                        </td>
+                        <td>{formatAmount(grams, amountUnit)}</td>
+                        <td>
+                          {formulaHasPour ? (
+                            <DecimalCell
+                              className={styles.cellInput}
+                              aria-label={t('workbench.weighed')}
+                              value={line.weighedGrams}
+                              onCommit={(next) => updateLine(line.key, { weighedGrams: next })}
+                            />
+                          ) : (
+                            <span
+                              className={styles.weighedEmpty}
+                              aria-label={t('workbench.weighed')}
+                            >
+                              —
+                            </span>
+                          )}
+                        </td>
+                        <td className={low ? styles.low : undefined}>
+                          {stock === undefined ? '—' : `${stock.toFixed(1)} g`}
+                        </td>
+                        <td className={styles.stickyActions}>
+                          <LineRowActions className={styles.rowActions ?? ''} {...actionProps} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </Fragment>
+              ))}
               {lines.length === 0 ? (
                 <tr>
                   <td colSpan={7}>No materials yet — add from the catalog picker.</td>
@@ -1393,10 +1466,15 @@ export function WorkbenchPage() {
           <span
             className={`${Math.abs(totalPct - 100) < 0.05 ? styles.ok : styles.warn} ${normalizeFlash ? styles.totalFlash : ''}`}
           >
-            {t('workbench.totalTarget')}: {displayPct(totalPct).toFixed(2)}%
+            {t('workbench.totalTarget')}: {toDisplayPct(totalPct, totalPct, pctMode).toFixed(2)}%
             {pctMode === 'abs' && Math.abs(totalPct - 100) >= 0.05
               ? ` (${(totalPct - 100).toFixed(2)} vs 100)`
               : ''}
+            {pctMode === 'rel' && Math.abs(totalPct - 100) >= 0.05 ? (
+              <span className={styles.absHint}>
+                {t('workbench.absTotalHint', { pct: totalPct.toFixed(2) })}
+              </span>
+            ) : null}
           </span>
           <button type="button" className={styles.deleteBtn} onClick={() => void deleteFormula()}>
             {t('workbench.deleteFormula')}

@@ -1,6 +1,7 @@
 export * from './auth';
 export * from './entitlements';
 export * from './account';
+export * from './family-colors';
 export * from './admin';
 export * from './catalog';
 export * from './formulas';

@@ -100,6 +100,15 @@
   background: color-mix(in srgb, var(--fc-accent) 14%, transparent);
 }
 
+.familyLink {
+  margin: 0.35rem 0 0.85rem;
+}
+
+.familyLink a {
+  color: var(--fc-accent-soft);
+  font-weight: 700;
+}
+
 .fieldset {
   margin: 0;
   padding: 0;

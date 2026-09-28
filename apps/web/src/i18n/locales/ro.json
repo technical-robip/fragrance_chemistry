@@ -33,6 +33,20 @@
     "account": "Cont",
     "admin": "Admin"
   },
+  "lineList": {
+    "sortBy": "Sortează după",
+    "family": "Familie",
+    "sort": {
+      "alpha": "Alfabetic",
+      "pyramid": "Piramidă",
+      "cost": "Cost",
+      "percentage": "Procent",
+      "category": "Categorie",
+      "dateAdded": "Data adăugării",
+      "weight": "Greutate",
+      "dilution": "Diluție"
+    }
+  },
   "auth": {
     "secureAccess": "Acces securizat la laborator",
     "home": "Acasă",
@@ -224,6 +238,8 @@
     "pctMode": "Percent",
     "absPct": "Abs%",
     "relPct": "Rel%",
+    "pctModeHint": "Abs% e cota fiecărei linii din formula întreagă. Rel% arată fiecare linie ca parte din totalul curent — doar afișare, nu rescrie formula.",
+    "absTotalHint": "Abs {{pct}}%",
     "addMaterial": "Adaugă material",
     "ifraCat4": "Cat. 4 {{usage}}% în suc / {{limit}}%",
     "normalize": "Normalizează la 100%",
@@ -540,6 +556,12 @@
     "subtitle": "Director regional din API.",
     "website": "Site",
     "all": "Toate"
+  },
+  "familyColors": {
+    "edit": "Culori familii",
+    "hint": "Aceste culori marchează fiecare familie olfactivă în laborator. Resetarea readuce setul implicit.",
+    "reset": "Resetează la implicit",
+    "configureLink": "Setează culorile familiilor în catalog"
   },
   "families": {
     "Floral": "Floral",

@@ -141,6 +141,7 @@ export class AuthService {
       status: user.status,
       locale: user.locale,
       theme: user.theme,
+      familyColors: user.familyColors ?? null,
       defaultBatchTargetGrams: Number(user.defaultBatchTargetGrams ?? 10),
       defaultConcentrationPct: Number(user.defaultConcentrationPct ?? 20),
       defaultIfraCategory: Number(user.defaultIfraCategory ?? 4),

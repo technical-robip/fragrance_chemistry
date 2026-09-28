@@ -649,7 +649,13 @@ export function DashboardPage() {
               </div>
 
               <CompositionInspector
-                lines={filteredLines}
+                lines={filteredLines.map((line) => ({
+                  ...line,
+                  order: lines.findIndex(
+                    (candidate) =>
+                      (candidate.id ?? candidate.materialId) === (line.id ?? line.materialId),
+                  ),
+                }))}
                 title={inspectorTitle}
                 emptyHint={t('dashboard.inspectorEmpty')}
                 from={fromPath}

@@ -33,6 +33,20 @@
     "account": "Konto",
     "admin": "Admin"
   },
+  "lineList": {
+    "sortBy": "Sortieren nach",
+    "family": "Familie",
+    "sort": {
+      "alpha": "Alphabetisch",
+      "pyramid": "Pyramide",
+      "cost": "Kosten",
+      "percentage": "Prozent",
+      "category": "Kategorie",
+      "dateAdded": "Hinzugefügt",
+      "weight": "Gewicht",
+      "dilution": "Verdünnung"
+    }
+  },
   "auth": {
     "secureAccess": "Sicherer Laborzugang",
     "home": "Start",
@@ -224,6 +238,8 @@
     "pctMode": "Percent",
     "absPct": "Abs%",
     "relPct": "Rel%",
+    "pctModeHint": "Abs% ist der Anteil jeder Zeile an der ganzen Formel. Rel% zeigt jede Zeile als Anteil an der aktuellen Summe — nur Anzeige, schreibt die Formel nicht um.",
+    "absTotalHint": "Abs {{pct}}%",
     "addMaterial": "Material hinzufügen",
     "ifraCat4": "Kat. 4 {{usage}}% im Saft / {{limit}}%",
     "normalize": "Auf 100% normieren",
@@ -540,6 +556,12 @@
     "subtitle": "Regionales Verzeichnis aus der API.",
     "website": "Website",
     "all": "Alle"
+  },
+  "familyColors": {
+    "edit": "Familienfarben",
+    "hint": "Diese Farben markieren jede Duftfamilie im Labor. Zurücksetzen stellt den Standardsatz wieder her.",
+    "reset": "Auf Standard zurücksetzen",
+    "configureLink": "Familienfarben im Katalog festlegen"
   },
   "families": {
     "Floral": "Floral",

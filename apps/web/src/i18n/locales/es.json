@@ -33,6 +33,20 @@
     "account": "Cuenta",
     "admin": "Admin"
   },
+  "lineList": {
+    "sortBy": "Ordenar por",
+    "family": "Familia",
+    "sort": {
+      "alpha": "Alfabético",
+      "pyramid": "Pirámide",
+      "cost": "Coste",
+      "percentage": "Porcentaje",
+      "category": "Categoría",
+      "dateAdded": "Fecha de alta",
+      "weight": "Peso",
+      "dilution": "Dilución"
+    }
+  },
   "auth": {
     "secureAccess": "Acceso seguro al laboratorio",
     "home": "Inicio",
@@ -224,6 +238,8 @@
     "pctMode": "Percent",
     "absPct": "Abs%",
     "relPct": "Rel%",
+    "pctModeHint": "Abs% es la parte de cada línea en la fórmula completa. Rel% muestra cada línea como parte del total actual — solo visualización, no reescribe la fórmula.",
+    "absTotalHint": "Abs {{pct}}%",
     "addMaterial": "Añadir material",
     "ifraCat4": "Cat. 4 {{usage}}% en el jugo / {{limit}}%",
     "normalize": "Normalizar a 100%",
@@ -540,6 +556,12 @@
     "subtitle": "Directorio regional desde la API.",
     "website": "Sitio",
     "all": "Todo"
+  },
+  "familyColors": {
+    "edit": "Colores de familias",
+    "hint": "Estos colores marcan cada familia olfativa en el laboratorio. Restablecer vuelve al conjunto predeterminado.",
+    "reset": "Restablecer",
+    "configureLink": "Configurar los colores de familia en el catálogo"
   },
   "families": {
     "Floral": "Floral",

@@ -14,6 +14,7 @@ export type AuthUserDto = {
   status: string;
   locale: string;
   theme: string;
+  familyColors: Record<string, string> | null;
   defaultBatchTargetGrams: number;
   defaultConcentrationPct: number;
   defaultIfraCategory: number;

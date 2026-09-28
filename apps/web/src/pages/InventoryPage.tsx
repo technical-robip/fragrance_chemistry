@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { FamilyColorPanel } from '@/components/FamilyColorPanel';
 import { MaterialPicker, type PickedMaterial } from '@/components/MaterialPicker';
 import { MaterialAvatar } from '@/components/MaterialAvatar';
 import { FcSelect } from '@/components/FcSelect';
@@ -259,6 +260,7 @@ export function InventoryPage() {
           {t('inventory.addStock')}
         </button>
       </header>
+      <FamilyColorPanel />
 
       <div className={styles.toolbar}>
         <label className={styles.search}>

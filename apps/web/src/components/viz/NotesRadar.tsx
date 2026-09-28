@@ -253,7 +253,7 @@ export function NotesRadar({
           cx={cx}
           cy={cy}
           r={lit ? 5 : 3}
-          fill="var(--fc-accent-soft)"
+          fill={familyHue(payload.id)}
           opacity={dim ? 0.28 : 1}
         />
       );
@@ -274,7 +274,13 @@ export function NotesRadar({
         onKeyDown={(e) => onDotKeyDown(e, payload)}
       >
         <circle className={styles.dotHitArea} cx={cx} cy={cy} r={14} />
-        <circle className={styles.dot} cx={cx} cy={cy} r={lit ? 7 : 5} />
+        <circle
+          className={styles.dot}
+          cx={cx}
+          cy={cy}
+          r={lit ? 7 : 5}
+          style={{ fill: familyHue(payload.id) }}
+        />
       </g>
     );
   }
@@ -353,8 +359,8 @@ export function NotesRadar({
                 fillOpacity={mini ? 0.45 : 0.35}
                 strokeWidth={mini ? 1.5 : 2}
                 isAnimationActive={animate ?? !editable}
-                dot={editable ? renderDot : false}
-                activeDot={editable ? false : undefined}
+                dot={mini ? false : renderDot}
+                activeDot={false}
               />
             )}
           </RadarChart>
@@ -387,7 +393,9 @@ export function NotesRadar({
               className={`${styles.hit} ${activeId === d.id ? styles.legendActive : ''} ${isLit(d.id) ? styles.legendLit : ''} ${isDim(d.id) ? styles.legendDim : ''}`.trim()}
               onClick={() => onSelect(activeId === d.id ? null : d.id)}
               aria-pressed={activeId === d.id}
+              style={{ color: familyHue(d.id) }}
             >
+              <span className={styles.hitSwatch} style={{ background: familyHue(d.id) }} />
               {d.label} {d.value.toFixed(0)}%
             </button>
           ))}

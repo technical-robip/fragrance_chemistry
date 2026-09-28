@@ -23,6 +23,7 @@ export const users = coreSchema.table('users', {
   status: text('status').notNull().default('active'),
   locale: text('locale').notNull().default('en'),
   theme: text('theme').notNull().default('dark'),
+  familyColors: jsonb('family_colors').$type<Record<string, string> | null>(),
   defaultBatchTargetGrams: numeric('default_batch_target_grams', { precision: 14, scale: 4 })
     .notNull()
     .default('10'),

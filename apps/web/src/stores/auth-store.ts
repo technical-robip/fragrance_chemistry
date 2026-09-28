@@ -3,6 +3,7 @@ import type { EntitlementsDto, FeatureKey } from '@fc/shared';
 import { api, apiRequest, ApiError } from '@/lib/api-client';
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from '@/lib/auth-storage';
 import i18n from '@/i18n';
+import { applyFamilyColors } from '@/lib/apply-family-colors';
 import { useUiStore, type AppLocale, type ThemeMode } from '@/stores/ui-store';
 
 export type AuthUser = {
@@ -14,6 +15,7 @@ export type AuthUser = {
   status?: string;
   locale?: string;
   theme?: string;
+  familyColors?: Record<string, string> | null;
   defaultBatchTargetGrams?: number;
   defaultConcentrationPct?: number;
   defaultIfraCategory?: number;
@@ -41,6 +43,7 @@ function applyUserPreferences(user: AuthUser) {
     useUiStore.getState().setLocale(user.locale as AppLocale);
     void i18n.changeLanguage(user.locale);
   }
+  applyFamilyColors(user.familyColors);
 }
 
 export function userHasFeature(user: AuthUser | null | undefined, feature: FeatureKey) {
@@ -95,6 +98,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       /* ignore network errors on logout */
     }
     clearTokens();
+    applyFamilyColors(null);
     set({ user: null });
   },
 
@@ -111,6 +115,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 404)) {
         clearTokens();
+        applyFamilyColors(null);
       }
       set({ user: null, hydrated: true });
     }
@@ -126,12 +131,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   async changePassword(currentPassword, newPassword) {
     await api.post('/account/password', { currentPassword, newPassword });
     clearTokens();
+    applyFamilyColors(null);
     set({ user: null, hydrated: true });
   },
 
   async logoutAll() {
     await api.post('/account/logout-all');
     clearTokens();
+    applyFamilyColors(null);
     set({ user: null, hydrated: true });
   },
 }));

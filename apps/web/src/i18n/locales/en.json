@@ -33,6 +33,20 @@
     "account": "Account",
     "admin": "Admin"
   },
+  "lineList": {
+    "sortBy": "Sort by",
+    "family": "Family",
+    "sort": {
+      "alpha": "Alphabetical",
+      "pyramid": "Pyramid",
+      "cost": "Cost",
+      "percentage": "Percentage",
+      "category": "Category",
+      "dateAdded": "Date added",
+      "weight": "Weight",
+      "dilution": "Dilution"
+    }
+  },
   "auth": {
     "secureAccess": "Secure lab access",
     "home": "Home",
@@ -263,6 +277,8 @@
     "pctMode": "Percent mode",
     "absPct": "Abs%",
     "relPct": "Rel%",
+    "pctModeHint": "Abs% is each line's share of the whole formula. Rel% shows each line as a share of the current total — display only, it does not rewrite the formula.",
+    "absTotalHint": "Abs {{pct}}%",
     "addMaterial": "Add material",
     "ifraCat4": "Cat. 4 {{usage}}% in juice / {{limit}}%",
     "normalize": "Normalize to 100%",
@@ -590,6 +606,12 @@
     "subtitle": "Regional sourcing directory from the catalog API.",
     "website": "Website",
     "all": "All"
+  },
+  "familyColors": {
+    "edit": "Family colors",
+    "hint": "These colors mark each olfactory family across the lab. Reset returns the default set.",
+    "reset": "Reset to default",
+    "configureLink": "Set family colors in the catalog"
   },
   "families": {
     "Floral": "Floral",

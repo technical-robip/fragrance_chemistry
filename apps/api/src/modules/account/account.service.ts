@@ -70,6 +70,7 @@ export class AccountService {
         ...(selfRole !== undefined ? { role: selfRole } : {}),
         ...(body.locale !== undefined ? { locale: body.locale } : {}),
         ...(body.theme !== undefined ? { theme: body.theme } : {}),
+        ...(body.familyColors !== undefined ? { familyColors: body.familyColors } : {}),
         ...(body.defaultBatchTargetGrams !== undefined
           ? { defaultBatchTargetGrams: body.defaultBatchTargetGrams.toString() }
           : {}),

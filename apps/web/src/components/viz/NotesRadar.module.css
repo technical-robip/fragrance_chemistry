@@ -101,6 +101,9 @@
 }
 
 .hit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.25rem 0.55rem;
   border-radius: var(--fc-radius-sm);
   border: 1px solid color-mix(in srgb, var(--fc-text) 12%, transparent);
@@ -111,11 +114,17 @@
   cursor: pointer;
 }
 
+.hitSwatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .hit:hover,
 .hit.legendActive,
 .hit.legendLit {
-  color: var(--fc-text);
-  border-color: color-mix(in srgb, var(--fc-accent) 40%, transparent);
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
 }
 
 .hit.legendDim {
