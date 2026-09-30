@@ -663,6 +663,64 @@ test.describe('Fragrance Chemistry smoke', () => {
     await expect(page.locator('nav').first()).toBeVisible();
   });
 
+  test('weighing diluent follows the workbench label and concentration', async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAlice(page);
+    const headers = await authHeaders(page);
+    const catalogRes = await page.request.get(`${API}/catalog/materials?q=Hedione&limit=5`, {
+      headers,
+    });
+    expect(catalogRes.ok()).toBeTruthy();
+    const catalog = (await catalogRes.json()) as Array<{ id: string }>;
+    const material = catalog[0];
+    expect(material).toBeTruthy();
+
+    const customRes = await page.request.post(`${API}/formulas`, {
+      headers,
+      data: {
+        name: `__smoke diluent ${Date.now()}`,
+        status: 'draft',
+        concentrationPct: 20,
+        diluentLabel: 'Jojoba',
+        batchTargetGrams: 10,
+        lines: [{ materialId: material!.id, percent: 100, pyramidNote: 'middle' }],
+      },
+    });
+    expect(customRes.ok()).toBeTruthy();
+    const custom = (await customRes.json()) as { id: string; slug?: string | null };
+    try {
+      await page.goto(`/weighing?formula=${custom.slug ?? custom.id}`);
+      const step = page.getByTestId('weigh-diluent');
+      await expect(step).toBeVisible({ timeout: 15_000 });
+      await expect(step).toContainText(/jojoba/i);
+      await expect(step).toContainText('80%');
+      await expect(step).not.toContainText(/alcohol/i);
+    } finally {
+      await deleteSmokeFormula(page, custom.id);
+    }
+
+    const plainRes = await page.request.post(`${API}/formulas`, {
+      headers,
+      data: {
+        name: `__smoke diluent default ${Date.now()}`,
+        status: 'draft',
+        concentrationPct: 20,
+        batchTargetGrams: 10,
+        lines: [{ materialId: material!.id, percent: 100, pyramidNote: 'middle' }],
+      },
+    });
+    expect(plainRes.ok()).toBeTruthy();
+    const plain = (await plainRes.json()) as { id: string; slug?: string | null };
+    try {
+      await page.goto(`/weighing?formula=${plain.slug ?? plain.id}`);
+      await expect(page.getByTestId('weigh-diluent')).toContainText(/alcohol/i, {
+        timeout: 15_000,
+      });
+    } finally {
+      await deleteSmokeFormula(page, plain.id);
+    }
+  });
+
   test('live weighing shows the current material and doubles the batch', async ({ page }) => {
     test.setTimeout(60_000);
     await loginAlice(page);

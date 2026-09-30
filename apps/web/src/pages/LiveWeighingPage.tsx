@@ -27,6 +27,7 @@ import { LineListControls } from '@/components/LineListControls';
 import { ScalePulseReadout } from '@/components/viz/ScalePulseReadout';
 import { api } from '@/lib/api-client';
 import { displayToGrams, gramsToDisplay, type AmountUnit } from '@/lib/batch-units';
+import { diluentStep } from '@/lib/diluent-step';
 import { familyHue } from '@/lib/formula-viz';
 import { useLineListPrefs } from '@/lib/line-list-prefs';
 import {
@@ -59,6 +60,7 @@ type FormulaDetail = {
   name: string;
   batchTargetGrams: string;
   concentrationPct?: string;
+  diluentLabel?: string | null;
   lines: FormulaLine[];
 };
 
@@ -78,6 +80,7 @@ type Session = {
   lines: StepLine[];
   batchGrams: number;
   concentrationPct: number;
+  diluentLabel: string | null;
   step: number;
   diluentActual: number | null;
   adjust: boolean;
@@ -119,6 +122,7 @@ function sessionFromFormula(formula: FormulaDetail): Session {
     name: formula.name,
     batchGrams,
     concentrationPct,
+    diluentLabel: formula.diluentLabel ?? null,
     step: firstOpen === -1 ? lines.length : firstOpen,
     diluentActual: null,
     adjust: true,
@@ -513,6 +517,18 @@ export function LiveWeighingPage() {
   const connected = state !== 'disconnected' && !!adapter;
   const mockConnected = adapter instanceof MockScale && connected;
   const kind = session ? phase(session) : 'done';
+  const diluentInfo = session
+    ? diluentStep({
+        label: session.diluentLabel,
+        concentrationPct: session.concentrationPct,
+        batchGrams: session.batchGrams,
+        alcoholName: t('workbench.diluentAlcohol'),
+        oilName: t('workbench.diluentOil'),
+      })
+    : null;
+  const diluentTitle = diluentInfo
+    ? `${diluentInfo.name} · ${Math.round(diluentInfo.percent)}%`
+    : t('weighing.diluent');
   const currentLine = session && kind === 'line' ? session.lines[session.step] : null;
   const target =
     kind === 'diluent' && session ? diluentTarget(session) : (currentLine?.targetGrams ?? null);
@@ -566,7 +582,7 @@ export function LiveWeighingPage() {
                 <p className={styles.kicker}>{t('weighing.current')}</p>
                 <h2 data-testid="weigh-current">
                   {kind === 'diluent'
-                    ? t('weighing.diluent')
+                    ? diluentTitle
                     : kind === 'done'
                       ? t('weighing.complete')
                       : currentLine?.materialName}
@@ -936,7 +952,7 @@ export function LiveWeighingPage() {
                       </ol>
                     </li>
                   ))}
-                {hasDiluent(session) && diluentMatches(t('weighing.diluent'), stepQuery) ? (
+                {hasDiluent(session) && diluentMatches(diluentTitle, stepQuery) ? (
                   <li className={styles.familyBlock}>
                     {showFamily ? (
                       <p className={styles.family}>
@@ -944,7 +960,7 @@ export function LiveWeighingPage() {
                           className={styles.swatch}
                           style={{ background: 'var(--fc-accent)' }}
                         />
-                        <span>{t('weighing.diluent')}</span>
+                        <span>{diluentTitle}</span>
                       </p>
                     ) : null}
                     <ol className={styles.familyLines}>
@@ -959,11 +975,12 @@ export function LiveWeighingPage() {
                                 : styles.step
                           }
                           aria-current={kind === 'diluent' ? 'step' : undefined}
+                          data-testid="weigh-diluent"
                           disabled={isPoured(session.diluentActual)}
                           onClick={() => selectStep(session.lines.length)}
                         >
                           <AcceptedMark poured={isPoured(session.diluentActual)} />
-                          <span>{t('weighing.diluent')}</span>
+                          <span>{diluentTitle}</span>
                           <span className={styles.colTarget}>
                             {formatWeighAmount(diluentTarget(session), batchUnit)}
                           </span>
@@ -996,7 +1013,7 @@ export function LiveWeighingPage() {
               </ol>
               {stepQuery.trim() &&
               groupWeighLines(session.lines, stepQuery).length === 0 &&
-              !diluentMatches(t('weighing.diluent'), stepQuery) ? (
+              !diluentMatches(diluentTitle, stepQuery) ? (
                 <p className={styles.hint}>{t('weighing.noMaterialMatch')}</p>
               ) : null}
             </aside>

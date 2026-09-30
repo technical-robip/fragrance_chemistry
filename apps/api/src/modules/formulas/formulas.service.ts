@@ -73,6 +73,7 @@ export class FormulasService {
         description: body.description,
         batchTargetGrams: body.batchTargetGrams?.toString(),
         concentrationPct: body.concentrationPct?.toString(),
+        diluentLabel: body.diluentLabel,
         status,
         isLibraryAccord: body.isLibraryAccord ?? false,
       })
@@ -135,6 +136,7 @@ export class FormulasService {
     if (body.concentrationPct !== undefined) {
       patch.concentrationPct = body.concentrationPct.toString();
     }
+    if (body.diluentLabel !== undefined) patch.diluentLabel = body.diluentLabel;
     if (body.status !== undefined) patch.status = body.status;
 
     const [row] = await this.db

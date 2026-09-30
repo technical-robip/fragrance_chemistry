@@ -211,6 +211,15 @@
   outline: none;
 }
 
+.diluentPick {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.diluentCustom {
+  min-height: 2.2rem;
+}
+
 .juiceBar {
   display: flex;
   height: 7px;

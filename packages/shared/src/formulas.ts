@@ -19,6 +19,7 @@ export const createFormulaBodySchema = z.object({
   description: z.string().trim().max(4000).optional(),
   batchTargetGrams: z.coerce.number().min(0.001).max(1_000_000).optional(),
   concentrationPct: z.coerce.number().min(0.1).max(100).optional(),
+  diluentLabel: z.string().trim().max(80).nullable().optional(),
   status: z.enum(['draft', 'ready', 'archived']).optional(),
   isLibraryAccord: z.boolean().optional(),
   lines: z.array(formulaLineSchema).default([]),
@@ -29,6 +30,7 @@ export const updateFormulaBodySchema = z.object({
   description: z.string().trim().max(4000).nullable().optional(),
   batchTargetGrams: z.coerce.number().min(0.001).max(1_000_000).optional(),
   concentrationPct: z.coerce.number().min(0.1).max(100).optional(),
+  diluentLabel: z.string().trim().max(80).nullable().optional(),
   status: z.enum(['draft', 'ready', 'archived']).optional(),
 });
 

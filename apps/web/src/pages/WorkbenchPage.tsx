@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  diluentGrams,
   finishedJuiceGrams,
   ifraLineStatus,
   ifraUsageInFinishedPct,
@@ -56,6 +55,7 @@ import {
   shouldClearDirtyAfterSave,
 } from '@/lib/workbench-draft-sync';
 import { sortFormulaLines } from '@/lib/formula-line-sort';
+import { diluentEditorState, diluentStep, diluentStoredLabel } from '@/lib/diluent-step';
 import { useLineListPrefs } from '@/lib/line-list-prefs';
 import { fromDisplayPct, roundPct, toDisplayPct, type PctMode } from '@/lib/workbench-pct';
 import { groupWeighLines, isPoured } from '@/lib/weigh-session';
@@ -68,6 +68,7 @@ type FormulaDetail = {
   status: string;
   batchTargetGrams: string;
   concentrationPct: string;
+  diluentLabel?: string | null;
   description: string | null;
   lines: Array<{
     id?: string;
@@ -276,6 +277,9 @@ export function WorkbenchPage() {
   const [batchDraft, setBatchDraft] = useState('10');
   const [batchUnit, setBatchUnit] = useState<AmountUnit>('grams');
   const [concPct, setConcPct] = useState(20);
+  const [diluentPreset, setDiluentPreset] = useState<'alcohol' | 'oil'>('alcohol');
+  const [diluentCustom, setDiluentCustom] = useState('');
+  const diluentLabelRef = useRef<string | null>(null);
   const concPctRef = useRef(concPct);
   concPctRef.current = concPct;
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -366,6 +370,10 @@ export function WorkbenchPage() {
       setBatchG(grams);
       setBatchDraft(gramsToDisplay(grams, batchUnitRef.current));
       setConcPct(serverConc);
+      const editor = diluentEditorState(formula.diluentLabel);
+      setDiluentPreset(editor.preset);
+      setDiluentCustom(editor.custom);
+      diluentLabelRef.current = diluentStoredLabel(editor.preset, editor.custom);
       setSaveStatus('idle');
       setPyramidTier(null);
       setPyramidHover(null);
@@ -438,6 +446,7 @@ export function WorkbenchPage() {
         name: persistName,
         batchTargetGrams,
         concentrationPct,
+        diluentLabel: diluentLabelRef.current,
       });
       await api.put(`/formulas/${activeId}/lines`, {
         lines: lines.map((l, idx) => ({
@@ -845,8 +854,13 @@ export function WorkbenchPage() {
 
   const juiceClass = juiceClassFromConcentration(concPct);
   const juiceGrams = finishedJuiceGrams(batchG, concPct);
-  const alcoholGrams = diluentGrams(batchG, concPct);
-  const alcoholPct = Math.max(0, 100 - concPct);
+  const diluentView = diluentStep({
+    label: diluentStoredLabel(diluentPreset, diluentCustom),
+    concentrationPct: concPct,
+    batchGrams: batchG,
+    alcoholName: t('workbench.diluentAlcohol'),
+    oilName: t('workbench.diluentOil'),
+  });
   const oilInBottleG = BOTTLE_ML * JUICE_DENSITY_G_PER_ML * (concPct / 100);
   const concentrateCost = lines.reduce(
     (sum, line) => sum + (line.percent / 100) * batchG * (line.costPerGram || 0),
@@ -896,18 +910,26 @@ export function WorkbenchPage() {
                   })}
                 </span>
               ) : (
-                <span className={styles.evalHint}>{t('workbench.noEvaluations')}</span>
+                <span className={styles.evalHint}>
+                  {formulaHasPour ? t('workbench.noEvaluations') : t('workbench.notWeighedYet')}
+                </span>
               )}
             </div>
             <div className={styles.headerActions}>
               <Link
                 className="fc-btn fc-btn--ghost"
-                to={withLabQuery('/evaluation', {
-                  formula: formulaUrlKey(formula) ?? formulaId,
-                  evalId: lastEval?.id,
-                })}
+                to={
+                  formulaHasPour
+                    ? withLabQuery('/evaluation', {
+                        formula: formulaUrlKey(formula) ?? formulaId,
+                        evalId: lastEval?.id,
+                      })
+                    : withLabQuery('/weighing', {
+                        formula: formulaUrlKey(formula) ?? formulaId,
+                      })
+                }
               >
-                {t('dashboard.evaluate')}
+                {formulaHasPour ? t('dashboard.evaluate') : t('dashboard.weigh')}
               </Link>
               <button
                 type="button"
@@ -1047,12 +1069,58 @@ export function WorkbenchPage() {
                     </button>
                   ))}
                 </div>
+                <div className={styles.diluentPick}>
+                  <div
+                    className={styles.classChips}
+                    role="group"
+                    aria-label={t('workbench.diluent')}
+                  >
+                    {(
+                      [
+                        ['alcohol', t('workbench.diluentAlcohol')],
+                        ['oil', t('workbench.diluentOil')],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className={
+                          !diluentCustom.trim() && diluentPreset === id
+                            ? styles.classChipOn
+                            : styles.classChip
+                        }
+                        onClick={() => {
+                          setDiluentPreset(id);
+                          setDiluentCustom('');
+                          diluentLabelRef.current = diluentStoredLabel(id, '');
+                          scheduleSave();
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    className={`fc-input ${styles.diluentCustom}`}
+                    value={diluentCustom}
+                    placeholder={t('workbench.diluentCustom')}
+                    aria-label={t('workbench.diluentCustom')}
+                    maxLength={80}
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      setDiluentCustom(next);
+                      diluentLabelRef.current = diluentStoredLabel(diluentPreset, next);
+                      scheduleSave();
+                    }}
+                  />
+                </div>
                 <div
                   className={styles.juiceBar}
                   role="img"
                   aria-label={t('workbench.juiceSplit', {
                     oil: concPct.toFixed(0),
-                    alcohol: alcoholPct.toFixed(0),
+                    diluentPct: diluentView.percent.toFixed(0),
+                    diluent: diluentView.name,
                   })}
                 >
                   <span className={styles.juiceBarOil} style={{ width: `${concPct}%` }} />
@@ -1068,7 +1136,8 @@ export function WorkbenchPage() {
                   </p>
                   <p>
                     {t('workbench.diluentNeeded', {
-                      diluent: alcoholGrams.toFixed(1),
+                      grams: diluentView.grams.toFixed(1),
+                      name: diluentView.name,
                     })}
                   </p>
                   <p>

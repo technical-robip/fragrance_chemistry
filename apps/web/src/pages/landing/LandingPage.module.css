@@ -178,8 +178,11 @@
   z-index: 20;
   margin-left: var(--rail);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  column-gap: 1rem;
+  row-gap: 0.35rem;
+  container: masthead / inline-size;
   /* Inline padding only while the bound-edge rail offsets the bar; below
      60rem the page already supplies clamp(1rem, 4vw, 2.5rem) and stacking
      both would squeeze the action row on tablets/phones. */
@@ -201,7 +204,9 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
 }
 
 .brandName {
@@ -210,10 +215,14 @@
   font-weight: 600;
   letter-spacing: -0.02em;
   white-space: nowrap;
+  flex-shrink: 0;
   color: var(--fc-text);
 }
 
 .brandTag {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -223,18 +232,23 @@
 
 .mastheadNav {
   display: flex;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.15rem 0.25rem;
   margin-left: auto;
+  min-width: 0;
 }
 
 .mastheadLink {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   min-height: var(--fc-touch-min);
-  padding-inline: 0.6rem;
+  padding-inline: 0.45rem;
   color: var(--fc-text-muted);
   font-size: 0.8125rem;
   letter-spacing: 0.02em;
+  white-space: nowrap;
   border-bottom: 2px solid transparent;
 }
 
@@ -246,8 +260,18 @@
 .mastheadActions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 0.5rem;
   flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Long translations outgrow a 14-inch bar. Drop the tagline before links collide. */
+@container masthead (max-width: 76rem) {
+  .brandTag {
+    display: none;
+  }
 }
 
 .mastheadActions .action,

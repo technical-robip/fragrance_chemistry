@@ -28,6 +28,7 @@ export const formulas = labSchema.table('formulas', {
   concentrationPct: numeric('concentration_pct', { precision: 8, scale: 4 })
     .notNull()
     .default('20'),
+  diluentLabel: text('diluent_label'),
   status: text('status').notNull().default('draft'),
   isLibraryAccord: boolean('is_library_accord').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
