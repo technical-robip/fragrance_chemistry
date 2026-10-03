@@ -10,7 +10,8 @@ import { ChangePasswordBody, UpdateAccountBody } from '@fc/shared';
 import { DatabaseService } from '../../database/database.service';
 import { users } from '../../database/schema';
 import { AuthService } from '../auth/auth.service';
-import { JwtPayload } from '../auth/auth.types';
+import { activeOrg, JwtPayload } from '../auth/auth.types';
+import { OrganizationsService } from '../organizations/organizations.service';
 import { DashboardService } from '../dashboard/dashboard.service';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 
@@ -21,6 +22,7 @@ export class AccountService {
     private readonly auth: AuthService,
     private readonly entitlements: EntitlementsService,
     private readonly dashboard: DashboardService,
+    private readonly orgs: OrganizationsService,
   ) {}
 
   async get(user: JwtPayload) {
@@ -85,7 +87,7 @@ export class AccountService {
       .where(eq(users.id, user.sub))
       .returning();
     if (!updated) throw new NotFoundException('User not found');
-    return this.auth.toUserDto(updated);
+    return this.auth.toUserDto(updated, activeOrg(user));
   }
 
   async changePassword(user: JwtPayload, body: ChangePasswordBody) {
@@ -107,5 +109,40 @@ export class AccountService {
 
   resolveEntitlements(userId: string) {
     return this.entitlements.resolve(userId);
+  }
+
+  organization(user: JwtPayload) {
+    return this.orgs.current(user);
+  }
+
+  organizations(user: JwtPayload) {
+    return this.orgs.listFor(user);
+  }
+
+  renameOrganization(user: JwtPayload, name: string) {
+    return this.orgs.rename(user, name);
+  }
+
+  invite(user: JwtPayload) {
+    return this.orgs.createInvite(user);
+  }
+
+  revokeInvite(user: JwtPayload, inviteId: string) {
+    return this.orgs.revokeInvite(user, inviteId);
+  }
+
+  removeMember(user: JwtPayload, memberId: string) {
+    return this.orgs.removeMember(user, memberId);
+  }
+
+  async switchOrganization(user: JwtPayload, orgId: string) {
+    const [row] = await this.db.db.select().from(users).where(eq(users.id, user.sub)).limit(1);
+    if (!row) throw new NotFoundException('User not found');
+    return this.auth.sessionFor(row, orgId);
+  }
+
+  async acceptInvite(user: JwtPayload, token: string) {
+    const orgId = await this.orgs.acceptInvite(user.sub, token);
+    return this.switchOrganization(user, orgId);
   }
 }

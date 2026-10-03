@@ -19,11 +19,26 @@ import { LiveWeighingPage } from '@/pages/LiveWeighingPage';
 import { MaterialDetailPage } from '@/pages/MaterialDetailPage';
 import { SuppliersPage } from '@/pages/SuppliersPage';
 import { WorkbenchPage } from '@/pages/WorkbenchPage';
+import { OpenLibraryPage } from '@/pages/OpenLibraryPage';
+import { OpenFormulaPage } from '@/pages/OpenFormulaPage';
+import { JoinLabPage } from '@/pages/JoinLabPage';
 
 export const router = createBrowserRouter([
   {
     path: '/auth',
     element: <AuthPage />,
+  },
+  {
+    path: '/open',
+    element: <OpenLibraryPage />,
+  },
+  {
+    path: '/open/:token',
+    element: <OpenFormulaPage />,
+  },
+  {
+    path: '/join/:token',
+    element: <JoinLabPage />,
   },
   {
     path: '/',

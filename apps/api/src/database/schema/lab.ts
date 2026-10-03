@@ -11,16 +11,20 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import type { NotificationPayload } from '@fc/shared';
+import { bytea } from './bytea';
 import { materials } from './catalog';
 
 export const labSchema = pgSchema('lab');
 
 export const formulas = labSchema.table('formulas', {
   id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull(),
+  /** User who created the formula. Access is org_id, not this column. */
   ownerId: uuid('owner_id').notNull(),
-  name: text('name').notNull(),
-  slug: text('slug'),
-  description: text('description'),
+  headerSecret: bytea('header_secret').notNull(),
+  headerNonce: bytea('header_nonce').notNull(),
+  slugHmac: bytea('slug_hmac').notNull(),
+  keyVersion: integer('key_version').notNull().default(1),
   version: integer('version').notNull().default(1),
   batchTargetGrams: numeric('batch_target_grams', { precision: 14, scale: 4 })
     .notNull()
@@ -28,7 +32,6 @@ export const formulas = labSchema.table('formulas', {
   concentrationPct: numeric('concentration_pct', { precision: 8, scale: 4 })
     .notNull()
     .default('20'),
-  diluentLabel: text('diluent_label'),
   status: text('status').notNull().default('draft'),
   isLibraryAccord: boolean('is_library_accord').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -40,9 +43,12 @@ export const formulaVersions = labSchema.table('formula_versions', {
   formulaId: uuid('formula_id')
     .notNull()
     .references(() => formulas.id, { onDelete: 'cascade' }),
+  orgId: uuid('org_id').notNull(),
   ownerId: uuid('owner_id').notNull(),
   version: integer('version').notNull(),
-  snapshot: jsonb('snapshot').notNull(),
+  snapshotSecret: bytea('snapshot_secret').notNull(),
+  snapshotNonce: bytea('snapshot_nonce').notNull(),
+  keyVersion: integer('key_version').notNull().default(1),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -51,24 +57,32 @@ export const formulaLines = labSchema.table('formula_lines', {
   formulaId: uuid('formula_id')
     .notNull()
     .references(() => formulas.id, { onDelete: 'cascade' }),
+  orgId: uuid('org_id').notNull(),
   ownerId: uuid('owner_id').notNull(),
-  materialId: uuid('material_id')
+  secret: bytea('secret').notNull(),
+  nonce: bytea('nonce').notNull(),
+  keyVersion: integer('key_version').notNull().default(1),
+});
+
+export const formulaPublications = labSchema.table('formula_publications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  formulaId: uuid('formula_id')
     .notNull()
-    .references(() => materials.id),
-  percent: numeric('percent', { precision: 8, scale: 4 }).notNull(),
-  targetGrams: numeric('target_grams', { precision: 14, scale: 6 }),
-  weighedGrams: numeric('weighed_grams', { precision: 14, scale: 6 }),
-  stockConcentrationPct: numeric('stock_concentration_pct', { precision: 8, scale: 4 }).default(
-    '100',
-  ),
-  solvent: text('solvent'),
-  pyramidNote: text('pyramid_note'),
-  childFormulaId: uuid('child_formula_id').references(() => formulas.id, { onDelete: 'set null' }),
-  sortOrder: integer('sort_order').notNull().default(0),
+    .references(() => formulas.id, { onDelete: 'cascade' }),
+  orgId: uuid('org_id').notNull(),
+  token: text('token').notNull().unique(),
+  status: text('status').notNull().default('published'),
+  snapshot: jsonb('snapshot').$type<Record<string, unknown> | null>(),
+  publishedBy: uuid('published_by'),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+  withdrawnAt: timestamp('withdrawn_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const weighingSessions = labSchema.table('weighing_sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull(),
   ownerId: uuid('owner_id').notNull(),
   formulaId: uuid('formula_id')
     .notNull()
@@ -83,6 +97,7 @@ export const inventoryItems = labSchema.table(
   'inventory_items',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id').notNull(),
     ownerId: uuid('owner_id').notNull(),
     materialId: uuid('material_id')
       .notNull()
@@ -95,8 +110,8 @@ export const inventoryItems = labSchema.table(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
-    ownerMaterialUidx: uniqueIndex('inventory_items_owner_material_uidx').on(
-      table.ownerId,
+    orgMaterialUidx: uniqueIndex('inventory_items_org_material_uidx').on(
+      table.orgId,
       table.materialId,
     ),
   }),
@@ -104,6 +119,7 @@ export const inventoryItems = labSchema.table(
 
 export const inventoryEvents = labSchema.table('inventory_events', {
   id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull(),
   ownerId: uuid('owner_id').notNull(),
   itemId: uuid('item_id').notNull(),
   actorId: uuid('actor_id').notNull(),
@@ -115,6 +131,7 @@ export const inventoryEvents = labSchema.table('inventory_events', {
 
 export const evaluations = labSchema.table('evaluations', {
   id: uuid('id').primaryKey().defaultRandom(),
+  orgId: uuid('org_id').notNull(),
   ownerId: uuid('owner_id').notNull(),
   formulaId: uuid('formula_id')
     .notNull()
@@ -144,6 +161,7 @@ export const macerationClocks = labSchema.table(
   'maceration_clocks',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    orgId: uuid('org_id').notNull(),
     ownerId: uuid('owner_id').notNull(),
     formulaId: uuid('formula_id')
       .notNull()
@@ -152,8 +170,8 @@ export const macerationClocks = labSchema.table(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
-    ownerFormula: uniqueIndex('maceration_clocks_owner_formula_unique').on(
-      table.ownerId,
+    orgFormula: uniqueIndex('maceration_clocks_org_formula_unique').on(
+      table.orgId,
       table.formulaId,
     ),
   }),

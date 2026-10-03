@@ -5,6 +5,18 @@ import { EvaluationsService } from './evaluations.service';
 const uuid = '11111111-1111-1111-1111-111111111111';
 const user = { sub: 'u1', email: 'a@b.co' };
 
+function cipherMock() {
+  return {
+    keyFor: vi.fn(async () => ({ dek: Buffer.alloc(32), version: 1 })),
+    openHeader: vi.fn((_dek: Buffer, row: { name?: string }) => ({
+      name: row.name ?? 'Formula',
+      slug: 'formula',
+      description: null,
+      diluentLabel: null,
+    })),
+  };
+}
+
 function redisMock() {
   return {
     dashboardBriefingKey: vi.fn((owner: string, id: string) => `dashboard:briefing:${owner}:${id}`),
@@ -50,6 +62,7 @@ describe('EvaluationsService', () => {
       { client: () => client } as any,
       entitlements as any,
       redis as any,
+      cipherMock() as any,
     );
     const row = await svc.create(user, {
       formulaId: uuid,
@@ -62,7 +75,7 @@ describe('EvaluationsService', () => {
     expect(row.rating).toBe(4);
     expect(client.insert).toHaveBeenCalled();
     expect(client.update).not.toHaveBeenCalled();
-    expect(entitlements.assertQuota).toHaveBeenCalledWith('u1', 'maxEvaluations');
+    expect(entitlements.assertQuota).toHaveBeenCalledWith('u1', 'maxEvaluations', 'u1');
     expect(redis.cacheDel).toHaveBeenCalledWith(`dashboard:briefing:u1:${uuid}`);
   });
 
@@ -77,6 +90,7 @@ describe('EvaluationsService', () => {
         assertQuota: vi.fn(async () => undefined),
       } as any,
       redis as any,
+      cipherMock() as any,
     );
     await expect(svc.create(user, { formulaId: uuid, rating: 3 })).rejects.toBeInstanceOf(
       NotFoundException,
@@ -122,6 +136,7 @@ describe('EvaluationsService', () => {
       { client: () => client } as any,
       entitlements as any,
       redis as any,
+      cipherMock() as any,
     );
     const row = await svc.update(user, 'e1', {
       t30mNotes: 'drier',
@@ -171,6 +186,7 @@ describe('EvaluationsService', () => {
       { client: () => client } as any,
       entitlements as any,
       redis as any,
+      cipherMock() as any,
     );
     const row = await svc.create(user, {
       formulaId: uuid,
@@ -196,6 +212,7 @@ describe('EvaluationsService', () => {
       { client: () => client } as any,
       entitlements as any,
       redis as any,
+      cipherMock() as any,
     );
     await expect(svc.update(user, 'missing', { t30mNotes: 'nope' })).rejects.toBeInstanceOf(
       NotFoundException,
@@ -220,9 +237,10 @@ describe('EvaluationsService', () => {
       { client: () => client } as any,
       { assertQuota: vi.fn(async () => undefined) } as any,
       redisMock() as any,
+      cipherMock() as any,
       notifications as any,
     );
     await svc.create(user, { formulaId: uuid, rating: 4, macerationDay: 1 });
-    expect(notifications.onEvaluationSaved).toHaveBeenCalledWith('u1', uuid, 1);
+    expect(notifications.onEvaluationSaved).toHaveBeenCalledWith('u1', uuid, 1, 'u1');
   });
 });

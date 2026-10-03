@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { getEnv } from '../../config/env';
 import { EntitlementsModule } from '../entitlements/entitlements.module';
+import { OrganizationsModule } from '../organizations/organizations.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { FeatureGuard } from './feature.guard';
@@ -16,6 +17,7 @@ import { RolesGuard } from './roles.guard';
       secret: getEnv().JWT_SECRET,
     }),
     EntitlementsModule,
+    OrganizationsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RolesGuard, FeatureGuard],

@@ -2,8 +2,21 @@ import { config } from 'dotenv';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, sql, and, inArray } from 'drizzle-orm';
 import { existsSync, readFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import pg from 'pg';
+import {
+  decodeMasterKey,
+  encryptJson,
+  generateDek,
+  headerAad,
+  lineAad,
+  slugHmac,
+  unwrapDek,
+  wrapDek,
+  type FormulaHeaderSecret,
+  type FormulaLineSecret,
+} from '../crypto/formula-crypto';
 import * as argon2 from 'argon2';
 import {
   uniqueSlug,
@@ -30,7 +43,13 @@ import {
 import { CatalogService } from '../modules/catalog/catalog.service';
 import { loadSupplierDirectory } from '../lib/supplier-directory';
 
-config({ path: path.resolve(process.cwd(), '../../.env') });
+for (const candidate of [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '../.env'),
+  path.resolve(process.cwd(), '../../.env'),
+]) {
+  config({ path: candidate });
+}
 
 const url = process.env.DATABASE_URL_MIGRATOR ?? process.env.DATABASE_URL;
 if (!url) {
@@ -89,6 +108,11 @@ async function main() {
       })
       .returning({ id: users.id });
     if (row) userIds.push(row.id);
+  }
+
+  for (const u of demoUsers) {
+    const [existing] = await db.select().from(users).where(eq(users.email, u.email)).limit(1);
+    if (existing) await ensurePersonalOrg(pool, existing.id, existing.displayName);
   }
 
   await ensureDemoSubscriptions(db);
@@ -373,18 +397,21 @@ async function main() {
   console.log(`Encyclopedia: upserted ${perfumeUpserts} perfume profiles`);
 
   if (userIds[0]) {
-    const existingFormula = await db.select().from(formulas).limit(1);
+    const existingFormula = await db.select({ id: formulas.id }).from(formulas).limit(1);
     if (!existingFormula[0]) {
-      await db.insert(formulas).values({
+      await insertSealedFormula(pool, {
+        orgId: userIds[0],
         ownerId: userIds[0],
         name: 'Fougère Sketch v1',
+        slug: 'fougere-sketch-v1',
         description: 'Demo formula for workbench',
         batchTargetGrams: '10',
         concentrationPct: '20',
         status: 'draft',
+        lines: [],
       });
     }
-    await seedLibraryAccords(db, userIds[0]);
+    await seedLibraryAccords(pool, db, userIds[0]);
   }
 
   await db.execute(sql`
@@ -406,46 +433,47 @@ type LibraryAccordSeed = {
   lines: Array<{ materialName: string; percent: number; pyramidNote?: string }>;
 };
 
-async function seedLibraryAccords(db: ReturnType<typeof drizzle>, ownerId: string) {
+async function seedLibraryAccords(pool: pg.Pool, db: ReturnType<typeof drizzle>, ownerId: string) {
   const file = path.resolve(process.cwd(), 'src/database/data/library-accords.json');
   const accords = JSON.parse(readFileSync(file, 'utf8')) as LibraryAccordSeed[];
   let upserts = 0;
+  const dek = await readOrgDek(pool, ownerId);
   for (const accord of accords) {
+    const hmac = slugHmac(dek, accord.slug);
     const [existing] = await db
-      .select()
+      .select({ id: formulas.id })
       .from(formulas)
-      .where(and(eq(formulas.ownerId, ownerId), eq(formulas.slug, accord.slug)))
+      .where(and(eq(formulas.orgId, ownerId), eq(formulas.slugHmac, hmac)))
       .limit(1);
     let formulaId = existing?.id;
     if (!formulaId) {
-      const [row] = await db
-        .insert(formulas)
-        .values({
-          ownerId,
-          name: accord.name,
-          slug: accord.slug,
-          description: accord.description,
-          batchTargetGrams: '10',
-          concentrationPct: '100',
-          status: 'ready',
-          isLibraryAccord: true,
-        })
-        .returning({ id: formulas.id });
-      formulaId = row?.id;
+      formulaId = await insertSealedFormula(pool, {
+        orgId: ownerId,
+        ownerId,
+        name: accord.name,
+        slug: accord.slug,
+        description: accord.description,
+        batchTargetGrams: '10',
+        concentrationPct: '100',
+        status: 'ready',
+        isLibraryAccord: true,
+        lines: [],
+      });
     } else {
+      await resealHeader(pool, formulaId, ownerId, {
+        name: accord.name,
+        slug: accord.slug,
+        description: accord.description,
+        diluentLabel: null,
+      });
       await db
         .update(formulas)
-        .set({
-          name: accord.name,
-          description: accord.description,
-          isLibraryAccord: true,
-          status: 'ready',
-        })
+        .set({ isLibraryAccord: true, status: 'ready' })
         .where(eq(formulas.id, formulaId));
     }
     if (!formulaId) continue;
     const existingLines = await db
-      .select()
+      .select({ id: formulaLines.id })
       .from(formulaLines)
       .where(eq(formulaLines.formulaId, formulaId));
     if (existingLines.length === 0) {
@@ -460,12 +488,13 @@ async function seedLibraryAccords(db: ReturnType<typeof drizzle>, ownerId: strin
           console.warn(`Library accord ${accord.slug}: missing material ${line.materialName}`);
           continue;
         }
-        await db.insert(formulaLines).values({
+        await insertSealedLine(pool, {
           formulaId,
+          orgId: ownerId,
           ownerId,
           materialId: mat.id,
-          percent: String(line.percent),
-          pyramidNote: line.pyramidNote,
+          percent: line.percent,
+          pyramidNote: line.pyramidNote ?? null,
           sortOrder,
         });
         sortOrder += 1;
@@ -570,6 +599,126 @@ async function ensureDemoSubscriptions(db: ReturnType<typeof drizzle>) {
         .where(eq(users.id, user.id));
     }
   }
+}
+
+async function ensurePersonalOrg(pool: pg.Pool, userId: string, displayName: string) {
+  const master = decodeMasterKey(process.env.FORMULA_MASTER_KEY ?? '');
+  const wrapped = wrapDek(generateDek(), master, userId);
+  await pool.query(
+    `SELECT core.provision_personal_organization($1::uuid, $2, decode($3, 'hex'), decode($4, 'hex'))`,
+    [userId, `${displayName}'s lab`, wrapped.secret.toString('hex'), wrapped.nonce.toString('hex')],
+  );
+}
+
+async function readOrgDek(pool: pg.Pool, orgId: string) {
+  const master = decodeMasterKey(process.env.FORMULA_MASTER_KEY ?? '');
+  const found = await pool.query<{ wrapped_dek: Buffer; nonce: Buffer }>(
+    `SELECT wrapped_dek, nonce FROM core.organization_keys WHERE org_id = $1`,
+    [orgId],
+  );
+  const row = found.rows[0];
+  if (!row) throw new Error(`Missing laboratory key for ${orgId}`);
+  return unwrapDek(row.wrapped_dek, row.nonce, master, orgId);
+}
+
+async function insertSealedFormula(
+  pool: pg.Pool,
+  input: {
+    orgId: string;
+    ownerId: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    batchTargetGrams: string;
+    concentrationPct: string;
+    status: string;
+    isLibraryAccord?: boolean;
+    lines: FormulaLineSecret[];
+  },
+) {
+  const dek = await readOrgDek(pool, input.orgId);
+  const id = randomUUID();
+  const header: FormulaHeaderSecret = {
+    name: input.name,
+    slug: input.slug,
+    description: input.description,
+    diluentLabel: null,
+  };
+  const sealed = encryptJson(header, dek, headerAad(input.orgId, id));
+  await pool.query(
+    `INSERT INTO lab.formulas (
+       id, org_id, owner_id, header_secret, header_nonce, slug_hmac, key_version,
+       batch_target_grams, concentration_pct, status, is_library_accord
+     ) VALUES ($1,$2,$3,$4,$5,$6,1,$7,$8,$9,$10)`,
+    [
+      id,
+      input.orgId,
+      input.ownerId,
+      sealed.secret,
+      sealed.nonce,
+      slugHmac(dek, input.slug),
+      input.batchTargetGrams,
+      input.concentrationPct,
+      input.status,
+      input.isLibraryAccord ?? false,
+    ],
+  );
+  for (const line of input.lines) {
+    await insertSealedLine(pool, {
+      formulaId: id,
+      orgId: input.orgId,
+      ownerId: input.ownerId,
+      ...line,
+    });
+  }
+  return id;
+}
+
+async function resealHeader(
+  pool: pg.Pool,
+  formulaId: string,
+  orgId: string,
+  header: FormulaHeaderSecret,
+) {
+  const dek = await readOrgDek(pool, orgId);
+  const sealed = encryptJson(header, dek, headerAad(orgId, formulaId));
+  await pool.query(
+    `UPDATE lab.formulas SET header_secret = $2, header_nonce = $3, slug_hmac = $4, updated_at = now() WHERE id = $1`,
+    [formulaId, sealed.secret, sealed.nonce, slugHmac(dek, header.slug)],
+  );
+}
+
+async function insertSealedLine(
+  pool: pg.Pool,
+  input: {
+    formulaId: string;
+    orgId: string;
+    ownerId: string;
+    materialId: string;
+    percent: number;
+    pyramidNote: string | null;
+    sortOrder: number;
+  },
+) {
+  const dek = await readOrgDek(pool, input.orgId);
+  const id = randomUUID();
+  const payload: FormulaLineSecret = {
+    materialId: input.materialId,
+    percent: input.percent,
+    targetGrams: null,
+    weighedGrams: null,
+    stockConcentrationPct: null,
+    solvent: null,
+    pyramidNote: input.pyramidNote,
+    childFormulaId: null,
+    sortOrder: input.sortOrder,
+  };
+  const sealed = encryptJson(payload, dek, lineAad(input.orgId, id));
+  await pool.query(
+    `INSERT INTO lab.formula_lines (id, formula_id, org_id, owner_id, secret, nonce, key_version)
+     VALUES ($1,$2,$3,$4,$5,$6,1)`,
+    [id, input.formulaId, input.orgId, input.ownerId, sealed.secret, sealed.nonce],
+  );
 }
 
 main().catch((err) => {

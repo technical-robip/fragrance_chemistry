@@ -54,7 +54,7 @@ export class EntitlementsService {
       .where(eq(users.id, userId));
   }
 
-  async resolve(userId: string): Promise<EntitlementsDto> {
+  async resolve(userId: string, orgId = userId): Promise<EntitlementsDto> {
     const [user] = await this.db.db.select().from(users).where(eq(users.id, userId)).limit(1);
     const active = await this.loadActiveSubscription(userId);
     const planRow = active ? active.plan : await this.planBySlug(user?.plan ?? 'free');
@@ -88,7 +88,7 @@ export class EntitlementsService {
       subscription: active ? this.toSubscriptionSummary(active.subscription) : null,
       features,
       quotas,
-      usage: await this.usage(userId),
+      usage: await this.usage(orgId, userId),
     };
   }
 
@@ -99,8 +99,8 @@ export class EntitlementsService {
     }
   }
 
-  async assertQuota(userId: string, quota: QuotaKey) {
-    const entitlements = await this.resolve(userId);
+  async assertQuota(userId: string, quota: QuotaKey, orgId = userId) {
+    const entitlements = await this.resolve(userId, orgId);
     const limit = entitlements.quotas[quota];
     if (limit == null) return;
     const used = entitlements.usage[quota] ?? 0;
@@ -119,26 +119,26 @@ export class EntitlementsService {
     return featureMapFromList(features);
   }
 
-  private async usage(userId: string) {
+  private async usage(orgId: string, userId: string) {
     const usage = emptyQuotaUsage();
     const db = this.db.client();
 
     const [formulaRow] = await db
       .select({ value: count() })
       .from(formulas)
-      .where(eq(formulas.ownerId, userId));
+      .where(eq(formulas.orgId, orgId));
     const [inventoryRow] = await db
       .select({ value: count() })
       .from(inventoryItems)
-      .where(eq(inventoryItems.ownerId, userId));
+      .where(eq(inventoryItems.orgId, orgId));
     const [evalRow] = await db
       .select({ value: count() })
       .from(evaluations)
-      .where(eq(evaluations.ownerId, userId));
+      .where(eq(evaluations.orgId, orgId));
     const [weighRow] = await db
       .select({ value: count() })
       .from(weighingSessions)
-      .where(eq(weighingSessions.ownerId, userId));
+      .where(eq(weighingSessions.orgId, orgId));
 
     usage.maxFormulas = Number(formulaRow?.value ?? 0);
     usage.maxInventoryItems = Number(inventoryRow?.value ?? 0);

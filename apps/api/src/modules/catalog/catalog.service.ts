@@ -114,7 +114,9 @@ export class CatalogService {
         location: inventoryItems.location,
       })
       .from(inventoryItems)
-      .where(and(eq(inventoryItems.ownerId, user.sub), eq(inventoryItems.materialId, row.id)))
+      .where(
+        and(eq(inventoryItems.orgId, user.org || user.sub), eq(inventoryItems.materialId, row.id)),
+      )
       .limit(1);
 
     return {

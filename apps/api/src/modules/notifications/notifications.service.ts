@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import {
   dueEvaluationCheckpoints,
   isDayOne,
@@ -14,6 +14,7 @@ import {
 } from '@fc/shared';
 import { and, eq, sql } from 'drizzle-orm';
 import { ClsService } from 'nestjs-cls';
+import { FormulaCipherService } from '../../crypto/formula-cipher.service';
 import { DatabaseService } from '../../database/database.service';
 import {
   evaluations,
@@ -52,23 +53,25 @@ export class NotificationsService {
     private readonly inApp: InAppChannel,
     private readonly email: ResendEmailChannel,
     private readonly push: PushChannel,
+    @Optional() private readonly cipher?: FormulaCipherService,
   ) {}
 
   async onEvaluationSaved(
     ownerId: string,
     formulaId: string,
     macerationDay: number | null | undefined,
+    orgId = ownerId,
   ) {
-    if (isDayOne(macerationDay)) await this.ensureClock(ownerId, formulaId);
+    if (isDayOne(macerationDay)) await this.ensureClock(ownerId, formulaId, orgId);
     await this.syncUser(ownerId);
   }
 
   async syncUser(ownerId: string, now = new Date()): Promise<NotificationInbox> {
     const prefs = await this.getPreferences(ownerId);
     const db = this.db.client();
-    const clocks = (
-      await db.select().from(macerationClocks).where(eq(macerationClocks.ownerId, ownerId))
-    ).filter((row) => row.ownerId === ownerId);
+    const clocks = (await db.select().from(macerationClocks)).filter(
+      (row) => row.ownerId === ownerId || row.orgId != null,
+    );
     const muteRows = (
       await db
         .select()
@@ -83,10 +86,11 @@ export class NotificationsService {
     const existing = (
       await db.select().from(notifications).where(eq(notifications.ownerId, ownerId))
     ).filter((row) => row.ownerId === ownerId);
-    const formulaRows = (
-      await db.select().from(formulas).where(eq(formulas.ownerId, ownerId))
-    ).filter((row) => row.ownerId === ownerId && formulaIds.has(row.id));
-    const names = new Map(formulaRows.map((row) => [row.id, row.name]));
+    const formulaRows = (await db.select().from(formulas)).filter((row) => formulaIds.has(row.id));
+    const names = new Map<string, string>();
+    for (const row of formulaRows) {
+      names.set(row.id, await this.formulaLabel(row));
+    }
 
     for (const clock of clocks) {
       const actions = dueEvaluationCheckpoints({
@@ -268,13 +272,13 @@ export class NotificationsService {
     return { users: owners.length };
   }
 
-  private async ensureClock(ownerId: string, formulaId: string) {
+  private async ensureClock(ownerId: string, formulaId: string, orgId = ownerId) {
     await this.db
       .client()
       .insert(macerationClocks)
-      .values({ ownerId, formulaId, startedAt: new Date() })
+      .values({ ownerId, orgId, formulaId, startedAt: new Date() })
       .onConflictDoNothing({
-        target: [macerationClocks.ownerId, macerationClocks.formulaId],
+        target: [macerationClocks.orgId, macerationClocks.formulaId],
       });
   }
 
@@ -404,11 +408,33 @@ export class NotificationsService {
       .client()
       .select()
       .from(formulas)
-      .where(and(eq(formulas.id, formulaId), eq(formulas.ownerId, ownerId)))
+      .where(eq(formulas.id, formulaId))
       .limit(1);
-    const formula = rows.find((row) => row.id === formulaId && row.ownerId === ownerId);
+    const formula = rows.find((row) => row.id === formulaId);
     if (!formula) throw new NotFoundException('Formula not found');
+    if (formula.orgId == null && formula.ownerId !== ownerId) {
+      throw new NotFoundException('Formula not found');
+    }
     return formula;
+  }
+
+  private async formulaLabel(row: {
+    id: string;
+    name?: string;
+    orgId?: string;
+    headerSecret?: Buffer;
+    headerNonce?: Buffer;
+  }) {
+    if (this.cipher && row.headerSecret && row.headerNonce && row.orgId) {
+      const key = await this.cipher.keyFor(row.orgId);
+      return this.cipher.openHeader(key.dek, {
+        id: row.id,
+        orgId: row.orgId,
+        headerSecret: row.headerSecret,
+        headerNonce: row.headerNonce,
+      }).name;
+    }
+    return row.name ?? row.id;
   }
 
   private async clockOwnerIds(): Promise<string[]> {

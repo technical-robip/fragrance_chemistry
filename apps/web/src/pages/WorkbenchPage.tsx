@@ -22,6 +22,7 @@ import {
   type FormulaSummary,
 } from '@/components/FormulaSelector';
 import { FormulaExcelExportDialog } from '@/components/FormulaExcelExportDialog';
+import { OpenShareDialog } from '@/components/OpenShareDialog';
 import { MaterialPicker, type PickedMaterial } from '@/components/MaterialPicker';
 import { MaterialAvatar } from '@/components/MaterialAvatar';
 import { DecimalCell } from '@/components/DecimalCell';
@@ -288,6 +289,7 @@ export function WorkbenchPage() {
   const [copyFlash, setCopyFlash] = useState(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [excelExportOpen, setExcelExportOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [nameFlash, setNameFlash] = useState(false);
   const [normalizeFlash, setNormalizeFlash] = useState(false);
   const [normalizeTipOpen, setNormalizeTipOpen] = useState(false);
@@ -1233,6 +1235,17 @@ export function WorkbenchPage() {
               </button>
               {moreOpen ? (
                 <div className={styles.moreMenu} role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMoreOpen(false);
+                      setShareOpen(true);
+                    }}
+                  >
+                    <MenuIcon kind="copy" />
+                    <span>{t('openFormula.shareOpen')}</span>
+                  </button>
                   <button type="button" role="menuitem" onClick={() => void forkFormula()}>
                     <MenuIcon kind="fork" />
                     <span>{t('workbench.fork')}</span>
@@ -1641,6 +1654,13 @@ export function WorkbenchPage() {
         currentFormulaName={name || formula?.name}
         onExported={showNotice}
       />
+      {shareOpen && formulaId ? (
+        <OpenShareDialog
+          formulaId={formula.id ?? formulaId}
+          formulaName={name || formula?.name || ''}
+          onClose={() => setShareOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -25,11 +25,15 @@ import { AccountModule } from './modules/account/account.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { WeighingModule } from './modules/weighing/weighing.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CryptoModule } from './crypto/crypto.module';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { OpenFormulasModule } from './modules/open-formulas/open-formulas.module';
 
 @Module({
   imports: [
     ClsModule.forRoot({ global: true, middleware: { mount: true } }),
     DatabaseModule,
+    CryptoModule,
     RedisModule,
     EntitlementsModule,
     AuthModule,
@@ -48,6 +52,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     JobsModule,
     BillingModule,
     AccountModule,
+    OrganizationsModule,
+    OpenFormulasModule,
     AdminModule,
   ],
   providers: [

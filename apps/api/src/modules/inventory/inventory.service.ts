@@ -3,7 +3,7 @@ import { AdjustInventoryBody, PatchInventoryBody, UpsertInventoryBody } from '@f
 import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
 import { inventoryEvents, inventoryItems, materials } from '../../database/schema';
-import { JwtPayload } from '../auth/auth.types';
+import { activeOrg, JwtPayload } from '../auth/auth.types';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 
 const inventorySelect = {
@@ -56,7 +56,7 @@ export class InventoryService {
       .select(inventorySelect)
       .from(inventoryItems)
       .innerJoin(materials, eq(inventoryItems.materialId, materials.id))
-      .where(eq(inventoryItems.ownerId, user.sub));
+      .where(eq(inventoryItems.orgId, activeOrg(user)));
   }
 
   async upsert(user: JwtPayload, body: UpsertInventoryBody) {
@@ -65,7 +65,10 @@ export class InventoryService {
       .select()
       .from(inventoryItems)
       .where(
-        and(eq(inventoryItems.ownerId, user.sub), eq(inventoryItems.materialId, body.materialId)),
+        and(
+          eq(inventoryItems.orgId, activeOrg(user)),
+          eq(inventoryItems.materialId, body.materialId),
+        ),
       )
       .limit(1);
 
@@ -90,11 +93,12 @@ export class InventoryService {
       return this.getById(user, row!.id);
     }
 
-    await this.entitlements.assertQuota(user.sub, 'maxInventoryItems');
+    await this.entitlements.assertQuota(user.sub, 'maxInventoryItems', activeOrg(user));
 
     const [row] = await db
       .insert(inventoryItems)
       .values({
+        orgId: activeOrg(user),
         ownerId: user.sub,
         materialId: body.materialId,
         quantityGrams: body.quantityGrams.toString(),
@@ -113,7 +117,7 @@ export class InventoryService {
       .client()
       .select()
       .from(inventoryItems)
-      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
+      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.orgId, activeOrg(user))))
       .limit(1);
     if (!existing) throw new NotFoundException('Inventory item not found');
 
@@ -143,7 +147,7 @@ export class InventoryService {
       .client()
       .select()
       .from(inventoryItems)
-      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
+      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.orgId, activeOrg(user))))
       .limit(1);
     if (!existing) throw new NotFoundException('Inventory item not found');
 
@@ -165,7 +169,7 @@ export class InventoryService {
     const [row] = await this.db
       .client()
       .delete(inventoryItems)
-      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
+      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.orgId, activeOrg(user))))
       .returning();
     if (!row) throw new NotFoundException('Inventory item not found');
     await this.record(user, row.id, 'delete', snap(row), null);
@@ -177,7 +181,7 @@ export class InventoryService {
     const [owned] = await db
       .select({ id: inventoryItems.id })
       .from(inventoryItems)
-      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
+      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.orgId, activeOrg(user))))
       .limit(1);
     if (!owned) throw new NotFoundException('Inventory item not found');
     return db
@@ -189,7 +193,7 @@ export class InventoryService {
         createdAt: inventoryEvents.createdAt,
       })
       .from(inventoryEvents)
-      .where(and(eq(inventoryEvents.itemId, id), eq(inventoryEvents.ownerId, user.sub)))
+      .where(and(eq(inventoryEvents.itemId, id), eq(inventoryEvents.orgId, activeOrg(user))))
       .orderBy(desc(inventoryEvents.createdAt))
       .limit(20);
   }
@@ -201,14 +205,18 @@ export class InventoryService {
     before: ReturnType<typeof snap> | null,
     after: ReturnType<typeof snap> | null,
   ) {
-    await this.db.client().insert(inventoryEvents).values({
-      ownerId: user.sub,
-      itemId,
-      actorId: user.sub,
-      action,
-      before,
-      after,
-    });
+    await this.db
+      .client()
+      .insert(inventoryEvents)
+      .values({
+        orgId: activeOrg(user),
+        ownerId: user.sub,
+        itemId,
+        actorId: user.sub,
+        action,
+        before,
+        after,
+      });
   }
 
   private async getById(user: JwtPayload, id: string) {
@@ -217,7 +225,7 @@ export class InventoryService {
       .select(inventorySelect)
       .from(inventoryItems)
       .innerJoin(materials, eq(inventoryItems.materialId, materials.id))
-      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.ownerId, user.sub)))
+      .where(and(eq(inventoryItems.id, id), eq(inventoryItems.orgId, activeOrg(user))))
       .limit(1);
     if (!row) throw new NotFoundException('Inventory item not found');
     return row;

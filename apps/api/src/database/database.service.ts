@@ -26,10 +26,17 @@ export class DatabaseService implements OnModuleDestroy {
     return tx ?? this.db;
   }
 
-  async runWithTenant<T>(userId: string | undefined, fn: () => Promise<T>): Promise<T> {
+  async runWithTenant<T>(
+    userId: string | undefined,
+    fn: () => Promise<T>,
+    orgId?: string,
+  ): Promise<T> {
     return this.db.transaction(async (tx) => {
       if (userId) {
         await tx.execute(sql`SELECT set_config('app.user_id', ${userId}, true)`);
+      }
+      if (orgId) {
+        await tx.execute(sql`SELECT set_config('app.org_id', ${orgId}, true)`);
       }
       this.cls.set(DB_TX, tx);
       try {

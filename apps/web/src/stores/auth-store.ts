@@ -21,6 +21,11 @@ export type AuthUser = {
   defaultIfraCategory?: number;
   createdAt?: string;
   entitlements?: EntitlementsDto;
+  organization?: {
+    id: string;
+    name: string;
+    role: 'owner' | 'member';
+  };
 };
 
 type AuthState = {
@@ -33,6 +38,8 @@ type AuthState = {
   updateAccount: (body: Record<string, unknown>) => Promise<AuthUser>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   logoutAll: () => Promise<void>;
+  switchOrganization: (orgId: string) => Promise<void>;
+  acceptInvite: (token: string) => Promise<void>;
 };
 
 function applyUserPreferences(user: AuthUser) {
@@ -140,5 +147,27 @@ export const useAuthStore = create<AuthState>((set) => ({
     clearTokens();
     applyFamilyColors(null);
     set({ user: null, hydrated: true });
+  },
+
+  async switchOrganization(orgId) {
+    const data = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+      user: AuthUser;
+    }>('/account/organization/switch', { orgId });
+    setTokens(data.accessToken, data.refreshToken);
+    applyUserPreferences(data.user);
+    set({ user: data.user });
+  },
+
+  async acceptInvite(token) {
+    const data = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+      user: AuthUser;
+    }>('/account/organization/invites/accept', { token });
+    setTokens(data.accessToken, data.refreshToken);
+    applyUserPreferences(data.user);
+    set({ user: data.user });
   },
 }));

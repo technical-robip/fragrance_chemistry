@@ -28,6 +28,7 @@ const nav = [
   },
   { to: '/encyclopedia', key: 'encyclopedia', feature: 'encyclopedia' },
   { to: '/suppliers', key: 'suppliers', feature: 'suppliers' },
+  { to: '/open', key: 'openFormulas', feature: 'dashboard' },
 ] as const;
 
 function navFeatureForPath(pathname: string) {

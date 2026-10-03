@@ -67,6 +67,14 @@ function makeRedis() {
   } as any;
 }
 
+function makeOrgs() {
+  return {
+    provisionPersonal: vi.fn(async () => 'org-1'),
+    personalOrgId: vi.fn(async () => 'org-1'),
+    profile: vi.fn(async () => ({ id: 'org-1', name: "Alice's lab", role: 'owner' as const })),
+  } as any;
+}
+
 function makeEntitlements() {
   return {
     provisionFreePlan: vi.fn(async () => undefined),
@@ -117,7 +125,7 @@ describe('AuthService', () => {
       })),
     }));
     const entitlements = makeEntitlements();
-    const svc = new AuthService(db, makeJwt(), makeRedis(), entitlements);
+    const svc = new AuthService(db, makeJwt(), makeRedis(), entitlements, makeOrgs());
     const session = await svc.register({
       email: 'a@b.co',
       password: 'password1',
@@ -131,7 +139,7 @@ describe('AuthService', () => {
 
   it('rejects duplicate register', async () => {
     const db = makeDb(sampleUser);
-    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements());
+    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements(), makeOrgs());
     await expect(
       svc.register({ email: 'a@b.co', password: 'password1', displayName: 'A' }),
     ).rejects.toBeInstanceOf(ConflictException);
@@ -139,7 +147,7 @@ describe('AuthService', () => {
 
   it('logs in and returns me', async () => {
     const db = makeDb(sampleUser);
-    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements());
+    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements(), makeOrgs());
     const session = await svc.login({ email: 'a@b.co', password: 'password1' });
     expect(session.user.displayName).toBe('Alice');
     const me = await svc.me({ sub: 'u1', email: 'a@b.co' });
@@ -149,7 +157,7 @@ describe('AuthService', () => {
 
   it('rejects disabled accounts', async () => {
     const db = makeDb({ ...sampleUser, status: 'disabled' });
-    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements());
+    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements(), makeOrgs());
     await expect(svc.login({ email: 'a@b.co', password: 'password1' })).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
@@ -158,7 +166,7 @@ describe('AuthService', () => {
   it('rejects bad password', async () => {
     vi.mocked(argon2.verify).mockResolvedValue(false);
     const db = makeDb(sampleUser);
-    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements());
+    const svc = new AuthService(db, makeJwt(), makeRedis(), makeEntitlements(), makeOrgs());
     await expect(svc.login({ email: 'a@b.co', password: 'nope' })).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
@@ -167,14 +175,14 @@ describe('AuthService', () => {
   it('refreshes rotating tokens', async () => {
     const db = makeDb(sampleUser);
     const redis = makeRedis();
-    const svc = new AuthService(db, makeJwt(), redis, makeEntitlements());
+    const svc = new AuthService(db, makeJwt(), redis, makeEntitlements(), makeOrgs());
     const session = await svc.refresh({ refreshToken: 'ok' });
     expect(session.refreshToken).toBeTruthy();
     expect(redis.client.del).toHaveBeenCalled();
   });
 
   it('rejects invalid refresh', async () => {
-    const svc = new AuthService(makeDb(), makeJwt(), makeRedis(), makeEntitlements());
+    const svc = new AuthService(makeDb(), makeJwt(), makeRedis(), makeEntitlements(), makeOrgs());
     await expect(svc.refresh({ refreshToken: 'bad' })).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
@@ -182,7 +190,7 @@ describe('AuthService', () => {
 
   it('logout deletes refresh when valid', async () => {
     const redis = makeRedis();
-    const svc = new AuthService(makeDb(), makeJwt(), redis, makeEntitlements());
+    const svc = new AuthService(makeDb(), makeJwt(), redis, makeEntitlements(), makeOrgs());
     await svc.logout({ sub: 'u1', email: 'a@b.co' }, 'ok');
     expect(redis.client.del).toHaveBeenCalled();
   });

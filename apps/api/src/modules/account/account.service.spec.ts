@@ -74,7 +74,10 @@ describe('AccountService', () => {
         catalogSize: 10,
       })),
     };
-    svc = new AccountService(db, auth, { resolve: vi.fn() } as any, dashboard);
+    svc = new AccountService(db, auth, { resolve: vi.fn() } as any, dashboard, {
+      current: vi.fn(),
+      listFor: vi.fn(),
+    } as any);
   });
 
   it('returns profile plus lab snapshot', async () => {

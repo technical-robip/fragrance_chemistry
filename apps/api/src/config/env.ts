@@ -2,7 +2,13 @@ import { config as loadDotenv } from 'dotenv';
 import path from 'node:path';
 import { z } from 'zod';
 
-loadDotenv({ path: path.resolve(process.cwd(), '../../.env') });
+for (const candidate of [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '../.env'),
+  path.resolve(process.cwd(), '../../.env'),
+]) {
+  loadDotenv({ path: candidate });
+}
 
 const trim = (v: unknown) => (typeof v === 'string' ? v.trim() : v);
 const emptyToUndefined = (v: unknown) => {
@@ -29,6 +35,7 @@ const envSchema = z.object({
   JWT_SECRET: z.preprocess(trim, z.string().min(16)),
   JWT_ACCESS_TTL: z.preprocess(trim, z.string().default('15m')),
   JWT_REFRESH_TTL: z.preprocess(trim, z.string().default('7d')),
+  FORMULA_MASTER_KEY: z.preprocess(trim, z.string().min(1)),
   RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   RESEND_FROM: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   NOTIFICATIONS_EMAIL_ENABLED: z

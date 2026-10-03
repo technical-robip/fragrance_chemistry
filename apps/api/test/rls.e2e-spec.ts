@@ -25,10 +25,22 @@ describe('lab RLS isolation', () => {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      await client.query(`SELECT set_config('app.user_id', $1, true)`, [userB]);
-      const inserted = await client.query(
-        `INSERT INTO lab.formulas (owner_id, name) VALUES ($1, 'secret-b') RETURNING id`,
+      await client.query(
+        `INSERT INTO core.users (id, email, password_hash, display_name)
+         VALUES ($1, 'rls-b@example.com', 'x', 'RLS B')
+         ON CONFLICT (id) DO NOTHING`,
         [userB],
+      );
+      await client.query(`SELECT set_config('app.user_id', $1, true)`, [userB]);
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [userB]);
+      await client.query(
+        `SELECT core.provision_personal_organization($1::uuid, 'B lab', $2::bytea, $3::bytea)`,
+        [userB, Buffer.alloc(32, 3), Buffer.alloc(12, 4)],
+      );
+      const inserted = await client.query(
+        `INSERT INTO lab.formulas (owner_id, org_id, header_secret, header_nonce, slug_hmac)
+         VALUES ($1, $1, $2, $3, $4) RETURNING id`,
+        [userB, Buffer.from('sealed'), Buffer.from('nonce'), Buffer.from('hmac')],
       );
       formulaB = inserted.rows[0].id as string;
       await client.query('COMMIT');
@@ -45,6 +57,7 @@ describe('lab RLS isolation', () => {
     try {
       await client.query('BEGIN');
       await client.query(`SELECT set_config('app.user_id', $1, true)`, [userB]);
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [userB]);
       await client.query(`DELETE FROM lab.formulas WHERE id = $1`, [formulaB]);
       await client.query('COMMIT');
     } catch (e) {
@@ -61,6 +74,7 @@ describe('lab RLS isolation', () => {
     try {
       await client.query('BEGIN');
       await client.query(`SELECT set_config('app.user_id', $1, true)`, [userA]);
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [userA]);
       const res = await client.query(`SELECT id FROM lab.formulas WHERE id = $1`, [formulaB]);
       expect(res.rowCount).toBe(0);
       await client.query('COMMIT');
@@ -74,6 +88,7 @@ describe('lab RLS isolation', () => {
     try {
       await client.query('BEGIN');
       await client.query(`SELECT set_config('app.user_id', $1, true)`, [userB]);
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [userB]);
       const res = await client.query(`SELECT id FROM lab.formulas WHERE id = $1`, [formulaB]);
       expect(res.rowCount).toBe(1);
       await client.query('COMMIT');

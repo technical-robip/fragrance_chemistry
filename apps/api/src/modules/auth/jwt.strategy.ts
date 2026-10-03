@@ -1,11 +1,18 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { getEnv } from '../../config/env';
 import { DatabaseService } from '../../database/database.service';
 import { users } from '../../database/schema';
 import { JwtPayload } from './auth.types';
+
+function firstOrg(result: unknown) {
+  const rows = Array.isArray(result)
+    ? (result as Array<{ org?: string | null }>)
+    : ((result as { rows?: Array<{ org?: string | null }> }).rows ?? []);
+  return rows[0]?.org ?? null;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -27,6 +34,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user || user.status === 'disabled') {
       throw new UnauthorizedException();
     }
-    return payload;
+    const result = payload.org
+      ? await this.db.db.execute(
+          sql`SELECT core.resolve_org(${payload.sub}::uuid, ${payload.org}::uuid) AS org`,
+        )
+      : await this.db.db.execute(sql`SELECT core.personal_org_id(${payload.sub}::uuid) AS org`);
+    const org = firstOrg(result);
+    if (!org) throw new UnauthorizedException();
+    return { sub: payload.sub, email: payload.email, org };
   }
 }

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
 import { formulas, weighingSessions } from '../../database/schema';
-import { JwtPayload } from '../auth/auth.types';
+import { activeOrg, JwtPayload } from '../auth/auth.types';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 
 @Injectable()
@@ -17,23 +17,24 @@ export class WeighingService {
       .client()
       .select()
       .from(weighingSessions)
-      .where(eq(weighingSessions.ownerId, user.sub))
+      .where(eq(weighingSessions.orgId, activeOrg(user)))
       .orderBy(desc(weighingSessions.createdAt));
   }
 
   async create(user: JwtPayload, formulaId: string) {
-    await this.entitlements.assertQuota(user.sub, 'maxWeighingSessions');
+    await this.entitlements.assertQuota(user.sub, 'maxWeighingSessions', activeOrg(user));
     const [formula] = await this.db
       .client()
       .select({ id: formulas.id })
       .from(formulas)
-      .where(and(eq(formulas.id, formulaId), eq(formulas.ownerId, user.sub)))
+      .where(and(eq(formulas.id, formulaId), eq(formulas.orgId, activeOrg(user))))
       .limit(1);
     if (!formula) throw new NotFoundException('Formula not found');
     const [row] = await this.db
       .client()
       .insert(weighingSessions)
       .values({
+        orgId: activeOrg(user),
         ownerId: user.sub,
         formulaId,
         status: 'active',

@@ -3,16 +3,21 @@ import { CreateEvaluationBody, UpdateEvaluationBody, joinEvaluationNotes } from 
 import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
 import { evaluations, formulas } from '../../database/schema';
+import { FormulaCipherService } from '../../crypto/formula-cipher.service';
 import { RedisService } from '../../redis/redis.service';
-import { JwtPayload } from '../auth/auth.types';
+import { activeOrg, JwtPayload } from '../auth/auth.types';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 const evaluationSelect = {
   id: evaluations.id,
   ownerId: evaluations.ownerId,
+  orgId: evaluations.orgId,
   formulaId: evaluations.formulaId,
-  formulaName: formulas.name,
+  formulaRowId: formulas.id,
+  formulaOrgId: formulas.orgId,
+  headerSecret: formulas.headerSecret,
+  headerNonce: formulas.headerNonce,
   rating: evaluations.rating,
   notes: evaluations.notes,
   macerationDay: evaluations.macerationDay,
@@ -33,10 +38,12 @@ export class EvaluationsService {
     private readonly db: DatabaseService,
     private readonly entitlements: EntitlementsService,
     private readonly redis: RedisService,
+    private readonly cipher: FormulaCipherService,
     @Optional() private readonly notifications?: NotificationsService,
   ) {}
 
-  list(user: JwtPayload, formulaId?: string) {
+  async list(user: JwtPayload, formulaId?: string) {
+    const orgId = activeOrg(user);
     const db = this.db.client();
     const base = db
       .select(evaluationSelect)
@@ -44,26 +51,57 @@ export class EvaluationsService {
       .innerJoin(formulas, eq(evaluations.formulaId, formulas.id))
       .orderBy(desc(evaluations.createdAt));
 
-    if (formulaId) {
-      return base.where(
-        and(eq(evaluations.ownerId, user.sub), eq(evaluations.formulaId, formulaId)),
-      );
-    }
-    return base.where(eq(evaluations.ownerId, user.sub));
+    const rows = formulaId
+      ? await base.where(and(eq(evaluations.orgId, orgId), eq(evaluations.formulaId, formulaId)))
+      : await base.where(eq(evaluations.orgId, orgId));
+    if (rows.length === 0) return [];
+    const key = await this.cipher.keyFor(orgId);
+    return rows.map((row) => {
+      const header = this.cipher.openHeader(key.dek, {
+        id: row.formulaRowId,
+        orgId: row.formulaOrgId,
+        headerSecret: row.headerSecret,
+        headerNonce: row.headerNonce,
+      });
+      return {
+        id: row.id,
+        ownerId: row.ownerId,
+        orgId: row.orgId,
+        formulaId: row.formulaId,
+        formulaName: header.name,
+        rating: row.rating,
+        notes: row.notes,
+        macerationDay: row.macerationDay,
+        t0Notes: row.t0Notes,
+        t30mNotes: row.t30mNotes,
+        t4hNotes: row.t4hNotes,
+        t24hNotes: row.t24hNotes,
+        clarity: row.clarity,
+        opalescence: row.opalescence,
+        solubility: row.solubility,
+        lineMarks: row.lineMarks,
+        createdAt: row.createdAt,
+      };
+    });
   }
 
   async create(user: JwtPayload, body: CreateEvaluationBody) {
     const formula = await this.requireFormula(user, body.formulaId);
-    const existingId = await this.latestSittingId(user.sub, body.formulaId, body.macerationDay);
+    const existingId = await this.latestSittingId(
+      activeOrg(user),
+      body.formulaId,
+      body.macerationDay,
+    );
     if (existingId) {
       return this.update(user, existingId, body);
     }
 
-    await this.entitlements.assertQuota(user.sub, 'maxEvaluations');
+    await this.entitlements.assertQuota(user.sub, 'maxEvaluations', activeOrg(user));
     const [row] = await this.db
       .client()
       .insert(evaluations)
       .values({
+        orgId: activeOrg(user),
         ownerId: user.sub,
         formulaId: body.formulaId,
         rating: body.rating,
@@ -81,7 +119,12 @@ export class EvaluationsService {
       .returning();
 
     await this.redis.cacheDel(this.redis.dashboardBriefingKey(user.sub, body.formulaId));
-    await this.notifications?.onEvaluationSaved(user.sub, body.formulaId, body.macerationDay);
+    await this.notifications?.onEvaluationSaved(
+      user.sub,
+      body.formulaId,
+      body.macerationDay,
+      activeOrg(user),
+    );
 
     return {
       ...row,
@@ -94,7 +137,7 @@ export class EvaluationsService {
       .client()
       .select()
       .from(evaluations)
-      .where(and(eq(evaluations.id, id), eq(evaluations.ownerId, user.sub)))
+      .where(and(eq(evaluations.id, id), eq(evaluations.orgId, activeOrg(user))))
       .limit(1);
     if (!existing) throw new NotFoundException('Evaluation not found');
 
@@ -142,14 +185,16 @@ export class EvaluationsService {
       .client()
       .select()
       .from(formulas)
-      .where(and(eq(formulas.id, formulaId), eq(formulas.ownerId, user.sub)))
+      .where(and(eq(formulas.id, formulaId), eq(formulas.orgId, activeOrg(user))))
       .limit(1);
     if (!formula) throw new NotFoundException('Formula not found');
-    return formula;
+    const key = await this.cipher.keyFor(formula.orgId);
+    const header = this.cipher.openHeader(key.dek, formula);
+    return { ...formula, name: header.name };
   }
 
   private async latestSittingId(
-    ownerId: string,
+    orgId: string,
     formulaId: string,
     macerationDay: number | undefined,
   ) {
@@ -160,7 +205,7 @@ export class EvaluationsService {
       .from(evaluations)
       .where(
         and(
-          eq(evaluations.ownerId, ownerId),
+          eq(evaluations.orgId, orgId),
           eq(evaluations.formulaId, formulaId),
           eq(evaluations.macerationDay, macerationDay),
         ),

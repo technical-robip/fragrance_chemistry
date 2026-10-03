@@ -3,7 +3,14 @@ import { EntitlementsDto } from '@fc/shared';
 export type JwtPayload = {
   sub: string;
   email: string;
+  /** Active laboratory. Personal labs use the founder's user id. */
+  org?: string;
 };
+
+/** Laboratory bound to this session. Personal orgs share the founder's user id. */
+export function activeOrg(user: { sub: string; org?: string }) {
+  return user.org || user.sub;
+}
 
 export type AuthUserDto = {
   id: string;
@@ -20,6 +27,11 @@ export type AuthUserDto = {
   defaultIfraCategory: number;
   createdAt: string;
   entitlements: EntitlementsDto;
+  organization: {
+    id: string;
+    name: string;
+    role: 'owner' | 'member';
+  };
 };
 
 export type AuthTokens = {

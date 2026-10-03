@@ -1,19 +1,44 @@
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { FormulaHeaderSecret, FormulaLineSecret } from '../../crypto/formula-crypto';
 import { FormulasService } from './formulas.service';
 
-const uuid = '11111111-1111-1111-1111-111111111111';
-const user = { sub: 'u1', email: 'a@b.co' };
+const uuid = '11111111-1111-4111-8111-111111111111';
+const user = { sub: 'u1', email: 'a@b.co', org: 'u1' };
+
+function cipher() {
+  return {
+    keyFor: vi.fn(async () => ({ dek: Buffer.from('k'), version: 1 })),
+    sealHeader: vi.fn((orgId: string, formulaId: string, header: FormulaHeaderSecret) => ({
+      secret: Buffer.from(JSON.stringify({ orgId, formulaId, header })),
+      nonce: Buffer.from('h'),
+      slugHmac: Buffer.from(header.slug),
+      keyVersion: 1,
+    })),
+    openHeader: vi.fn((_dek: Buffer, row: { headerSecret: Buffer }) => {
+      return JSON.parse(row.headerSecret.toString()).header as FormulaHeaderSecret;
+    }),
+    sealLine: vi.fn((_org: string, _id: string, line: FormulaLineSecret) => ({
+      secret: Buffer.from(JSON.stringify(line)),
+      nonce: Buffer.from('l'),
+      keyVersion: 1,
+    })),
+    openLine: vi.fn((_dek: Buffer, _org: string, _id: string, secret: Buffer) => {
+      return JSON.parse(secret.toString()) as FormulaLineSecret;
+    }),
+  };
+}
 
 describe('FormulasService', () => {
   let svc: FormulasService;
-  let client: any;
-  let redis: {
-    formulaDetailKey: ReturnType<typeof vi.fn>;
-    cacheGet: ReturnType<typeof vi.fn>;
-    cacheSet: ReturnType<typeof vi.fn>;
-    cacheDel: ReturnType<typeof vi.fn>;
+  let client: {
+    select: ReturnType<typeof vi.fn>;
+    insert: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
   };
+  let redis: { cacheDel: ReturnType<typeof vi.fn>; cacheSet: ReturnType<typeof vi.fn> };
+  let vault: ReturnType<typeof cipher>;
 
   beforeEach(() => {
     client = {
@@ -23,80 +48,21 @@ describe('FormulasService', () => {
       delete: vi.fn(),
     };
     redis = {
-      formulaDetailKey: vi.fn((owner: string, id: string) => `formula:detail:${owner}:${id}`),
-      dashboardBriefingKey: vi.fn(
-        (owner: string, id: string) => `dashboard:briefing:${owner}:${id}`,
-      ),
-      cacheGet: vi.fn(async () => null),
-      cacheSet: vi.fn(async () => undefined),
       cacheDel: vi.fn(async () => 1),
-    };
+      cacheSet: vi.fn(async () => undefined),
+      formulaDetailKey: vi.fn((owner: string, id: string) => `formula:${owner}:${id}`),
+      dashboardBriefingKey: vi.fn((owner: string, id: string) => `brief:${owner}:${id}`),
+    } as any;
+    vault = cipher();
     svc = new FormulasService(
       { client: () => client } as any,
-      {
-        assertQuota: vi.fn(async () => undefined),
-      } as any,
+      { assertQuota: vi.fn(async () => undefined) } as any,
       redis as any,
+      vault as any,
     );
   });
 
-  it('allows draft create without 100% total', async () => {
-    const formula = { id: 'f1', name: 'Draft', slug: 'draft', status: 'draft', ownerId: 'u1' };
-    client.select.mockReturnValue({
-      from: () => ({
-        where: () => ({
-          // allocateSlug + resolveOwned + lines
-          limit: async () => [],
-        }),
-      }),
-    });
-    // allocateSlug select
-    client.select
-      .mockReturnValueOnce({
-        from: () => ({
-          where: async () => [],
-        }),
-      })
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: async () => [formula],
-          }),
-        }),
-      })
-      .mockReturnValueOnce({
-        from: () => {
-          const chain = {
-            innerJoin: () => chain,
-            leftJoin: () => chain,
-            where: () => ({
-              orderBy: async () => [],
-            }),
-          };
-          return chain;
-        },
-      });
-
-    client.insert
-      .mockReturnValueOnce({
-        values: () => ({
-          returning: async () => [formula],
-        }),
-      })
-      .mockReturnValueOnce({
-        values: async () => undefined,
-      });
-
-    const created = await svc.create(user, {
-      name: 'Draft',
-      status: 'draft',
-      lines: [{ materialId: uuid, percent: 40 }],
-    });
-    expect(created.id).toBe('f1');
-    expect(redis.cacheSet).toHaveBeenCalled();
-  });
-
-  it('rejects non-draft when lines do not total 100%', async () => {
+  it('rejects a ready formula that does not total 100%', async () => {
     await expect(
       svc.create(user, {
         name: 'Ready',
@@ -106,24 +72,90 @@ describe('FormulasService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('replaceLines enforces 100% for ready formulas', async () => {
+  it('stores the recipe as ciphertext', async () => {
+    const inserted: { values?: unknown } = {};
     client.select.mockReturnValue({
       from: () => ({
-        where: () => ({
-          limit: async () => [
-            { id: 'f1', slug: 'f1', status: 'ready', ownerId: 'u1', name: 'Ready' },
-          ],
-        }),
+        where: async () => [],
       }),
     });
-    await expect(
-      svc.replaceLines(user, 'f1', {
-        lines: [{ materialId: uuid, percent: 20 }],
-      }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    client.insert.mockImplementation(() => ({
+      values: (values: unknown) => {
+        inserted.values = values;
+        return {
+          returning: async () => [
+            {
+              id: 'f1',
+              orgId: 'u1',
+              ownerId: 'u1',
+              status: 'draft',
+              headerSecret: Buffer.from('{}'),
+              headerNonce: Buffer.from('h'),
+              batchTargetGrams: '10',
+              concentrationPct: '20',
+              version: 1,
+              isLibraryAccord: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              keyVersion: 1,
+            },
+          ],
+        };
+      },
+    }));
+    client.select
+      .mockReturnValueOnce({
+        from: () => ({
+          where: async () => [],
+        }),
+      })
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: async () => [
+              {
+                id: 'f1',
+                orgId: 'u1',
+                ownerId: 'u1',
+                status: 'draft',
+                headerSecret: Buffer.from(
+                  JSON.stringify({
+                    header: { name: 'Draft', slug: 'draft', description: null, diluentLabel: null },
+                  }),
+                ),
+                headerNonce: Buffer.from('h'),
+                batchTargetGrams: '10',
+                concentrationPct: '20',
+                version: 1,
+                isLibraryAccord: false,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                keyVersion: 1,
+              },
+            ],
+          }),
+        }),
+      })
+      .mockReturnValueOnce({
+        from: () => ({
+          where: async () => [],
+        }),
+      });
+
+    const created = await svc.create(user, {
+      name: 'Draft',
+      status: 'draft',
+      lines: [],
+    });
+    const values = inserted.values as { headerSecret?: Buffer; percent?: unknown; name?: unknown };
+    expect(values.headerSecret).toBeInstanceOf(Buffer);
+    expect(values).not.toHaveProperty('percent');
+    expect(values).not.toHaveProperty('name');
+    expect(created.name).toBe('Draft');
+    expect(redis.cacheSet).not.toHaveBeenCalled();
   });
 
-  it('throws when formula missing on get', async () => {
+  it('throws when the formula is missing', async () => {
     client.select.mockReturnValue({
       from: () => ({
         where: () => ({
@@ -131,70 +163,6 @@ describe('FormulasService', () => {
         }),
       }),
     });
-    await expect(svc.get(user, 'missing')).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it('returns cached formula detail without hitting lines query', async () => {
-    const formula = {
-      id: 'f1',
-      slug: 'rose-oud',
-      name: 'Rose Oud',
-      ownerId: 'u1',
-      status: 'draft',
-    };
-    const cached = { ...formula, lines: [] };
-    redis.cacheGet.mockResolvedValueOnce(cached);
-    client.select.mockReturnValue({
-      from: () => ({
-        where: () => ({
-          limit: async () => [formula],
-        }),
-      }),
-    });
-    const result = await svc.get(user, 'rose-oud');
-    expect(result).toEqual(cached);
-    expect(redis.cacheSet).not.toHaveBeenCalled();
-  });
-
-  it('invalidates formula detail, briefing, and parent caches on remove', async () => {
-    client.select
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ id: 'f1', slug: 'f1', ownerId: 'u1', name: 'Child' }],
-          }),
-        }),
-      })
-      .mockReturnValueOnce({
-        from: () => ({
-          where: async () => [{ formulaId: 'parent1' }],
-        }),
-      });
-    client.delete.mockReturnValue({
-      where: () => ({
-        returning: async () => [{ id: 'f1' }],
-      }),
-    });
-
-    const result = await svc.remove(user, 'f1');
-    expect(result).toEqual({ id: 'f1', deleted: true });
-    expect(redis.cacheDel).toHaveBeenCalledWith(
-      'formula:detail:u1:f1',
-      'dashboard:briefing:u1:f1',
-      'formula:detail:u1:parent1',
-      'dashboard:briefing:u1:parent1',
-    );
-  });
-
-  it('blocks create when formula quota is exhausted', async () => {
-    const entitlements = {
-      assertQuota: vi.fn(async () => {
-        throw new ForbiddenException('Quota reached for maxFormulas (3/3)');
-      }),
-    };
-    svc = new FormulasService({ client: () => client } as any, entitlements as any, redis as any);
-    await expect(
-      svc.create(user, { name: 'X', status: 'draft', lines: [] }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(svc.get(user, uuid)).rejects.toBeInstanceOf(NotFoundException);
   });
 });

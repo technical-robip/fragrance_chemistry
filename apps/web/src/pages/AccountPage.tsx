@@ -15,6 +15,7 @@ import { APP_LOCALES, useUiStore, type AppLocale, type ThemeMode } from '@/store
 import { LocaleFlag } from '@/components/icons/flags';
 import { FcCheckbox } from '@/components/FcCheckbox';
 import { FcSelect } from '@/components/FcSelect';
+import { LaboratoryCard } from '@/components/LaboratoryCard';
 import styles from './AccountPage.module.css';
 
 type AccountPayload = {
@@ -267,6 +268,7 @@ export function AccountPage() {
 
       {user ? (
         <div className={styles.grid}>
+          <LaboratoryCard />
           <form className={`fc-card ${styles.card}`} onSubmit={(e) => void saveIdentity(e)}>
             <h2>{t('account.identity')}</h2>
             <label className="fc-label" htmlFor="account-display-name">

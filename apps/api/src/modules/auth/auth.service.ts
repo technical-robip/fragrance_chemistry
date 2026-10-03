@@ -14,7 +14,8 @@ import { DatabaseService } from '../../database/database.service';
 import { users } from '../../database/schema';
 import { RedisService } from '../../redis/redis.service';
 import { EntitlementsService } from '../entitlements/entitlements.service';
-import { AuthSession, AuthUserDto, JwtPayload } from './auth.types';
+import { OrganizationsService } from '../organizations/organizations.service';
+import { activeOrg, AuthSession, AuthUserDto, JwtPayload } from './auth.types';
 
 type UserRow = typeof users.$inferSelect;
 
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly redis: RedisService,
     private readonly entitlements: EntitlementsService,
+    private readonly orgs: OrganizationsService,
   ) {}
 
   async register(body: RegisterBody): Promise<AuthSession> {
@@ -52,8 +54,9 @@ export class AuthService {
       throw new ConflictException('Could not create user');
     }
     await this.entitlements.provisionFreePlan(created.id);
+    const orgId = await this.orgs.provisionPersonal(created.id, created.displayName);
     const [fresh] = await this.db.db.select().from(users).where(eq(users.id, created.id)).limit(1);
-    return this.issueSession(fresh ?? created);
+    return this.issueSession(fresh ?? created, orgId);
   }
 
   async login(body: LoginBody): Promise<AuthSession> {
@@ -72,7 +75,8 @@ export class AuthService {
     if (!ok) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return this.issueSession(user);
+    const orgId = await this.orgs.personalOrgId(user.id);
+    return this.issueSession(user, orgId);
   }
 
   async me(payload: JwtPayload): Promise<AuthUserDto> {
@@ -83,7 +87,8 @@ export class AuthService {
     if (user.status === 'disabled') {
       throw new UnauthorizedException('Account disabled');
     }
-    return this.toUserDto(user);
+    const orgId = payload.org ?? (await this.orgs.personalOrgId(user.id));
+    return this.toUserDto(user, orgId);
   }
 
   async refresh(body: RefreshBody): Promise<AuthSession> {
@@ -106,7 +111,9 @@ export class AuthService {
     if (!user || user.status === 'disabled') {
       throw new UnauthorizedException('User not found');
     }
-    return this.issueSession(user);
+    const orgId = payload.org ?? (await this.orgs.personalOrgId(user.id));
+    await this.orgs.profile(user.id, orgId);
+    return this.issueSession(user, orgId);
   }
 
   async logout(user: JwtPayload, refreshToken?: string): Promise<void> {
@@ -130,8 +137,16 @@ export class AuthService {
     await this.redis.deleteRefreshTokensForUser(userId);
   }
 
-  async toUserDto(user: UserRow): Promise<AuthUserDto> {
-    const entitlements = await this.entitlements.resolve(user.id);
+  async sessionFor(user: UserRow, orgId: string) {
+    await this.orgs.profile(user.id, orgId);
+    return this.issueSession(user, orgId);
+  }
+
+  async toUserDto(user: UserRow, orgId = activeOrg({ sub: user.id })): Promise<AuthUserDto> {
+    const [entitlements, organization] = await Promise.all([
+      this.entitlements.resolve(user.id, orgId),
+      this.orgs.profile(user.id, orgId),
+    ]);
     return {
       id: user.id,
       email: user.email,
@@ -148,12 +163,13 @@ export class AuthService {
       createdAt:
         user.createdAt instanceof Date ? user.createdAt.toISOString() : String(user.createdAt),
       entitlements,
+      organization,
     };
   }
 
-  private async issueSession(user: UserRow): Promise<AuthSession> {
+  private async issueSession(user: UserRow, orgId: string): Promise<AuthSession> {
     const env = getEnv();
-    const payload: JwtPayload = { sub: user.id, email: user.email };
+    const payload: JwtPayload = { sub: user.id, email: user.email, org: orgId };
     const jti = randomUUID();
     const accessToken = await this.jwt.signAsync(
       { ...payload, typ: 'access' },

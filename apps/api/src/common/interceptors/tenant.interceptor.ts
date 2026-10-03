@@ -24,7 +24,8 @@ export class TenantInterceptor implements NestInterceptor {
 
     const req = context.switchToHttp().getRequest<{ user?: JwtPayload }>();
     const userId = req.user?.sub;
+    const orgId = req.user?.org;
 
-    return from(this.db.runWithTenant(userId, () => lastValueFrom(next.handle())));
+    return from(this.db.runWithTenant(userId, () => lastValueFrom(next.handle()), orgId));
   }
 }

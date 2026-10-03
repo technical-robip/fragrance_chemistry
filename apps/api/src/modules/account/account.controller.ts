@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { z } from 'zod';
 import {
   changePasswordBodySchema,
   ChangePasswordBody,
@@ -37,5 +38,57 @@ export class AccountController {
   @Post('logout-all')
   logoutAll(@Req() req: { user: JwtPayload }) {
     return this.account.logoutAll(req.user);
+  }
+
+  @Get('organizations')
+  organizations(@Req() req: { user: JwtPayload }) {
+    return this.account.organizations(req.user);
+  }
+
+  @Get('organization')
+  organization(@Req() req: { user: JwtPayload }) {
+    return this.account.organization(req.user);
+  }
+
+  @Patch('organization')
+  rename(
+    @Req() req: { user: JwtPayload },
+    @Body(new ZodValidationPipe(z.object({ name: z.string().trim().min(1).max(120) })))
+    body: { name: string },
+  ) {
+    return this.account.renameOrganization(req.user, body.name);
+  }
+
+  @Post('organization/invites')
+  invite(@Req() req: { user: JwtPayload }) {
+    return this.account.invite(req.user);
+  }
+
+  @Delete('organization/invites/:id')
+  revoke(@Req() req: { user: JwtPayload }, @Param('id') id: string) {
+    return this.account.revokeInvite(req.user, id);
+  }
+
+  @Delete('organization/members/:userId')
+  removeMember(@Req() req: { user: JwtPayload }, @Param('userId') userId: string) {
+    return this.account.removeMember(req.user, userId);
+  }
+
+  @Post('organization/switch')
+  switchOrg(
+    @Req() req: { user: JwtPayload },
+    @Body(new ZodValidationPipe(z.object({ orgId: z.string().uuid() })))
+    body: { orgId: string },
+  ) {
+    return this.account.switchOrganization(req.user, body.orgId);
+  }
+
+  @Post('organization/invites/accept')
+  accept(
+    @Req() req: { user: JwtPayload },
+    @Body(new ZodValidationPipe(z.object({ token: z.string().trim().min(8).max(200) })))
+    body: { token: string },
+  ) {
+    return this.account.acceptInvite(req.user, body.token);
   }
 }

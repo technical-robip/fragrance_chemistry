@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostBody } from '@fc/shared';
-import { and, asc, desc, eq, ilike, or } from 'drizzle-orm';
+import { asc, desc, eq, ilike, or } from 'drizzle-orm';
 import { DatabaseService } from '../../database/database.service';
-import { formulaLines, formulas, materials, perfumes, posts, users } from '../../database/schema';
-import { JwtPayload } from '../auth/auth.types';
-import { EntitlementsService } from '../entitlements/entitlements.service';
+import { materials, perfumes, posts, users } from '../../database/schema';
+import { activeOrg, JwtPayload } from '../auth/auth.types';
+import { FormulasService } from '../formulas/formulas.service';
 
 @Injectable()
 export class CommunityService {
   constructor(
     private readonly db: DatabaseService,
-    private readonly entitlements: EntitlementsService,
+    private readonly formulasSvc: FormulasService,
   ) {}
 
   feed() {
@@ -68,20 +68,16 @@ export class CommunityService {
     );
 
     const baseName = `Brief: ${perfume.name}`;
-    const existingBriefs = await this.db
-      .client()
-      .select({ name: formulas.name })
-      .from(formulas)
-      .where(and(eq(formulas.ownerId, user.sub), ilike(formulas.name, `${baseName}%`)));
-    const taken = new Set(existingBriefs.map((r) => r.name));
+    const existingBriefs = await this.formulasSvc.list(user);
+    const taken = new Set(
+      existingBriefs.map((row) => row.name).filter((name) => name.startsWith(baseName)),
+    );
     let briefName = baseName;
     if (taken.has(briefName)) {
       let n = 2;
       while (taken.has(`${baseName} #${n}`)) n += 1;
       briefName = `${baseName} #${n}`;
     }
-
-    await this.entitlements.assertQuota(user.sub, 'maxFormulas');
 
     const [prefs] = await this.db.db
       .select({
@@ -92,26 +88,10 @@ export class CommunityService {
       .where(eq(users.id, user.sub))
       .limit(1);
 
-    const [created] = await this.db
-      .client()
-      .insert(formulas)
-      .values({
-        ownerId: user.sub,
-        name: briefName,
-        description: `Lab brief from encyclopedia.\n${notesText.join('\n')}`,
-        status: 'draft',
-        batchTargetGrams: prefs?.defaultBatchTargetGrams ?? '10',
-        concentrationPct: prefs?.defaultConcentrationPct ?? '20',
-      })
-      .returning();
-    if (!created) throw new NotFoundException('Could not create formula');
-
     const lineRows: Array<{
-      formulaId: string;
-      ownerId: string;
       materialId: string;
-      percent: string;
-      pyramidNote: string;
+      percent: number;
+      pyramidNote: 'top' | 'middle' | 'base';
       sortOrder: number;
     }> = [];
 
@@ -128,19 +108,25 @@ export class CommunityService {
           .limit(1);
         if (!match) continue;
         lineRows.push({
-          formulaId: created.id,
-          ownerId: user.sub,
           materialId: match.id,
-          percent: perNote.toFixed(4),
+          percent: Number(perNote.toFixed(4)),
           pyramidNote: tier.note,
           sortOrder: sortOrder++,
         });
       }
     }
 
-    if (lineRows.length > 0) {
-      await this.db.client().insert(formulaLines).values(lineRows);
-    }
+    const created = await this.formulasSvc.create(
+      { ...user, org: activeOrg(user) },
+      {
+        name: briefName,
+        description: `Lab brief from encyclopedia.\n${notesText.join('\n')}`,
+        status: 'draft',
+        batchTargetGrams: Number(prefs?.defaultBatchTargetGrams ?? 10),
+        concentrationPct: Number(prefs?.defaultConcentrationPct ?? 20),
+        lines: lineRows,
+      },
+    );
 
     return { perfume, formula: created, linesCreated: lineRows.length };
   }

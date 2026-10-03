@@ -31,13 +31,11 @@ import {
   materials,
   weighingSessions,
 } from '../../database/schema';
-import { DASHBOARD_BRIEFING_CACHE_TTL_SEC, RedisService } from '../../redis/redis.service';
-import { JwtPayload } from '../auth/auth.types';
+import { RedisService } from '../../redis/redis.service';
+import { activeOrg, JwtPayload } from '../auth/auth.types';
 import { CostingService } from '../costing/costing.service';
 import { EvaluationsService } from '../evaluations/evaluations.service';
 import { FormulasService } from '../formulas/formulas.service';
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function parseAllergens(profile: unknown): Array<{ name: string; fraction: number }> | undefined {
   if (!profile || typeof profile !== 'object') return undefined;
@@ -69,26 +67,24 @@ export class DashboardService {
   ) {}
 
   async stats(user: JwtPayload) {
+    const orgId = activeOrg(user);
     const db = this.db.client();
 
     const [formulaRows, materialRows, evalRows, lowStockRows, weighRows] = await Promise.all([
-      db.select({ value: count() }).from(formulas).where(eq(formulas.ownerId, user.sub)),
+      db.select({ value: count() }).from(formulas).where(eq(formulas.orgId, orgId)),
       db.select({ value: count() }).from(materials).where(isNull(materials.ownerId)),
-      db.select({ value: count() }).from(evaluations).where(eq(evaluations.ownerId, user.sub)),
+      db.select({ value: count() }).from(evaluations).where(eq(evaluations.orgId, orgId)),
       db
         .select({
           value: sql<number>`count(*)::int`,
         })
         .from(inventoryItems)
         .where(
-          sql`${inventoryItems.ownerId} = ${user.sub}::uuid
+          sql`${inventoryItems.orgId} = ${orgId}::uuid
             AND ${inventoryItems.quantityGrams}::numeric
                 <= coalesce(${inventoryItems.minQuantityGrams}::numeric, 0)`,
         ),
-      db
-        .select({ value: count() })
-        .from(weighingSessions)
-        .where(eq(weighingSessions.ownerId, user.sub)),
+      db.select({ value: count() }).from(weighingSessions).where(eq(weighingSessions.orgId, orgId)),
     ]);
 
     return {
@@ -101,20 +97,7 @@ export class DashboardService {
   }
 
   async briefing(user: JwtPayload, formulaId: string) {
-    const resolvedId = UUID_RE.test(formulaId) ? formulaId : null;
-    if (resolvedId) {
-      const cached = await this.redis.cacheGet(
-        this.redis.dashboardBriefingKey(user.sub, resolvedId),
-      );
-      if (cached) return cached;
-    }
-
     const formula = await this.formulas.get(user, formulaId);
-    const cacheKey = this.redis.dashboardBriefingKey(user.sub, formula.id);
-    if (formula.id !== resolvedId) {
-      const cached = await this.redis.cacheGet(cacheKey);
-      if (cached) return cached;
-    }
 
     const batchTargetGrams = Number(formula.batchTargetGrams ?? 100);
     const concentrationPct = Number(formula.concentrationPct ?? 20);
@@ -312,7 +295,10 @@ export class DashboardService {
       lastEvaluation,
       openSitting,
     };
-    await this.redis.cacheSet(cacheKey, payload, DASHBOARD_BRIEFING_CACHE_TTL_SEC);
+    await this.redis.cacheDel(
+      this.redis.dashboardBriefingKey(user.sub, formula.id),
+      this.redis.dashboardBriefingKey(activeOrg(user), formula.id),
+    );
     return payload;
   }
 

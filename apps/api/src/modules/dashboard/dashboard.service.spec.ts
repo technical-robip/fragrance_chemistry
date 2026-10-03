@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DASHBOARD_BRIEFING_CACHE_TTL_SEC } from '../../redis/redis.service';
 import { DashboardService } from './dashboard.service';
 
 const user = { sub: 'u1', email: 'a@b.co' };
@@ -162,11 +161,8 @@ describe('DashboardService', () => {
     expect(briefing.compliance.euAnnex.coverage).toBe('subset');
     expect(briefing.pyramidVolatility).toBeTruthy();
     expect(costing.estimateFromLines).toHaveBeenCalled();
-    expect(redis.cacheSet).toHaveBeenCalledWith(
-      'dashboard:briefing:v2:u1:f1',
-      expect.objectContaining({ formula: expect.objectContaining({ id: 'f1' }) }),
-      DASHBOARD_BRIEFING_CACHE_TTL_SEC,
-    );
+    expect(redis.cacheSet).not.toHaveBeenCalled();
+    expect(redis.cacheDel).toHaveBeenCalled();
   });
 
   it('returns empty families when materials lack olfactoryFamily', async () => {
@@ -196,19 +192,13 @@ describe('DashboardService', () => {
     expect(briefing.lastEvaluation).toBeNull();
   });
 
-  it('returns cached briefing without loading the formula', async () => {
-    const { svc, formulas, costing, evaluationsSvc, redis } = briefingHarness(FORMULA_UUID);
-    const cached = { formula: { id: FORMULA_UUID, name: 'Cached' } };
-    redis.cacheGet.mockImplementation(async (key: string) => {
-      if (key === `dashboard:briefing:v2:u1:${FORMULA_UUID}`) return cached;
-      return null;
-    });
+  it('builds a briefing from the formula instead of a Redis copy', async () => {
+    const { svc, formulas, redis } = briefingHarness(FORMULA_UUID);
+    redis.cacheGet.mockResolvedValue({ formula: { id: FORMULA_UUID, name: 'Cached' } });
 
     const briefing = await svc.briefing(user, FORMULA_UUID);
-    expect(briefing).toEqual(cached);
-    expect(formulas.get).not.toHaveBeenCalled();
-    expect(costing.estimateFromLines).not.toHaveBeenCalled();
-    expect(evaluationsSvc.list).not.toHaveBeenCalled();
+    expect(briefing.formula.name).toBe('Demo Fougère');
+    expect(formulas.get).toHaveBeenCalled();
     expect(redis.cacheSet).not.toHaveBeenCalled();
   });
 
